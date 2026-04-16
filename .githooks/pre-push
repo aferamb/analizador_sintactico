@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR"
+
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  C_RESET=$'\033[0m'
+  C_CYAN=$'\033[36m'
+  C_GREEN=$'\033[32m'
+  C_YELLOW=$'\033[33m'
+  C_RED=$'\033[31m'
+else
+  C_RESET=""
+  C_CYAN=""
+  C_GREEN=""
+  C_YELLOW=""
+  C_RED=""
+fi
+
+say_step() {
+  printf "%s[pre-push][STEP]%s %s\n" "$C_CYAN" "$C_RESET" "$1"
+}
+
+say_ok() {
+  printf "%s[pre-push][OK]%s %s\n" "$C_GREEN" "$C_RESET" "$1"
+}
+
+say_warn() {
+  printf "%s[pre-push][WARN]%s %s\n" "$C_YELLOW" "$C_RESET" "$1"
+}
+
+say_error() {
+  printf "%s[pre-push][ERROR]%s %s\n" "$C_RED" "$C_RESET" "$1"
+}
+
+run_check() {
+  local label="$1"
+  shift
+  say_step "$label"
+  echo "[pre-push][CMD] $*"
+  "$@"
+}
+
+can_run_python() {
+  "$1" -c "import sys" >/dev/null 2>&1
+}
+
+if [[ -x "$ROOT_DIR/.venv/bin/python" ]] && can_run_python "$ROOT_DIR/.venv/bin/python"; then
+  PYTHON_CMD="$ROOT_DIR/.venv/bin/python"
+elif [[ -x "$ROOT_DIR/.venv/Scripts/python.exe" ]] && can_run_python "$ROOT_DIR/.venv/Scripts/python.exe"; then
+  PYTHON_CMD="$ROOT_DIR/.venv/Scripts/python.exe"
+elif command -v python3 >/dev/null 2>&1; then
+  PYTHON_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_CMD="python"
+else
+  say_error "Python interpreter not found."
+  say_warn "Run the setup script first: python3 scripts/dev_setup.py"
+  exit 1
+fi
+
+if ! "$PYTHON_CMD" -m ruff --version >/dev/null 2>&1; then
+  say_error "Ruff is not available for '$PYTHON_CMD'."
+  say_warn "Run the setup script first: $PYTHON_CMD scripts/dev_setup.py"
+  exit 1
+fi
+
+if ! run_check "Running lint: ruff check ." "$PYTHON_CMD" -m ruff check .; then
+  say_error "Lint failed. Push cancelled. Fix issues and push again."
+  exit 1
+fi
+
+if [[ -f "$ROOT_DIR/tests.pl" ]]; then
+  if command -v swipl >/dev/null 2>&1; then
+    if ! run_check "Running tests: swipl -q -s tests.pl -g run_tests -t halt" swipl -q -s tests.pl -g run_tests -t halt; then
+      say_error "Tests failed. Push cancelled. Fix issues and push again."
+      exit 1
+    fi
+    say_ok "Tests passed."
+  else
+    say_warn "swipl not found. Skipping local Prolog tests."
+  fi
+fi
+
+say_ok "All pre-push checks passed. Continuing push."
