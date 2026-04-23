@@ -193,6 +193,13 @@ gadv(GAdv) -->
 % NOTA:
 %   Solo coordinamos dos grupos nominales simples. Esto nos vale muy bien para una primera versión.
 % ---------------------------------------------------------
+g_nominal(gn_lista(GN1, GN2, Conj, GN3)) -->
+    g_nominal_simple(GN1),
+    [','],
+    g_nominal_simple(GN2),
+    conjuncion_nominal(Conj),
+    g_nominal_simple(GN3).
+
 g_nominal(gn(GN1, Conj, GN2)) -->
     g_nominal_simple(GN1),
     conjuncion_nominal(Conj),
@@ -206,61 +213,46 @@ g_nominal(GN) -->
 % GN = determinante + nombre + grupo adjetival + grupo prep.
 % Ejemplo:"el sistema digital de control"
 % ---------------------------------------------------------
-g_nominal_simple(gn(D, N, GAdj, GP)) -->
+g_nominal_simple(gn(Base, Mods)) -->
+    g_nominal_base(Base),
+    modificadores_nominales(Mods).
+
+g_nominal_base(base(D, GAdj, N)) -->
     determinante(D),
-    nombre(N),
     g_adjetival(GAdj),
-    g_preposicional(GP).
+    nombre(N).
 
-% ---------------------------------------------------------
-% GN = determinante + nombre + grupo preposicional
-% Ejemplo: "el sistema de control"
-% ---------------------------------------------------------
-g_nominal_simple(gn(D, N, GP)) -->
-    determinante(D),
-    nombre(N),
-    g_preposicional(GP).
-
-% ---------------------------------------------------------
-% GN = nombre + grupo preposicional
-% Ejemplo:
-%   "Juan de Madrid"   (artificial, pero estructuralmente válido)
-%   "software de control"
-% ---------------------------------------------------------
-g_nominal_simple(gn(N, GP)) -->
-    nombre(N),
-    g_preposicional(GP).
-
-% ---------------------------------------------------------
-% GN = determinante + nombre + grupo adjetival
-% Ejemplo: "el sistema digital"
-% ---------------------------------------------------------
-g_nominal_simple(gn(D, N, GAdj)) -->
-    determinante(D),
-    nombre(N),
-    g_adjetival(GAdj).
-
-% ---------------------------------------------------------
-% GN = nombre + grupo adjetival
-% Ejemplo: "software digital"
-% ---------------------------------------------------------
-g_nominal_simple(gn(N, GAdj)) -->
-    nombre(N),
-    g_adjetival(GAdj).
-
-% ---------------------------------------------------------
-% GN = determinante + nombre
-% Ejemplo: "el sistema"
-% ---------------------------------------------------------
-g_nominal_simple(gn(D, N)) -->
+g_nominal_base(base(D, N)) -->
     determinante(D),
     nombre(N).
 
-% ---------------------------------------------------------
-% GN = nombre solo
-% Ejemplo: "Juan"  "María"  "software"
-% ---------------------------------------------------------
-g_nominal_simple(gn(N)) -->
+g_nominal_base(base(N)) -->
+    nombre(N).
+
+modificadores_nominales(mods([Mod|Resto])) -->
+    modificador_nominal(Mod),
+    modificadores_nominales_restantes(Resto).
+
+modificadores_nominales(mods([])) -->
+    [].
+
+modificadores_nominales_restantes([Mod|Resto]) -->
+    modificador_nominal(Mod),
+    modificadores_nominales_restantes(Resto).
+
+modificadores_nominales_restantes([]) -->
+    [].
+
+modificador_nominal(mod_gadj(GAdj)) -->
+    g_adjetival(GAdj).
+
+modificador_nominal(mod_gp(GP)) -->
+    g_preposicional(GP).
+
+modificador_nominal(mod_rel(Rel)) -->
+    relativo_simple(Rel).
+
+modificador_nominal(mod_n(N)) -->
     nombre(N).
 
 % =========================================================
@@ -283,6 +275,15 @@ g_adjetival(gadj(GAdv, Adj)) -->
     g_adverbial(GAdv),
     adjetivo(Adj).
 
+g_adjetival(gadj(Adj1, Adj2)) -->
+    adjetivo(Adj1),
+    adjetivo(Adj2).
+
+g_adjetival(gadj(GAdv, Adj, GP)) -->
+    g_adverbial(GAdv),
+    adjetivo(Adj),
+    g_preposicional(GP).
+
 % =========================================================
 % GRUPO ADVERBIAL (GADV)
 % Ejemplo: "muy"  "nunca"  "rápidamente"
@@ -290,6 +291,12 @@ g_adjetival(gadj(GAdv, Adj)) -->
 
 g_adverbial(gadv(Adv)) -->
     adverbio(Adv).
+
+g_adverbial(gadv(Adv, Adj, GN)) -->
+    adverbio(Adv),
+    adjetivo(Adj),
+    [que],
+    g_nominal(GN).
 
 % =========================================================
 % GRUPO PREPOSICIONAL (GP)
@@ -305,6 +312,10 @@ g_adverbial(gadv(Adv)) -->
 g_preposicional(gp(P, GN)) -->
     preposicion(P),
     g_nominal(GN).
+
+g_preposicional(gp(P, INF)) -->
+    preposicion(P),
+    infinitivo_frase(INF).
 
 % =========================================================
 % GRUPO VERBAL (GV)
@@ -347,6 +358,27 @@ g_verbal(GV) -->
 %   - ambigüedad
 %   - backtracking innecesario
 % =========================================================
+
+g_verbal_simple(gv(Se, V, Comps)) -->
+    pronombre_se(Se),
+    verbo(V),
+    complementos_verbales(Comps).
+
+g_verbal_simple(gv(Modal, Inf, Comps)) -->
+    modal(Modal),
+    infinitivo(Inf),
+    complementos_verbales(Comps).
+
+g_verbal_simple(gv(Modal, Aux, Part, Comps)) -->
+    modal(Modal),
+    auxiliar_ser(Aux),
+    participio(Part),
+    complementos_verbales(Comps).
+
+g_verbal_simple(gv(VC, Inf, Comps)) -->
+    verbo_copulativo(VC),
+    infinitivo(Inf),
+    complementos_verbales(Comps).
 
 % ---------------------------------------------------------
 % verbo + gn + gp
@@ -467,6 +499,11 @@ g_verbal_simple(gv(Aux, Part, GP)) -->
     participio(Part),
     g_preposicional(GP).
 
+g_verbal_simple(gv(Aux, Part, GN)) -->
+    auxiliar(Aux),
+    participio(Part),
+    g_nominal(GN).
+
 % ---------------------------------------------------------
 % auxiliar + participio
 % Ejemplo: "fue detectado"
@@ -481,6 +518,10 @@ g_verbal_simple(gv(Aux, Part)) -->
 % ---------------------------------------------------------
 g_verbal_simple(gv(V)) -->
     verbo(V).
+
+g_verbal_simple(gv(V, Comps)) -->
+    verbo(V),
+    complementos_verbales_no_vacios(Comps).
 
 % =========================================================
 % VERBOS IMPERSONALES (BASE)
@@ -511,6 +552,55 @@ g_verbal_impersonal(gv(GAdv, VI)) -->
 % verbo impersonal solo
 g_verbal_impersonal(gv(VI)) -->
     verbo_impersonal(VI).
+
+g_verbal_impersonal(gv(Se, V, Comps)) -->
+    pronombre_se(Se),
+    verbo(V),
+    complementos_verbales(Comps).
+
+complementos_verbales_no_vacios(comps([Comp|Resto])) -->
+    complemento_verbal(Comp),
+    complementos_verbales_restantes(Resto).
+
+complementos_verbales(comps([Comp|Resto])) -->
+    complemento_verbal(Comp),
+    complementos_verbales_restantes(Resto).
+
+complementos_verbales(comps([])) -->
+    [].
+
+complementos_verbales_restantes([Comp|Resto]) -->
+    complemento_verbal(Comp),
+    complementos_verbales_restantes(Resto).
+
+complementos_verbales_restantes([]) -->
+    [].
+
+complemento_verbal(comp_sub(Sub)) -->
+    subordinada(Sub).
+
+complemento_verbal(comp_inf(Inf)) -->
+    infinitivo_frase(Inf).
+
+complemento_verbal(comp_gp(GP)) -->
+    g_preposicional(GP).
+
+complemento_verbal(comp_gn(GN)) -->
+    g_nominal(GN).
+
+complemento_verbal(comp_gadj(GAdj)) -->
+    g_adjetival(GAdj).
+
+complemento_verbal(comp_gadv(GAdv)) -->
+    g_adverbial(GAdv).
+
+infinitivo_frase(inf_frase(Inf, Comps)) -->
+    infinitivo(Inf),
+    complementos_verbales(Comps).
+
+subordinada(sub(Comp, O)) -->
+    subordinante(Comp),
+    oracion_compuesta(O).
 
 % =========================================================
 % LEXICO: CONVERSION DE PALABRAS A CATEGORIAS
@@ -552,6 +642,18 @@ participio(part(X)) -->
     [X],
     {part_word(X)}.
 
+modal(mod(X)) -->
+    [X],
+    {modal_word(X)}.
+
+auxiliar_ser(aux(X)) -->
+    [X],
+    {aux_ser_word(X)}.
+
+infinitivo(inf(X)) -->
+    [X],
+    {inf_word(X)}.
+
 adjetivo(adj(X)) -->
     [X],
     {adj_word(X)}.
@@ -572,6 +674,14 @@ relativo(relat(X)) -->
     [X],
     {rel_word(X)}.
 
+subordinante(subord(X)) -->
+    [X],
+    {subord_word(X)}.
+
+pronombre_se(se(X)) -->
+    [X],
+    {se_word(X)}.
+
 % =========================================================
 % CONJUNCIONES
 % No todas las conjunciones se usan igual.
@@ -591,7 +701,8 @@ relativo(relat(X)) -->
 
 % Une oraciones completas. Aquí dejamos un conjunto más amplio.
 conjuncion_oracional(Conj) -->
-    conjuncion(Conj).
+    conjuncion(Conj),
+    { Conj \= conj(si) }.
 
 % ---------------------------------------------------------
 % Une grupos nominales.
@@ -664,6 +775,13 @@ det_word(estos).
 det_word(estas).
 det_word(mi).
 det_word(su).
+det_word(sus).
+det_word(mis).
+det_word(algunos).
+det_word(algunas).
+det_word(estas).
+det_word(varias).
+det_word(ciertos).
 
 % NOMBRES GENERALES
 nombre_word(juan).
@@ -687,44 +805,89 @@ nombre_word(derecho).
 nombre_word(madrid).
 nombre_word(clase).
 
-% NOMBRES DE TECNOLOGIA (ejemplo genérico)
-nombre_word(sensor).
-nombre_word(red).
-nombre_word(robot).
+% NOMBRES DEL CORPUS (computación cuántica)
+nombre_word(presente).
+nombre_word(trabajo).
+nombre_word(introduccion).
+nombre_word(medidas).
+nombre_word(qnd).
+nombre_word(caracteristicas).
+nombre_word(qubit).
+nombre_word(qubits).
+nombre_word(oscilador).
+nombre_word(formalismo).
+nombre_word(teoria).
+nombre_word(computacion).
+nombre_word(flujo).
+nombre_word(interferometros).
+nombre_word(superconductores).
+nombre_word(componente).
+nombre_word(base).
+nombre_word(informacion).
+nombre_word(objetivo).
+nombre_word(procesamiento).
+nombre_word(sistemas).
+nombre_word(comunidad).
+nombre_word(utilidad).
+nombre_word(idea).
+nombre_word(aportes).
+nombre_word(ramas).
+nombre_word(ciencia).
+nombre_word(mecanica).
+nombre_word(luz).
+nombre_word(teorema).
+nombre_word(cloning).
+nombre_word(estados).
+nombre_word(bit).
+nombre_word(analogo).
+nombre_word(objeto).
+nombre_word(matematico).
+nombre_word(perspectivas).
+nombre_word(limitaciones).
+nombre_word(desarrollo).
 nombre_word(algoritmo).
-nombre_word(servidor).
-nombre_word(usuario).
-nombre_word(software).
-nombre_word(hardware).
-nombre_word(dispositivo).
-nombre_word(plataforma).
-
-% NOMBRES DE ECONOMIA (ejemplo genérico)
-nombre_word(mercado).
-nombre_word(empresa).
-nombre_word(banco).
-nombre_word(inflacion).
-nombre_word(precio).
-nombre_word(inversion).
-nombre_word(cliente).
-
-% NOMBRES CIENTIFICOS (ejemplo genérico)
-nombre_word(particula).
+nombre_word(algoritmos).
+nombre_word(tiempo).
+nombre_word(polinomico).
+nombre_word(exponencial).
+nombre_word(maquina).
+nombre_word(turing).
+nombre_word(universal).
+nombre_word(computadores).
+nombre_word(computadoras).
+nombre_word(analogicos).
+nombre_word(problemas).
+nombre_word(ruido).
+nombre_word(rendimiento).
+nombre_word(correccion).
+nombre_word(errores).
+nombre_word(tolerancia).
+nombre_word(busqueda).
+nombre_word(proceso).
+nombre_word(medicion).
+nombre_word(interaccion).
+nombre_word(perturbacion).
+nombre_word(principio).
+nombre_word(incertidumbre).
+nombre_word(precision).
+nombre_word(mediciones).
+nombre_word(auxiliar).
+nombre_word(observable).
+nombre_word(hamiltoniano).
 nombre_word(electron).
-nombre_word(foton).
-nombre_word(laboratorio).
-nombre_word(muestra).
+nombre_word(metodos).
+nombre_word(condiciones).
+nombre_word(relatividad).
+nombre_word(shor).
+nombre_word(grover).
+nombre_word(feynman).
+nombre_word(cientificos).
+nombre_word('no-cloning').
 
-% NOMBRES CLINICOS (ejemplo genérico)
-nombre_word(paciente).
-nombre_word(hospital).
-nombre_word(diagnostico).
-nombre_word(tratamiento).
-nombre_word(ensayo).
-nombre_word(enfermero).
+
 
 % ---------------------------------------------------------
-% VERBOS GENERALES
+% VERBOS
 % Aquí van verbos léxicos "normales".
 % NO metemos aquí los copulativos ni los impersonales,porque los tratamos por separado.
 % ---------------------------------------------------------
@@ -744,10 +907,50 @@ verbo_word(compra).
 verbo_word(vende).
 verbo_word(depende).
 verbo_word(presenta).
-verbo_word(come).
-verbo_word(bebe).
 verbo_word(lee).
 verbo_word(tiene).
+verbo_word(realiza).
+verbo_word(describe).
+verbo_word(basa).
+verbo_word(introducen).
+verbo_word(desarrollaron).
+verbo_word(permite).
+verbo_word(define).
+verbo_word(requiere).
+verbo_word(supera).
+verbo_word(propusieron).
+verbo_word(transmitir).
+verbo_word(impide).
+verbo_word(copiar).
+verbo_word(resolvian).
+verbo_word(afecta).
+verbo_word(garantizaron).
+verbo_word(demostro).
+verbo_word(resuelven).
+verbo_word(propuso).
+verbo_word(sugirio).
+verbo_word(construir).
+verbo_word(implica).
+verbo_word(produce).
+verbo_word(limita).
+verbo_word(pueden).
+verbo_word(alterar).
+verbo_word(permiten).
+verbo_word(obtener).
+verbo_word(destruir).
+verbo_word(ayudar).
+verbo_word(dar).
+verbo_word(ejecuta).
+verbo_word(incluyen).
+verbo_word(tardo).
+verbo_word(reconocer).
+verbo_word(fueron).
+verbo_word(atrapar).
+verbo_word(desarrollo).
+verbo_word(tratado).
+verbo_word(basadas).
+verbo_word(utilizan).
+verbo_word(procesar).
 
 % ---------------------------------------------------------
 % VERBOS COPULATIVOS
@@ -757,6 +960,9 @@ vc_word(es).
 vc_word(esta).
 vc_word(son).
 vc_word(estan).
+vc_word(fue).
+vc_word(fueron).
+vc_word(puede).
 
 % VERBOS IMPERSONALES
 vi_word(llueve).
@@ -770,6 +976,7 @@ vi_word(nieva).
 % ---------------------------------------------------------
 aux_word(fue).
 aux_word(fueron).
+aux_word(se).
 
 part_word(ayudado).
 part_word(ayudada).
@@ -777,31 +984,84 @@ part_word(detectado).
 part_word(detectada).
 part_word(analizado).
 part_word(analizada).
+part_word(desarrollado).
+part_word(desarrollada).
+part_word(acoplado).
+part_word(acoplada).
+part_word(tratado).
+part_word(tratada).
+part_word(basadas).
+part_word(basados).
+part_word(considerada).
+part_word(considerado).
+part_word(desmentida).
 
 % ADJETIVOS
-adj_word(grande).
-adj_word(pequeno).
-adj_word(pequena).
-adj_word(rapido).
-adj_word(rapida).
-adj_word(lento).
-adj_word(lenta).
-adj_word(estable).
-adj_word(inestable).
-adj_word(clinico).
-adj_word(clinica).
+adj_word(breve).
+adj_word(presente).
+adj_word(acoplado).
+adj_word(acoplada).
+adj_word(armonico).
+adj_word(armonica).
 adj_word(cuantico).
 adj_word(cuantica).
-adj_word(digital).
-adj_word(preciso).
-adj_word(precisa).
-adj_word(lejos).
-adj_word(alto).
-adj_word(alta).
-adj_word(rubio).
-adj_word(rubia).
-adj_word(moreno).
-adj_word(morena).
+adj_word(cuanticos).
+adj_word(cuanticas).
+adj_word(desarrollado).
+adj_word(desarrollada).
+adj_word(cientifica).
+adj_word(cientifico).
+adj_word(varias).
+adj_word(cientificos).
+adj_word(mas).
+adj_word(rapido).
+adj_word(rapida).
+adj_word(desmentida).
+adj_word(especificos).
+adj_word(especifica).
+adj_word(especificas).
+adj_word(fisicos).
+adj_word(fisica).
+adj_word(qnd).
+adj_word(tratado).
+adj_word(tratada).
+adj_word(base).
+adj_word(analogo).
+adj_word(matematico).
+adj_word(matematica).
+adj_word(diferentes).
+adj_word(polinomico).
+adj_word(exponencial).
+adj_word(clasica).
+adj_word(clasico).
+adj_word(clasicas).
+adj_word(fundamental).
+adj_word(eficiente).
+adj_word(ineficiente).
+adj_word(analogicos).
+adj_word(analogicas).
+adj_word(considerada).
+adj_word(considerado).
+adj_word(universal).
+adj_word(basadas).
+adj_word(basados).
+adj_word(auxiliar).
+adj_word(auxiliares).
+adj_word(especificas).
+adj_word(repetidas).
+adj_word(repetidos).
+adj_word(mismo).
+adj_word(misma).
+adj_word(mismos).
+adj_word(mismas).
+adj_word(utiles).
+adj_word(util).
+adj_word(unico).
+adj_word(unica).
+adj_word(solo).
+adj_word(sola).
+adj_word(superconductores).
+adj_word(no-cloning).
 
 
 % ADVERBIOS
@@ -813,16 +1073,32 @@ adv_word(rapidamente).
 adv_word(lentamente).
 adv_word(hoy).
 adv_word(ayer).
+adv_word(teoricamente).
+adv_word(siempre).
+adv_word(eficientemente).
+adv_word(como).
+adv_word(sin).
+adv_word(usando).
+adv_word(desde).
+adv_word(mas).
 
 % PREPOSICIONES
 prep_word(a).
+prep_word(al).
 prep_word(en).
 prep_word(de).
+prep_word(del).
 prep_word(con).
 prep_word(por).
 prep_word(para).
 prep_word(sin).
 prep_word(sobre).
+prep_word(desde).
+prep_word(entre).
+prep_word(hasta).
+prep_word(durante).
+prep_word(como).
+prep_word(usando).
 
 % ---------------------------------------------------------
 % CONJUNCIONES ORACIONALES GENERALES
@@ -834,6 +1110,10 @@ conj_word(pero).
 conj_word(aunque).
 conj_word(mientras).
 conj_word(ni).
+conj_word(pues).
+conj_word(luego).
+conj_word(porque).
+conj_word(si).
 
 % ---------------------------------------------------------
 % CONJUNCIONES COORDINANTES "LIMPIAS"
@@ -849,6 +1129,34 @@ conj_coord_word(ni).
 
 % RELATIVOS
 rel_word(que).
+
+subord_word(que).
+subord_word(si).
+
+se_word(se).
+
+modal_word(puede).
+modal_word(pueden).
+modal_word(debe).
+modal_word(deben).
+
+aux_ser_word(ser).
+
+inf_word(transmitir).
+inf_word(copiar).
+inf_word(construir).
+inf_word(atrapar).
+inf_word(procesar).
+inf_word(reconocer).
+inf_word(caracterizar).
+inf_word(estudiar).
+inf_word(alterar).
+inf_word(obtener).
+inf_word(destruir).
+inf_word(ayudar).
+inf_word(dar).
+inf_word(conmutar).
+inf_word(ejecutar).
 
 
 
