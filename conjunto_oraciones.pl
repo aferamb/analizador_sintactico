@@ -1,7 +1,9 @@
 % conjunto_oraciones.pl
 % Corpus de oraciones del proyecto en formato texto.
 
-oracion_corpus(1, "el presente trabajo realiza una breve introduccion a las medidas qnd y sus caracteristicas").
+:- encoding(utf8).
+
+oracion_corpus(1, "el presente trabajo realiza una breve introducción a las medidas qnd y sus características").
 oracion_corpus(2, "se describe teoricamente un qubit acoplado a un oscilador armonico cuantico").
 oracion_corpus(3, "el formalismo desarrollado se basa en la teoria cuantica de la computacion").
 oracion_corpus(4, "se introducen los qubits de flujo que utilizan interferometros superconductores").

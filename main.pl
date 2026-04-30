@@ -70,7 +70,8 @@ simplificar_e_imprimir(Lista) :-
 tokenizar_basico(Texto, Lista) :-
     string(Texto), !,
     string_lower(Texto, TextoMinus),
-    rodear_comas(TextoMinus, TextoConComasSeparadas),
+    normalizar_acentos(TextoMinus, TextoNormalizado),
+    rodear_comas(TextoNormalizado, TextoConComasSeparadas),
     split_string(
         TextoConComasSeparadas,
         " ",
@@ -89,6 +90,29 @@ tokenizar_basico(Texto, _) :-
     write('Error: tokenizar_basico/2 espera un string o un atomo. Recibido: '),
     write(Texto), nl,
     fail.
+
+% ---------------------------------------------------------
+% normalizar_acentos(+TextoEntrada, -TextoSalida)
+% Elimina tildes de vocales y dieresis. Mantiene la ñ.
+% ---------------------------------------------------------
+normalizar_acentos(TextoEntrada, TextoSalida) :-
+    string_codes(TextoEntrada, Codigos),
+    normalizar_codigos(Codigos, Normalizados),
+    string_codes(TextoSalida, Normalizados).
+
+normalizar_codigos([], []).
+
+normalizar_codigos([C|Resto], [N|Salida]) :-
+    normalizar_codigo(C, N),
+    normalizar_codigos(Resto, Salida).
+
+normalizar_codigo(225, 97).  % a con tilde
+normalizar_codigo(233, 101). % e con tilde
+normalizar_codigo(237, 105). % i con tilde
+normalizar_codigo(243, 111). % o con tilde
+normalizar_codigo(250, 117). % u con tilde
+normalizar_codigo(252, 117). % u con dieresis
+normalizar_codigo(C, C).
 
 % ---------------------------------------------------------
 % rodear_comas(+TextoEntrada, -TextoSalida)
