@@ -699,6 +699,7 @@ nombre_word(inicial).
 nombre_word(iniciales).
 nombre_word(inicio).
 nombre_word(inmersion).
+nombre_word(investigacion).
 nombre_word(innata).
 nombre_word(innatos).
 nombre_word(innovadoras).
@@ -1219,6 +1220,10 @@ nombre_word(volvieran).
 nombre_word(vuelva).
 nombre_word(wefector).
 nombre_word(xps).
+nombre_word(articulo).
+nombre_word(escala).
+nombre_word(esternon). 
+nombre_word(peciolo).
 
 % =========================================================
 % VERBOS LEXICOS
@@ -1480,6 +1485,13 @@ verbo_word(utilizar).
 verbo_word(volver).
 verbo_word(vuelve).
 verbo_word(vuelven).
+verbo_word(poseen).
+verbo_word(requiere).
+verbo_word(extenderse).
+verbo_word(actue).
+verbo_word(desplazo).
+verbo_word(experimento).
+verbo_word(eutanasio).
 
 % =========================================================
 % VERBOS COPULATIVOS
@@ -2120,6 +2132,7 @@ adj_word(capota).
 adj_word(caracteristica).
 adj_word(caracteristicas).
 adj_word(cardiomiocitos).
+adj_word(capaz).
 adj_word(cerrada).
 adj_word(cerradas).
 adj_word(cerrado).
@@ -2278,6 +2291,7 @@ adj_word(fijado).
 adj_word(fijados).
 adj_word(fina).
 adj_word(fino).
+adj_word(final).
 adj_word(flechas).
 adj_word(flexibles).
 adj_word(flexionadas).
@@ -2531,6 +2545,21 @@ adj_word(vivo).
 adj_word(vivos).
 adj_word(voluminosa).
 adj_word(voluminoso).
+adj_word(animales).
+adj_word(biometricos).
+adj_word(biomimeticos).
+adj_word(bioinspirado).
+adj_word(biocompatibles).
+adj_word(pequena).
+adj_word(roboticos).
+adj_word(fallecidas).
+adj_word(electronica).
+adj_word(numerosas).
+adj_word(biologicos).
+adj_word(autonoma).
+adj_word(acrilico).
+adj_word(complementario).
+adj_word(eutanasiada).
 
 % =========================================================
 % ADVERBIOS
@@ -2553,7 +2582,9 @@ adv_word(aproximadamente).
 adv_word(aqui).
 adv_word(arriba).
 adv_word(asi).
+adv_word(unicamente).
 adv_word(aun).
+adv_word(maximo).
 adv_word(blando).
 adv_word(cambio).
 adv_word(casi).
@@ -2594,6 +2625,7 @@ adv_word(levantando).
 adv_word(logrando).
 adv_word(manualmente).
 adv_word(mas).
+adv_word(alla).
 adv_word(mecanicamente).
 adv_word(menos).
 adv_word(mientras).
@@ -2719,3 +2751,8 @@ subord_word(si).
 % PRONOMBRE SE
 % =========================================================
 se_word(se).
+
+% =========================================================
+% PRONOMBRES
+% =========================================================
+pron_word(lo).

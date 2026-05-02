@@ -88,6 +88,8 @@ det_word(un).
 det_word(una).
 det_word(unas).
 det_word(unos).
+det_word(muchas).
+det_word(cientos).
 
 % =========================================================
 % NOMBRES
@@ -355,6 +357,88 @@ nombre_word(vida).
 nombre_word(volumen).
 nombre_word(volumenes).
 nombre_word(xps).
+nombre_word(agarre).
+nombre_word(anclaje).
+nombre_word(apariencia).
+nombre_word(apertura).
+nombre_word(aplicacion).
+nombre_word(area).
+nombre_word(barrido).
+nombre_word(campo).
+nombre_word(cinta).
+nombre_word(componentes).
+nombre_word(comprension).
+nombre_word(conciencia).
+nombre_word(congelacion).
+nombre_word(decenas).
+nombre_word(deteccion).
+nombre_word(diferencia).
+nombre_word(duracion).
+nombre_word(ejemplo).
+nombre_word(electronica).
+nombre_word(etapa).
+nombre_word(exploracion).
+nombre_word(exposicion).
+nombre_word(extremo).
+nombre_word(facilidad).
+nombre_word(fases).
+nombre_word(fascinacion).
+nombre_word(falta).
+nombre_word(flexibilidad).
+nombre_word(fractura).
+nombre_word(fraguado).
+nombre_word(futuro).
+nombre_word(hidrostatica).
+nombre_word(incorporacion).
+nombre_word(inicio).
+nombre_word(inteligencia).
+nombre_word(investigacion).
+nombre_word(lado).
+nombre_word(limitaciones).
+nombre_word(longevidad).
+nombre_word(manera).
+nombre_word(manipulacion).
+nombre_word(masas).
+nombre_word(metodos).
+nombre_word(minimizacion).
+nombre_word(montaje).
+nombre_word(motivos).
+nombre_word(muestras).
+nombre_word(niveles).
+nombre_word(papel).
+nombre_word(patelofemoral).
+nombre_word(pegamento).
+nombre_word(perdida).
+nombre_word(periodo).
+nombre_word(potencia).
+nombre_word(rango).
+nombre_word(recubrimiento).
+nombre_word(refuerzo).
+nombre_word(sitio).
+nombre_word(trozo).
+nombre_word(uso).
+nombre_word(variedad).
+nombre_word(vez).
+nombre_word(agua).
+nombre_word(articulo).
+nombre_word(capacidad).
+nombre_word(concepto).
+nombre_word(despresurizacion).
+nombre_word(disminucion).
+nombre_word(etapas).
+nombre_word(evolucion).
+nombre_word(gota).
+nombre_word(ingenieria).
+nombre_word(inspiracion).
+nombre_word(interruptor).
+nombre_word(material).
+nombre_word(muerte).
+nombre_word(obtencion).
+nombre_word(orden).
+nombre_word(paso).
+nombre_word(presurizacion).
+nombre_word(proceso).
+nombre_word(resultados).
 
 % =========================================================
 % VERBOS LEXICOS
@@ -616,6 +700,45 @@ verbo_word(utilizar).
 verbo_word(volver).
 verbo_word(vuelve).
 verbo_word(vuelven).
+verbo_word(actue).
+verbo_word(aplica).
+verbo_word(aplicando).
+verbo_word(biodegrada).
+verbo_word(centrandones).
+verbo_word(construimos).
+verbo_word(extendiendo).
+verbo_word(extendiendose).
+verbo_word(extenderlas).
+verbo_word(explorado).
+verbo_word(fraguado).
+verbo_word(implican).
+verbo_word(incorporarse).
+verbo_word(introduce).
+verbo_word(muere).
+verbo_word(podamos).
+verbo_word(puedan).
+verbo_word(recogieron).
+verbo_word(respaldan).
+verbo_word(sacrificando).
+verbo_word(senalamos).
+verbo_word(senalar).
+verbo_word(siguiendo).
+verbo_word(utilizarse).
+verbo_word(variando).
+verbo_word(abre).
+verbo_word(colocamos).
+verbo_word(curven).
+verbo_word(dando).
+verbo_word(desplazo).
+verbo_word(elegimos).
+verbo_word(hizo).
+verbo_word(imitan).
+verbo_word(modular).
+verbo_word(presento).
+verbo_word(realizarse).
+verbo_word(utilizando).
+verbo_word(van).
+verbo_word(volvieran).
 
 % =========================================================
 % VERBOS COPULATIVOS
@@ -818,6 +941,10 @@ part_word(utilizada).
 part_word(utilizadas).
 part_word(utilizado).
 part_word(utilizados).
+part_word(agarrado).
+part_word(comparada).
+part_word(dado).
+part_word(flexionadas).
 
 % =========================================================
 % MODALES
@@ -953,8 +1080,11 @@ inf_word(tejer).
 inf_word(tener).
 inf_word(transportar).
 inf_word(usar).
+inf_word(usarse).
 inf_word(utilizar).
 inf_word(volver).
+inf_word(modular).
+inf_word(realizarse).
 
 % =========================================================
 % ADJETIVOS
@@ -1015,6 +1145,7 @@ adj_word(cerrada).
 adj_word(cerradas).
 adj_word(cerrado).
 adj_word(cerrados).
+adj_word(capaz).
 adj_word(ciclicas).
 adj_word(ciclicos).
 adj_word(compactos).
@@ -1106,6 +1237,7 @@ adj_word(fijado).
 adj_word(fijados).
 adj_word(fina).
 adj_word(fino).
+adj_word(final).
 adj_word(flexibles).
 adj_word(fragil).
 adj_word(fragile).
@@ -1293,6 +1425,44 @@ adj_word(vivo).
 adj_word(vivos).
 adj_word(voluminosa).
 adj_word(voluminoso).
+adj_word(acrilica).
+adj_word(adhesiva).
+adj_word(biocompatibles).
+adj_word(biologicos).
+adj_word(bruto).
+adj_word(capaz).
+adj_word(capaces).
+adj_word(complicados).
+adj_word(compuesto).
+adj_word(correspondiente).
+adj_word(destinado).
+adj_word(domesticas).
+adj_word(futuros).
+adj_word(geometrica).
+adj_word(hidraulica).
+adj_word(hipodermica).
+adj_word(imposibles).
+adj_word(mayor).
+adj_word(muchas).
+adj_word(muerta).
+adj_word(muertas).
+adj_word(mudados).
+adj_word(previos).
+adj_word(rigido).
+adj_word(sola).
+adj_word(unica).
+adj_word(unicos).
+adj_word(adicionales).
+adj_word(agarrado).
+adj_word(comparada).
+adj_word(flexionadas).
+adj_word(inanimados).
+adj_word(listo).
+adj_word(natural).
+adj_word(posible).
+adj_word(restrictivas).
+adj_word(tediosas).
+adj_word(util).
 
 % =========================================================
 % ADVERBIOS
@@ -1333,6 +1503,7 @@ adv_word(indefinidamente).
 adv_word(innatamente).
 adv_word(manualmente).
 adv_word(mas).
+adv_word(alla).
 adv_word(mecanicamente).
 adv_word(menos).
 adv_word(mientras).
@@ -1365,6 +1536,17 @@ adv_word(totalmente).
 adv_word(ultimo).
 adv_word(unicamente).
 adv_word(ya).
+adv_word(aparte).
+adv_word(gracias).
+adv_word(menudo).
+adv_word(particular).
+adv_word(artificialmente).
+adv_word(cuanto).
+adv_word(debido).
+adv_word(diez).
+adv_word(dos).
+adv_word(gran).
+adv_word(tres).
 
 % =========================================================
 % PREPOSICIONES
@@ -1450,3 +1632,9 @@ subord_word(si).
 % PRONOMBRE SE
 % =========================================================
 se_word(se).
+
+% =========================================================
+% PRONOMBRES
+% =========================================================
+pron_word(lo).
+pron_word(nos).

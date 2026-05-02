@@ -1,24 +1,30 @@
+:- encoding(utf8).
+
 % main.pl
 % Punto de entrada del proyecto.
 
 :- consult('sintactico.pl').
-:- consult('conjunto_oraciones.pl').
-%:- consult('conjunto_oraciones_gpt.pl').
-%:- consult('conjunto_oraciones_claude.pl').
+:- consult('conjunto_oraciones_gpt.pl').
+:- consult('conjunto_oraciones_claude.pl').
+%:- consult('lexico-claude.pl').
+%:- consult('lexico-gpt.pl').
+:- consult('lexico.pl').
+:- consult('metricas.pl').
+:- consult('comparativo.pl').
 
 % ---------------------------------------------------------
 % acepta(+Lista)
 % Devuelve true si la lista puede analizarse como una oracion.
 % ---------------------------------------------------------
 acepta(Lista) :-
-    phrase(oracion(_), Lista).
+    once(phrase(oracion(_), Lista)).
 
 % ---------------------------------------------------------
 % analizar(+Lista, -Arbol)
 % Analiza una lista de tokens y devuelve su arbol sintactico.
 % ---------------------------------------------------------
 analizar(Lista, Arbol) :-
-    phrase(oracion(Arbol), Lista).
+    once(phrase(oracion(Arbol), Lista)).
 
 % ---------------------------------------------------------
 % analizar(+Lista)
@@ -200,45 +206,219 @@ tipo_texto(Texto, Tipo) :-
 simplificar_texto(Texto, Simples) :-
     analizar_texto(Texto, Arbol),
     simplificar(Arbol, Simples).
-
 % =========================================================
-% PREDICADOS DE PRUEBA SOBRE EL CORPUS EN TEXTO
+% PREDICADOS DE PRUEBA SOBRE LOS CORPUS EN TEXTO
 % =========================================================
 
 % ---------------------------------------------------------
-% probar_ejemplo(+N)
+% probar_gpt(+N)
+% Prueba la oración N del corpus GPT.
+% ---------------------------------------------------------
+probar_gpt(N) :-
+    oracion_gpt(N, Texto),
+    probar_texto(Texto).
+
+% ---------------------------------------------------------
+% probar_claude(+N)
+% Prueba la oración N del corpus Claude.
+% ---------------------------------------------------------
+probar_claude(N) :-
+    oracion_claude(N, Texto),
+    probar_texto(Texto).
+
+% ---------------------------------------------------------
+% probar_texto(+Texto)
 % Muestra:
 %   - el texto original
 %   - los tokens
-%   - el arbol
-%   - el tipo de oracion
-%   - la simplificacion
+%   - el árbol, si se acepta
+%   - el tipo de oración
+%   - la simplificación
 % ---------------------------------------------------------
-probar_ejemplo(N) :-
-    oracion_corpus(N, Texto),
+probar_texto(Texto) :-
     tokenizar_basico(Texto, Lista),
     write('Texto: '), write(Texto), nl,
     write('Tokens: '), write_term(Lista, [quoted(true)]), nl,
-    ( once(analizar_texto(Texto, Arbol)) ->
-        write('Arbol: '), write(Arbol), nl,
-        tipo_oracion(Arbol, Tipo),
-        write('Tipo: '), write(Tipo), nl,
-        simplificar(Arbol, Simples),
-        write('Simplificacion: '), write(Simples), nl
+    (
+        analizar_texto_seguro(Texto, Arbol) ->
+            write('Arbol: '), write(Arbol), nl,
+            tipo_oracion(Arbol, Tipo),
+            write('Tipo: '), write(Tipo), nl,
+            (
+                once(simplificar(Arbol, Simples)) ->
+                    write('Simplificacion: '), write(Simples), nl
+            ;
+                    write('Simplificacion: no disponible'), nl
+            )
     ;
-        write('No aceptada por la gramatica.'), nl
+            write('No aceptada por la gramatica.'), nl
     ).
 
 % ---------------------------------------------------------
-% probar_todos
-% Recorre todas las oraciones del corpus y las prueba una a una.
+% probar_todos_gpt/0
+% Recorre todas las oraciones del corpus GPT.
 % ---------------------------------------------------------
-probar_todos :-
+probar_todos_gpt :-
     forall(
-        oracion_corpus(N, _),
+        oracion_gpt(N, _),
         (
             write('=============================='), nl,
-            write('Ejemplo '), write(N), nl,
-            probar_ejemplo(N)
+            write('GPT - Ejemplo '), write(N), nl,
+            probar_gpt(N)
         )
+    ).
+
+% ---------------------------------------------------------
+% probar_todos_claude/0
+% Recorre todas las oraciones del corpus Claude.
+% ---------------------------------------------------------
+probar_todos_claude :-
+    forall(
+        oracion_claude(N, _),
+        (
+            write('=============================='), nl,
+            write('Claude - Ejemplo '), write(N), nl,
+            probar_claude(N)
+        )
+    ).
+
+% ---------------------------------------------------------
+% probar_todos/0
+% Mantenemos este nombre como atajo: prueba ambos corpus.
+% ---------------------------------------------------------
+probar_todos :-
+    write('========== CORPUS GPT =========='), nl,
+    probar_todos_gpt,
+    nl,
+    write('========== CORPUS CLAUDE =========='), nl,
+    probar_todos_claude.
+
+
+
+% =========================================================
+% PRUEBAS DE DIAGNOSTICO
+% =========================================================
+
+probar_gn(Texto) :-
+    tokenizar_basico(Texto, Tokens),
+    write('Tokens: '), write_term(Tokens, [quoted(true)]), nl,
+    ( phrase(g_nominal(GN), Tokens) ->
+        write('GN aceptado: '), write(GN), nl
+    ;
+        write('GN no aceptado'), nl
+    ).
+
+probar_gv(Texto) :-
+    tokenizar_basico(Texto, Tokens),
+    write('Tokens: '), write_term(Tokens, [quoted(true)]), nl,
+    ( phrase(g_verbal(GV), Tokens) ->
+        write('GV aceptado: '), write(GV), nl
+    ;
+        write('GV no aceptado'), nl
+    ).
+
+probar_gp(Texto) :-
+    tokenizar_basico(Texto, Tokens),
+    write('Tokens: '), write_term(Tokens, [quoted(true)]), nl,
+    ( phrase(g_preposicional(GP), Tokens) ->
+        write('GP aceptado: '), write(GP), nl
+    ;
+        write('GP no aceptado'), nl
+    ).
+
+probar_inf(Texto) :-
+    tokenizar_basico(Texto, Tokens),
+    write('Tokens: '), write_term(Tokens, [quoted(true)]), nl,
+    ( phrase(infinitivo_frase(Inf), Tokens) ->
+        write('Infinitivo aceptado: '), write(Inf), nl
+    ;
+        write('Infinitivo no aceptado'), nl
+    ).
+
+probar_oracion_tokens(Texto) :-
+    tokenizar_basico(Texto, Tokens),
+    write('Tokens: '), write_term(Tokens, [quoted(true)]), nl,
+    ( phrase(oracion(Arbol), Tokens) ->
+        write('Oracion aceptada: '), write(Arbol), nl
+    ;
+        write('Oracion no aceptada'), nl
+    ).
+
+
+% ---------------------------------------------------------
+% probar_rapido(+Texto)
+%
+% Igual que probar_texto/1, pero muestra solo si acepta,
+% tipo y árbol. Útil para probar frases problemáticas sin
+% imprimir demasiada información.
+% ---------------------------------------------------------
+
+probar_rapido(Texto) :-
+    tokenizar_basico(Texto, Tokens),
+    write('Tokens: '), write_term(Tokens, [quoted(true)]), nl,
+    (
+        analizar_texto_seguro(Texto, Arbol) ->
+            write('Aceptada: si'), nl,
+            tipo_oracion(Arbol, Tipo),
+            write('Tipo: '), write(Tipo), nl,
+            write('Arbol: '), write(Arbol), nl
+    ;
+            write('Aceptada: no'), nl
+    ).
+
+% ---------------------------------------------------------
+% probar_gpt_rapido(+N)
+% ---------------------------------------------------------
+
+probar_gpt_rapido(N) :-
+    oracion_gpt(N, Texto),
+    probar_rapido(Texto).
+
+% ---------------------------------------------------------
+% probar_claude_rapido(+N)
+% ---------------------------------------------------------
+
+probar_claude_rapido(N) :-
+    oracion_claude(N, Texto),
+    probar_rapido(Texto).
+
+% ---------------------------------------------------------
+% probar_partes_basicas(+Texto)
+%
+% Prueba una misma cadena como GN, GV, GP, GAdj e infinitivo.
+% Sirve para ver qué subcomponente se ha roto.
+% ---------------------------------------------------------
+
+probar_partes_basicas(Texto) :-
+    tokenizar_basico(Texto, Tokens),
+    write('Tokens: '), write_term(Tokens, [quoted(true)]), nl,
+
+    ( phrase(g_nominal(GN), Tokens) ->
+        write('GN: si -> '), write(GN), nl
+    ;
+        write('GN: no'), nl
+    ),
+
+    ( phrase(g_verbal(GV), Tokens) ->
+        write('GV: si -> '), write(GV), nl
+    ;
+        write('GV: no'), nl
+    ),
+
+    ( phrase(g_preposicional(GP), Tokens) ->
+        write('GP: si -> '), write(GP), nl
+    ;
+        write('GP: no'), nl
+    ),
+
+    ( phrase(g_adjetival(GAdj), Tokens) ->
+        write('GAdj: si -> '), write(GAdj), nl
+    ;
+        write('GAdj: no'), nl
+    ),
+
+    ( phrase(infinitivo_frase(Inf), Tokens) ->
+        write('Inf: si -> '), write(Inf), nl
+    ;
+        write('Inf: no'), nl
     ).
