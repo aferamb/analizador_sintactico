@@ -1,0 +1,57 @@
+% conjunto_oraciones_claude.pl
+% Corpus de oraciones de la traducción Claude.
+
+:- encoding(utf8).
+
+oracion_corpus(1, "El efector final necrobótico es capaz de agarrar objetos con geometrías irregulares y de hasta el 130 % de su propia masa.").
+oracion_corpus(2, "Además, el efector puede usarse como dispositivo de mano y se camufla de forma innata en entornos exteriores.").
+oracion_corpus(3, "Las patas de las arañas no poseen pares musculares antagónicos.").
+oracion_corpus(4, "Esta fascinación por las arañas no carece de fundamento.").
+oracion_corpus(5, "Los diseños perfeccionados por la evolución han inspirado robots animales biomiméticos que imitan la locomoción de los guepardos y la flexibilidad de las medusas.").
+oracion_corpus(6, "los robots biohíbridos van un paso más allá al incorporar materiales vivos directamente en sistemas artificiales.").
+oracion_corpus(7, "En este trabajo, se reutiliza una araña inanimada como actuador listo para usar que requiere únicamente un sencillo paso de fabricación, inaugurando así el área de la necrobótica, en la que los materiales bióticos se emplean como componentes robóticos.").
+oracion_corpus(8, "La necrobótica puede extenderse para incorporar materiales bióticos derivados de otras criaturas con mecanismos hidráulicos similares para la locomoción y la articulación.").
+oracion_corpus(9, "este ámbito de investigación se denomina diseño bioinspírado o biomimético.").
+oracion_corpus(10, "Más allá de la mera inspiración, los sistemas biohíbridos combinan células y tejidos naturales o artificiales con componentes artificiales o inanimados para generar robots y actuadores biocompatibles a pequeña escala capaces de producir fuerzas considerables.").
+oracion_corpus(11, "En este trabajo proponemos aprovechar los materiales bióticos como componentes robóticos listos para usar, dada su facilidad de obtención e implementación, centrándonos en el uso de una araña concreta como ejemplo útil de efector final para aplicaciones robóticas.").
+oracion_corpus(12, "Cuando una araña muere, la presión deja de oponerse a los músculos flexores, lo que provoca que las patas se curven hacia adentro, tal y como se observa habitualmente en las arañas domésticas fallecidas.").
+oracion_corpus(13, "Esta elevada densidad de potencia permite a las arañas realizar movimientos explosivos y sirve de inspiración para diseñar actuadores compactos y de alta potencia.").
+oracion_corpus(14, "sin embargo, al margen de la seda de araña y los exoesqueletos mudados, la incorporación de materiales bióticos derivados del propio cuerpo de la araña aún no ha sido explorada.").
+oracion_corpus(15, "También demostramos la capacidad del efector final necrobótico para levantar objetos con geometrías, volúmenes y masas variados, y mostramos que es posible la actuación manual sin cables.").
+oracion_corpus(16, "Todo el proceso, desde la inserción de la aguja hasta el curado del pegamento para obtener un efector plenamente operativo, puede realizarse en aproximadamente diez minutos.").
+oracion_corpus(17, "Cuando no se aplica presión al efector final necrobótico, las patas permanecen flexionadas hacia adentro, estado que denominamos neutro y que corresponde al agarre.").
+oracion_corpus(18, "por el contrario, cuando se introduce presión a través de la jeringuilla, las patas se actúan extendiéndose hacia afuera y el efector se abre.").
+oracion_corpus(19, "Una araña extiende cada pata contrayendo activamente los músculos del prosoma para aumentar su presión hidráulica interna.").
+oracion_corpus(20, "La presurización y la despresurización producen la apertura y el cierre, respectivamente, de todas las patas de la araña de forma simultánea, actuando efectivamente como efector final.").
+oracion_corpus(21, "Colocamos sobre la balanza analítica un peso personalizado para ser agarrado por el efector final necrobótico y medir así la fuerza de agarre efectiva.").
+oracion_corpus(22, "También caracterizamos el ángulo articular del efector final necrobótico a cada presión de agarre.").
+oracion_corpus(23, "Demostramos la capacidad del efector final necrobótico para agarrar una variedad de objetos.").
+oracion_corpus(24, "Construimos un circuito para alimentar un LED con un cable puente adicional que actúa como interruptor.").
+oracion_corpus(25, "También observamos que, en cuanto se presuriza la jeringuilla, el efector final necrobótico alcanza un rango completo de movimiento en menos de un segundo.").
+oracion_corpus(26, "Reutilizamos el cuerpo de una araña muerta y creamos un efector final que aprovecha el mecanismo de movimiento de las arañas.").
+oracion_corpus(27, "Tras el curado del pegamento, se conecta una jeringuilla al extremo Luer lock de la aguja hipodérmica, completando así el proceso de fabricación del efector final necrobótico.").
+oracion_corpus(28, "Dado que las patas de la araña solo contienen músculos flexores, tras la muerte, las patas se curvan hacia el cuerpo por la ausencia de presión hidrostática que actúe para extender las patas.").
+oracion_corpus(29, "Elegimos el prosoma como punto de inserción por dos razones: la presión hidráulica para el movimiento de las patas de la araña se genera en el prosoma y el exoesqueleto del prosoma es más rígido que el del abdomen.").
+oracion_corpus(30, "La gota de pegamento se desplazó hasta la interfaz aguja-araña sin ninguna manipulación externa, debido a la minimización de la energía en tres fases.").
+oracion_corpus(31, "Las imágenes de microscopía electrónica de barrido de la articulación patelofemoral muestran la membrana articular que ha inspirado el diseño de numerosas articulaciones flexibles blandas.").
+oracion_corpus(32, "El material biótico en bruto se obtuvo eutanasiando una araña lobo mediante exposición a temperatura de congelación durante un periodo de 5-7 días.").
+oracion_corpus(33, "Nuestro efector final necrobótico puede camuflarse con su entorno gracias a los patrones y la textura de su cuerpo y, además, se biodegrada de forma natural al final de su vida útil.").
+oracion_corpus(34, "Reutilizamos el cadáver de una araña para crear un efector final accionado neumáticamente que resulta plenamente funcional tras un único paso sencillo de montaje, lo que nos permite eludir los tediosos y restrictivos pasos de fabricación.").
+oracion_corpus(35, "El concepto de necrobótica propuesto en este trabajo aprovecha diseños únicos creados por la naturaleza que pueden ser complicados o incluso imposibles de replicar artificialmente.").
+oracion_corpus(36, "En contraste con nuestro efector final necrobótico basado en material biótico, los sistemas biohíbridos explotan células y tejidos biológicos vivos para proporcionar actuación y alimentar dispositivos artificiales.").
+oracion_corpus(37, "Ambos sistemas, sin embargo, se enfrentan a limitaciones similares relacionadas con la longevidad del biomaterial utilizado.").
+oracion_corpus(38, "Señalamos que la duración funcional del efector final necrobótico fue de aproximadamente dos días tras la muerte de la araña debido a la deshidratación, lo que provocó que las articulaciones se volvieran más frágiles y susceptibles a la fractura mecánica con el tiempo.").
+oracion_corpus(39, "Planteamos la hipótesis de que podríamos prolongar la vida útil del efector final necrobótico aplicando una fina capa de recubrimiento impermeable al vapor sobre el cuerpo de la araña para mitigar la pérdida de agua.").
+oracion_corpus(40, "Nuestros resultados muestran que la araña sin recubrir experimentó una disminución de masa 17 veces mayor que la araña recubierta.").
+oracion_corpus(41, "Estudiar la fuerza de agarre de arañas de diferentes tamaños o especies podría conducir a una comprensión más precisa de la relación entre el tamaño de la araña y la fuerza de agarre.").
+oracion_corpus(42, "El trabajo futuro también podría incluir la exploración de métodos de refuerzo que puedan emplearse para mejorar la fuerza de agarre del efector final necrobótico y aprovechar al máximo el reducido tamaño del efector y su conformidad geométrica.").
+oracion_corpus(43, "En el futuro podrán incorporarse al sistema niveles adicionales de inteligencia para la navegación autónoma, la conciencia situacional y la detección de objetos.").
+oracion_corpus(44, "El diseño y la fabricación de robots rígidos suelen entrañar procesos intrincados y tediosos.").
+oracion_corpus(45, "También podemos modular la fuerza de agarre aplicada variando la presión de agarre del efector para aplicaciones que requieren fuerzas del orden de decenas a centenas de micronewtonios.").
+oracion_corpus(46, "Una pata de araña individual y el prosoma de la araña con la aguja insertada y pegada se fijaron con cinta adhesiva sobre un trozo de papel con un adhesivo acrílico.").
+oracion_corpus(47, "Se eutanasió una araña y se recogieron muestras de hemolinfa del lado ventral de la araña entre el esternón y el pecíolo siguiendo un procedimiento establecido en trabajos previos.").
+oracion_corpus(48, "Los datos que respaldan los hallazgos de este estudio están disponibles en el material complementario de este artículo.").
+oracion_corpus(49, "Análisis de escala de la fuerza del efector comparada con el peso del efector.").
+oracion_corpus(50, "Caracterizamos la fuerza de agarre del efector final necrobótico utilizando un sistema compuesto por una máquina de ensayo universal y una balanza analítica.").
+oracion_corpus(51, "Fabricación del efector final necrobótico.").
+oracion_corpus(52, "Una araña es eutanasiada mediante la aplicación de frío.").

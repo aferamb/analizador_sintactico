@@ -4,6 +4,8 @@
 
 :- consult(draw).
 :- consult(lexico).
+% :- consult(lexico-claude).
+% :- consult(lexico-gpt).
 
 % =========================================================
 % REGLA PRINCIPAL
@@ -20,23 +22,32 @@ oracion(O) -->
 %   ocm = oración compuesta/mixta
 % =========================================================
 
+% Coordinación de dos oraciones simples:
+%   "El efector puede usarse ... y se camufla ..."
+%   "Reutilizamos ... y creamos ..."
 oracion_compuesta(oc(O1, Conj, O2)) -->
     oracion_simple(O1),
     conjuncion_oracional(Conj),
     oracion_simple(O2).
 
+% Coordinación donde alguno de los lados ya es complejo:
 oracion_compuesta(ocm(O1, Conj, O2)) -->
     oracion_no_coordinada(O1),
     conjuncion_oracional(Conj),
     oracion_compuesta(O2),
-    { \+ es_oracion_simple(O1) }.
+    {
+        \+ es_oracion_simple(O1)
+        ;
+        \+ es_oracion_simple(O2)
+    }.
 
-oracion_compuesta(ocm(O1, Conj, O2)) -->
-    oracion_simple(O1),
-    conjuncion_oracional(Conj),
-    oracion_compuesta(O2),
-    { \+ es_oracion_simple(O2) }.
+% Oración simple con complementos/subordinadas internas.
+% Si la oración simple contiene subordinadas o relativas, puede clasificarse como ocm.
+oracion_compuesta(ocm(O)) -->
+    oracion_simple(O),
+    { contiene_complejidad(O) }.
 
+% Oración no coordinada:
 oracion_compuesta(O) -->
     oracion_no_coordinada(O).
 
@@ -44,10 +55,13 @@ oracion_compuesta(O) -->
 % ORACIONES NO COORDINADAS
 % =========================================================
 
+% Oración de relativo:
+%   "Los diseños que imitan la locomoción inspiran robots"
+%   "Los datos que respaldan los hallazgos están disponibles"
 oracion_no_coordinada(or(GN, Rel, GV)) -->
     g_nominal(GN),
     pausa_opcional,
-    relativo_simple(Rel),
+    relativo_ampliado(Rel),
     pausa_opcional,
     g_verbal(GV).
 
@@ -58,19 +72,133 @@ oracion_no_coordinada(O) -->
 % ORACION SIMPLE
 % =========================================================
 
+% Complemento inicial + oración con sujeto explícito:
+%   "Además, el efector puede usarse..."
+%   "En este trabajo, se reutiliza una araña..."
+%   "Para estudiar la durabilidad, realizamos ensayos..."
+oracion_simple(o(CI, GN, GV)) -->
+    complemento_inicial(CI),
+    pausa_opcional,
+    g_nominal(GN),
+    g_verbal(GV).
+
+% Complemento inicial + oración con sujeto omitido:
+%   "Además, demostramos..."
+%   "A continuación, repetimos..."
+oracion_simple(o(CI, sujeto_eliptico, GV)) -->
+    complemento_inicial(CI),
+    pausa_opcional,
+    g_verbal(GV).
+
+% Complemento inicial + impersonal:
+%   "En este trabajo, se reutiliza una araña..."
+%   "Por el contrario, se introduce presión..."
+oracion_simple(o(CI, GV)) -->
+    complemento_inicial(CI),
+    pausa_opcional,
+    g_verbal_impersonal(GV).
+
+% Oración simple normal con sujeto explícito:
 oracion_simple(o(GN, GV)) -->
     g_nominal(GN),
     g_verbal(GV).
 
+% Oración con sujeto omitido:
+%   "Caracterizamos la fuerza..."
+%   "Demostramos la capacidad..."
+%   "Utilizamos el mismo efector..."
+oracion_simple(o(sujeto_eliptico, GV)) -->
+    g_verbal(GV).
+
+% Oración impersonal:
 oracion_simple(o(GV)) -->
     g_verbal_impersonal(GV).
+
+% =========================================================
+% COMPLEMENTO INICIAL
+% =========================================================
+%
+% Reconoce elementos antepuestos:
+%   Además,
+%   En este trabajo,
+%   Por el contrario,
+%   A continuación,
+%   Para estudiar...
+%   Cuando una araña muere,
+%   Aunque...
+%   Dado que...
+
+complemento_inicial(ci_adv(GAdv)) -->
+    g_adverbial(GAdv).
+
+complemento_inicial(ci_gp(GP)) -->
+    g_preposicional(GP).
+
+complemento_inicial(ci_marcador(M)) -->
+    marcador_discursivo(M).
+
+complemento_inicial(ci_sub(Sub)) -->
+    subordinada_inicial(Sub).
+
+% Marcadores discursivos frecuentes del corpus.
+marcador_discursivo(md(ademas)) --> [ademas].
+marcador_discursivo(md(tambien)) --> [tambien].
+marcador_discursivo(md(sin_embargo)) --> [sin, embargo].
+marcador_discursivo(md(no_obstante)) --> [no, obstante].
+marcador_discursivo(md(por_el_contrario)) --> [por, el, contrario].
+marcador_discursivo(md(en_primer_lugar)) --> [en, primer, lugar].
+marcador_discursivo(md(a_continuacion)) --> [a, continuacion].
+marcador_discursivo(md(de_este_modo)) --> [de, este, modo].
+marcador_discursivo(md(con_ello)) --> [con, ello].
+marcador_discursivo(md(en_cambio)) --> [en, cambio].
+
 
 % =========================================================
 % RELATIVO
 % =========================================================
 
-relativo_simple(rel(R, GV)) -->
+% Mantengo el nombre relativo_simple/1 para no romper reglas antiguas.
+relativo_simple(Rel) -->
+    relativo_ampliado(Rel).
+
+% Relativa simple sin sujeto explícito:
+%   "que imitan la locomoción"
+%   "que actúa como interruptor"
+%   "que requiere un paso"
+relativo_ampliado(rel(R, GV)) -->
     relativo(R),
+    g_verbal(GV).
+
+% Relativa con sujeto explícito:
+%   "que los materiales bióticos emplean..."
+%   "que la presión produce..."
+relativo_ampliado(rel(R, O)) -->
+    relativo(R),
+    oracion_simple(O).
+
+% Relativa preposicional:
+%   "en la que los materiales se emplean..."
+%   "mediante el cual las arañas controlan..."
+%   "durante los cuales medimos..."
+relativo_ampliado(rel_prep(P, Det, R, O)) -->
+    preposicion(P),
+    determinante(Det),
+    relativo(R),
+    oracion_simple(O).
+
+% Relativa con "lo que":
+%   "lo que provoca..."
+%   "lo que permite..."
+%   "lo que hizo..."
+relativo_ampliado(rel_lo_que(O)) -->
+    [lo, que],
+    oracion_simple(O).
+
+% Relativa con "lo que" + verbo sin sujeto:
+%   "lo que provoca que..."
+%   "lo que permite evitar..."
+relativo_ampliado(rel_lo_que(GV)) -->
+    [lo, que],
     g_verbal(GV).
 
 % =========================================================
@@ -139,7 +267,9 @@ modificadores_nominales(none) -->
 modificador_nominal(gadj(GAdj)) --> g_adjetival(GAdj).
 modificador_nominal(gp(GP))     --> g_preposicional(GP).
 modificador_nominal(rel(Rel))   --> relativo_simple(Rel).
+modificador_nominal(cant(Cant)) --> cantidad(Cant).
 modificador_nominal(n(N))       --> nombre(N).
+modificador_nominal(part(Part)) --> participio(Part).
 
 % =========================================================
 % GRUPO ADJETIVAL (GADJ)
@@ -160,6 +290,24 @@ g_adjetival(gadj(GAdv, Adj, GP)) -->
     g_adverbial(GAdv),
     adjetivo(Adj),
     g_preposicional(GP).
+
+% adjetivo + grupo preposicional:
+%   "capaz de agarrar objetos"
+%   "susceptible a la fractura"
+%   "similar a un extensor"
+g_adjetival(gadj(Adj, GP)) -->
+    adjetivo(Adj),
+    g_preposicional(GP).
+
+% Comparativa:
+%   "más rígido que el abdomen"
+%   "más duraderas que ..."
+%   "mayor que ..."
+g_adjetival(gadj_comp(Adv, Adj, que, GN)) -->
+    adverbio(Adv),
+    adjetivo(Adj),
+    [que],
+    g_nominal(GN).
 
 % =========================================================
 % GRUPO ADVERBIAL (GADV)
@@ -238,6 +386,24 @@ g_verbal_simple(Nodo) -->
     participio(Part),
     complementos_verbales(Comps),
     { gv_comp3(Modal, Aux, Part, Comps, Nodo) }.
+
+% se + auxiliar + participio + complementos
+g_verbal_simple(Nodo) -->
+    pronombre_se(Se),
+    auxiliar(Aux),
+    participio(Part),
+    complementos_verbales(Comps),
+    { gv_comp3(Se, Aux, Part, Comps, Nodo) }.
+
+% auxiliar + ser/sido + participio + complementos:
+%   "han sido utilizados..."
+%   "ha sido explorada..."
+g_verbal_simple(Nodo) -->
+    auxiliar(Aux),
+    auxiliar_ser(AuxSer),
+    participio(Part),
+    complementos_verbales(Comps),
+    { gv_comp3(Aux, AuxSer, Part, Comps, Nodo) }.
 
 % verbo copulativo + infinitivo
 g_verbal_simple(gv(VC, Inf)) -->
@@ -381,6 +547,8 @@ complemento_verbal(gp(GP))     --> g_preposicional(GP).
 complemento_verbal(gn(GN))     --> g_nominal(GN).
 complemento_verbal(gadj(GAdj)) --> g_adjetival(GAdj).
 complemento_verbal(gadv(GAdv)) --> g_adverbial(GAdv).
+complemento_verbal(cant(Cant)) --> cantidad(Cant).
+complemento_verbal(rel(Rel))   --> relativo_ampliado(Rel).
 
 % =========================================================
 % INFINITIVO FRASE
@@ -398,9 +566,33 @@ infinitivo_frase(Nodo) -->
 % SUBORDINADA
 % =========================================================
 
+% Subordinada normal:
+%   "que las patas se curven..."
+%   "aunque el sistema..."
 subordinada(sub(Comp, O)) -->
     subordinante(Comp),
     oracion_compuesta(O).
+
+% Subordinadas iniciales:
+%   "Cuando una araña muere, ..."
+%   "Aunque el uso de materiales..."
+%   "Dado que las patas..."
+%   "Si bien el uso..."
+subordinada_inicial(sub_ini(Comp, O)) -->
+    subordinante_inicial(Comp),
+    oracion_compuesta(O).
+
+% Algunos subordinantes iniciales aparecen en una sola palabra.
+subordinante_inicial(subord(cuando)) --> [cuando].
+subordinante_inicial(subord(aunque)) --> [aunque].
+
+% Otros son compuestos.
+subordinante_inicial(subord(si_bien)) --> [si, bien].
+subordinante_inicial(subord(dado_que)) --> [dado, que].
+subordinante_inicial(subord(ya_que)) --> [ya, que].
+subordinante_inicial(subord(debido_a_que)) --> [debido, a, que].
+subordinante_inicial(subord(en_cuanto)) --> [en, cuanto].
+subordinante_inicial(subord(a_medida_que)) --> [a, medida, que].
 
 % =========================================================
 % LÉXICO: CONVERSIÓN DE PALABRAS A CATEGORÍAS
@@ -423,6 +615,48 @@ conjuncion(conj(X))     --> [X], {conj_word(X)}.
 relativo(relat(X))      --> [X], {rel_word(X)}.
 subordinante(subord(X)) --> [X], {subord_word(X)}.
 pronombre_se(se(X))     --> [X], {se_word(X)}.
+
+% =========================================================
+% CANTIDADES, NÚMEROS Y UNIDADES
+% =========================================================
+%
+% Permite reconocer expresiones como:
+%   130 %
+%   0.35 mn
+%   33.5 mg
+%   5.5 kpa
+%   1000 ciclos
+%   17 veces
+%
+% El tokenizador debe haber convertido "0,35" en "0.35".
+
+numero(num(X)) -->
+    [X],
+    { atom_number(X, _) }.
+
+unidad(unidad(X)) -->
+    [X],
+    { unidad_word(X) }.
+
+cantidad(cant(Num)) -->
+    numero(Num).
+
+cantidad(cant(Num, Unidad)) -->
+    numero(Num),
+    unidad(Unidad).
+
+cantidad(cant(Num, porcentaje)) -->
+    numero(Num),
+    ['%'].
+
+cantidad(cant(Num, por_ciento)) -->
+    numero(Num),
+    [por, ciento].
+
+cantidad(cant(Num, veces)) -->
+    numero(Num),
+    [veces].
+
 
 % =========================================================
 % CONJUNCIONES
@@ -449,6 +683,30 @@ pausa_opcional --> [].
 % =========================================================
 
 % ---------------------------------------------------------
+% contiene_complejidad/1
+% Detecta si una oración simple contiene subordinación,
+% relativa, complemento inicial o coordinación verbal.
+% Sirve para clasificar como ocm frases que formalmente
+% son o(...), pero tienen estructura interna compleja.
+% ---------------------------------------------------------
+
+contiene_complejidad(Term) :-
+    sub_term(Sub, Term),
+    es_nodo_complejo(Sub),
+    !.
+
+es_nodo_complejo(gv_coord(_,_,_)).
+es_nodo_complejo(sub(_,_)).
+es_nodo_complejo(sub_ini(_,_)).
+es_nodo_complejo(rel(_,_)).
+es_nodo_complejo(rel_prep(_,_,_,_)).
+es_nodo_complejo(rel_lo_que(_)).
+es_nodo_complejo(ci_adv(_)).
+es_nodo_complejo(ci_gp(_)).
+es_nodo_complejo(ci_marcador(_)).
+es_nodo_complejo(ci_sub(_)).
+
+% ---------------------------------------------------------
 % es_oracion_simple/1
 % ---------------------------------------------------------
 es_oracion_simple(o(_, _)).
@@ -457,11 +715,18 @@ es_oracion_simple(o(_)).
 % ---------------------------------------------------------
 % tipo_oracion/2
 % ---------------------------------------------------------
-tipo_oracion(o(_, _),    o).
-tipo_oracion(o(_),       o).
 tipo_oracion(oc(_,_,_),  oc).
 tipo_oracion(or(_,_,_),  or).
 tipo_oracion(ocm(_,_,_), ocm).
+tipo_oracion(ocm(_),     ocm).
+
+tipo_oracion(O, ocm) :-
+    contiene_complejidad(O),
+    !.
+
+tipo_oracion(o(_, _), o).
+tipo_oracion(o(_),    o).
+tipo_oracion(o(_,_,_), o).
 
 % ---------------------------------------------------------
 % simplificar/2

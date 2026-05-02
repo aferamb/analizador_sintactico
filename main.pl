@@ -3,6 +3,8 @@
 
 :- consult('sintactico.pl').
 :- consult('conjunto_oraciones.pl').
+%:- consult('conjunto_oraciones_gpt.pl').
+%:- consult('conjunto_oraciones_claude.pl').
 
 % ---------------------------------------------------------
 % acepta(+Lista)
@@ -70,7 +72,8 @@ simplificar_e_imprimir(Lista) :-
 tokenizar_basico(Texto, Lista) :-
     string(Texto), !,
     string_lower(Texto, TextoMinus),
-    normalizar_acentos(TextoMinus, TextoNormalizado),
+    normalizar_acentos(TextoMinus, TextoNormalizado0),
+    normalizar_comas_decimales(TextoNormalizado0, TextoNormalizado),
     rodear_comas(TextoNormalizado, TextoConComasSeparadas),
     split_string(
         TextoConComasSeparadas,
@@ -113,6 +116,31 @@ normalizar_codigo(243, 111). % o con tilde
 normalizar_codigo(250, 117). % u con tilde
 normalizar_codigo(252, 117). % u con dieresis
 normalizar_codigo(C, C).
+
+% ---------------------------------------------------------
+% normalizar_comas_decimales(+TextoEntrada, -TextoSalida)
+% Convierte comas decimales entre números en puntos:
+%   "0,35 mN" -> "0.35 mN"
+%   "5,5 kPa" -> "5.5 kPa"
+% Así rodear_comas/2 no rompe los números decimales.
+% ---------------------------------------------------------
+
+normalizar_comas_decimales(TextoEntrada, TextoSalida) :-
+    string_codes(TextoEntrada, Codigos),
+    normalizar_comas_decimales_codigos(Codigos, Normalizados),
+    string_codes(TextoSalida, Normalizados).
+
+normalizar_comas_decimales_codigos([], []).
+
+normalizar_comas_decimales_codigos([A,44,B|Resto], [A,46,B|Salida]) :-
+    code_type(A, digit),
+    code_type(B, digit),
+    !,
+    normalizar_comas_decimales_codigos(Resto, Salida).
+
+normalizar_comas_decimales_codigos([C|Resto], [C|Salida]) :-
+    normalizar_comas_decimales_codigos(Resto, Salida).
+
 
 % ---------------------------------------------------------
 % rodear_comas(+TextoEntrada, -TextoSalida)

@@ -1,7 +1,6 @@
 
 La pinza necrobótica es capaz de agarrar objetos con geometrías irregulares y de hasta el 130 % de su propia masa.
 Además, la pinza puede servir como dispositivo manual y se camufla de manera innata en entornos exteriores.
-Las patas de las arañas no tienen pares musculares antagonistas.
 Cuando una araña muere, la presión deja de oponerse a los músculos flexores.
 Esta fascinación por las arañas no es injustificada.
 En este trabajo empleamos el cuerpo intacto de una criatura biológica inanimada como actuador biótico listo para usar.

@@ -3,6 +3,31 @@
 % Cada palabra aparece en su propia línea para evitar errores de carga en SWI-Prolog.
 
 % =========================================================
+% UNIDADES Y MARCADORES CUANTITATIVOS
+% =========================================================
+
+unidad_word(mn).
+unidad_word(micronewtons).
+unidad_word(micronewtonios).
+unidad_word(mg).
+unidad_word(g).
+unidad_word(kg).
+unidad_word(kpa).
+unidad_word(psi).
+unidad_word(mm).
+unidad_word(cm).
+unidad_word(dias).
+unidad_word(dia).
+unidad_word(ciclos).
+unidad_word(veces).
+unidad_word(segundo).
+unidad_word(segundos).
+unidad_word(minutos).
+unidad_word(porcentaje).
+
+
+
+% =========================================================
 % DETERMINANTES
 % =========================================================
 det_word(el).
@@ -239,6 +264,21 @@ part_word(basados).
 part_word(considerada).
 part_word(considerado).
 part_word(desmentida).
+part_word(perfeccionados).
+part_word(derivados).
+part_word(inspirados).
+part_word(generados).
+part_word(accionado).
+part_word(accionada).
+part_word(utilizado).
+part_word(utilizada).
+part_word(mostradas).
+part_word(refinados).
+part_word(creados).
+part_word(propuesto).
+part_word(recubierta).
+part_word(insertada).
+part_word(pegada).
 
 % =========================================================
 % MODALES
@@ -401,6 +441,8 @@ conj_coord_word(ni).
 % =========================================================
 rel_word(que).
 subord_word(que).
+subord_word(cuando).
+subord_word(aunque).
 subord_word(si).
 
 % =========================================================
