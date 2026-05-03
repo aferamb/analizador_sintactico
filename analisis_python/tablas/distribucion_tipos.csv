@@ -1,0 +1,11 @@
+﻿tipo,cantidad,corpus
+o,21,GPT
+oc,4,GPT
+or,1,GPT
+ocm,23,GPT
+no_analizada,1,GPT
+o,23,CLAUDE
+oc,4,CLAUDE
+or,1,CLAUDE
+ocm,22,CLAUDE
+no_analizada,0,CLAUDE
