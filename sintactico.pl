@@ -1653,6 +1653,23 @@ es_nodo_complejo(ci_g_preposicional(_)).
 es_nodo_complejo(ci_marcador(_)).
 es_nodo_complejo(ci_sub(_)).
 
+
+% ---------------------------------------------------------
+% contiene_relativo/1
+% Detecta si una oración contiene relativo para clasificarla como or 
+% ---------------------------------------------------------
+
+contiene_relativo(Term) :-
+    sub_term(Sub, Term),
+    es_nodo_relativo(Sub),
+    !.
+
+es_nodo_relativo(rel(_, _)).
+es_nodo_relativo(rel_prep(_, _, _, _)).
+es_nodo_relativo(rel_lo_que(_)).
+es_nodo_relativo(rel_coord(_, _, _)).
+
+
 % ---------------------------------------------------------
 % es_oracion_simple/1
 % ---------------------------------------------------------
@@ -1663,19 +1680,41 @@ es_oracion_simple(o(_)).
 % ---------------------------------------------------------
 % tipo_oracion/2
 % ---------------------------------------------------------
+
 tipo_oracion(oc(_,_,_),  oc).
-tipo_oracion(or(_,_,_),  or).
 tipo_oracion(ocm(_,_,_), ocm).
 tipo_oracion(ocm(_),     ocm).
 
-% Si el árbol contiene complejidad, aunque sea o(...), lo clasifica como ocm.
+% Oración de relativo explícita, si el árbol ya tiene forma or(...)
+tipo_oracion(or(_,_,_),  or).
+
+% Oración simple cuyo SUJETO contiene una relativa:
+%   "Los datos que respaldan los hallazgos están disponibles"
+tipo_oracion(o(GN, _GV), or) :-
+    contiene_relativo(GN),
+    !.
+
+% Complemento inicial + sujeto con relativa:
+%   "En este documento, los datos que respaldan... están disponibles"
+tipo_oracion(o(_CI, GN, _GV), or) :-
+    contiene_relativo(GN),
+    !.
+
+% Dos complementos iniciales + sujeto con relativa
+tipo_oracion(o(_CI1, _CI2, GN, _GV), or) :-
+    contiene_relativo(GN),
+    !.
+
+% Si contiene complejidad interna, pero no es relativa de sujeto, es ocm
 tipo_oracion(O, ocm) :-
     contiene_complejidad(O),
     !.
 
+% Casos simples
 tipo_oracion(o(_, _), o).
 tipo_oracion(o(_),    o).
 tipo_oracion(o(_,_,_), o).
+tipo_oracion(o(_,_,_,_), o).
 
 % ---------------------------------------------------------
 % simplificar/2
