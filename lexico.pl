@@ -1287,6 +1287,7 @@ verbo_word(basarse).
 verbo_word(biodegrada).
 verbo_word(camufla).
 verbo_word(camuflarse).
+verbo_word(carece).
 verbo_word(caracteriza).
 verbo_word(caracterizamos).
 verbo_word(caracterizar).
@@ -1752,7 +1753,6 @@ part_word(establecida).
 part_word(establecidas).
 part_word(establecido).
 part_word(establecidos).
-part_word(estado).
 part_word(estas).
 part_word(estos).
 part_word(eutanasiada).
@@ -1848,7 +1848,6 @@ part_word(perfeccionada).
 part_word(perfeccionadas).
 part_word(perfeccionado).
 part_word(perfeccionados).
-part_word(personalizado).
 part_word(pesada).
 part_word(posibilitado).
 part_word(presenta).
@@ -1942,6 +1941,7 @@ modal_word(podriamos).
 modal_word(podrian).
 modal_word(puede).
 modal_word(pueden).
+modal_word(suelen).
 
 % =========================================================
 % INFINITIVOS

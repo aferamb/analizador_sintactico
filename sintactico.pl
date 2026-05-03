@@ -7,13 +7,49 @@
 :- consult(draw).
 
 
+
+/**
+ * En muchas partes del código se usan reglas DCG para definir la gramática de las oraciones.
+ * DCG significa Definite Clause Grammar. Se escribe con --> en vez de :-
+ * 
+ * Por ejemplo: 
+ * oracion(o(GN, GV)) -->
+ * g_nominal(GN),
+ * g_verbal(GV).
+ * 
+ * Se traduce internamente a una regla con listas de tokens. Algo así:
+ * oracion(o(GN, GV), TokensEntrada, TokensSalida) :-
+ * g_nominal(GN, TokensEntrada, TokensIntermedios),
+ * g_verbal(GV, TokensIntermedios, TokensSalida). 
+ * 
+ * Por eso una DCG sirve para ir consumiendo palabras de una lista.
+ *  
+ * Las llaves { ... } en DCG significan: Esto no consume tokens; solo ejecuta código Prolog normal.
+ * 
+ * phrase es el predicado que ejecuta una DCG.
+ * 
+ * Cuando escribes: phrase(oracion(Arbol), [la, araña, muere]).
+ * estás diciendo: Analiza la lista [la, araña, muere] usando la regla oracion(Arbol).
+ * Si la lista encaja con la gramática, Prolog devuelve el árbol.
+ * 
+ * phrase/2 exige que la regla consuma toda la lista. Si sobra algo, falla.
+ * phrase/3 es más flexible: phrase(oracion(Arbol), [la, araña, muere], Resto). Esto permite ver qué parte ha consumido y qué parte ha sobrado.
+ * 
+ * 
+ * 
+ * 
+ * **/
+
 % =========================================================
 % REGLA PRINCIPAL
 % =========================================================
 
+% La regla principal de análisis sintáctico es oracion/3, 
+% que intenta analizar una secuencia de tokens como una oración completa, 
+% devolviendo el árbol sintáctico y el resto de tokens no analizados (si los hay).
 oracion(O, Tokens, Resto) :-
-    tokens_conocidos(Tokens),
-    oracion_compuesta(O, Tokens, Resto).
+    tokens_conocidos(Tokens), % Asegura que todos los tokens estén en el léxico o sean números, % ...
+    oracion_compuesta(O, Tokens, Resto). % Inicia el análisis con la regla de oración compuesta, que a su vez llama a otras reglas según la estructura detectada.
 
 % =========================================================
 % TIPOS DE ORACION
@@ -24,7 +60,7 @@ oracion(O, Tokens, Resto) :-
 % =========================================================
 
 % Coordinación de dos oraciones simples:
-%   "El efector puede usarse ... y se camufla ..."
+%   "El efector puede usarse ... , y se camufla ..."
 %   "Reutilizamos ... y creamos ..."
 oracion_compuesta_coord_simple(oc(O1, Conj, O2)) -->
     oracion_simple(O1),
@@ -32,7 +68,8 @@ oracion_compuesta_coord_simple(oc(O1, Conj, O2)) -->
     conjuncion_oracional(Conj),
     oracion_simple(O2).
 
-% Coordinación donde alguno de los lados ya es complejo:
+% Coordinación donde alguno de los lados ya es complejo
+% Reconoce coordinaciones donde al menos una parte no es una oración simple básica
 oracion_compuesta_coord_mixta(ocm(O1, Conj, O2)) -->
     oracion_no_coordinada(O1),
     pausa_opcional,
@@ -49,12 +86,13 @@ oracion_compuesta_coord_mixta(ocm(O1, Conj, O2)) -->
 oracion_compuesta_yuxtapuesta(ocm(O1, pausa, O2)) -->
     oracion_simple(O1),
     pausa_obligatoria,
-    oracion_compuesta_coord_simple(O2).
+    oracion_compuesta_coord_simple(O2). % La segunda parte tiene que ser una coordinación simple.
 
+% versión más general de yuxtaposición
 oracion_compuesta_yuxtapuesta(ocm(O1, pausa, O2)) -->
     oracion_simple(O1),
     pausa_obligatoria,
-    oracion_compuesta(O2).
+    oracion_compuesta(O2). % La segunda parte puede ser cualquier tipo de oración compuesta, no solo coordinación simple.
 
 % Oración simple con complementos/subordinadas internas.
 % Si la oración simple contiene subordinadas o relativas, puede clasificarse como ocm.
@@ -64,14 +102,21 @@ oracion_compuesta_ocm_interna(ocm(O)) -->
     { contiene_complejidad(O) }.
 
 % Oración no coordinada:
+% Antes de intentar parsear, mira si hay una coma seguida de conjunción: ..., y ...
+% Si detecta ese patrón, intenta directamente la coordinación simple.
 oracion_compuesta(O, Tokens, Resto) :-
     hay_coma_conjuncion(Tokens),
     phrase(oracion_compuesta_coord_simple(O), Tokens, Resto).
 
+% Distinguir una y que coordina complementos nominales de una y que coordina oraciones.
+% En 'geometrías, volúmenes y masas variados' , la y no es oracional
+% Pero en 'las patas se accionan extendiéndose hacia fuera y la pinza se abre', sí hay coordinación oracional
 oracion_compuesta(O, Tokens, Resto) :-
     hay_y_oracional(Tokens),
     phrase(oracion_compuesta_coord_simple(O), Tokens, Resto).
 
+% Busca palabras como motivos o razones seguidas de coma.
+% Está pensada para este tipo de frase: Elegimos el prosoma por dos motivos, la presión ... y el exoesqueleto ...
 oracion_compuesta(O, Tokens, Resto) :-
     hay_coma_explicativa(Tokens),
     phrase(oracion_compuesta_yuxtapuesta(O), Tokens, Resto).
@@ -95,6 +140,7 @@ oracion_compuesta(O) -->
 % Oración de relativo:
 %   "Los diseños que imitan la locomoción inspiran robots"
 %   "Los datos que respaldan los hallazgos están disponibles"
+% Reconoce frases con un GN seguido de relativa y luego un verbo principal.
 oracion_no_coordinada_relativa(or(GN, Rel, GV)) -->
     g_nominal(GN),
     pausa_opcional,
@@ -102,17 +148,31 @@ oracion_no_coordinada_relativa(or(GN, Rel, GV)) -->
     pausa_opcional,
     g_verbal(GV).
 
+
+% Primero intenta oración simple; 
 oracion_no_coordinada(O) -->
     oracion_simple(O).
 
+% luego oración relativa.
 oracion_no_coordinada(O) -->
     oracion_no_coordinada_relativa(O).
 
 % =========================================================
-% ORACION SIMPLE (y aposición)
+% ORACION SIMPLE y aposiciones
+% (Una aposición suele ser un grupo nominal que explica o renombra otro elemento. ej: Madrid, la capital de España, tiene muchos habitantes)
 % =========================================================
 
+% Aquí el sujeto no es un GN normal, sino una oración de infinitivo
+%   "Estudiar la fuerza ... podria conducir..."
+oracion_simple(o(Inf, GV)) -->
+    infinitivo_frase(Inf),
+    g_verbal(GV).
+
 % Oracion con sujeto omitido.
+% CI = subordinada inicial : Cuando no se aplica presión...
+% GN = las patas
+% GV = permanecen flexionadas hacia adentro ,
+% Apos = estado que denominamos neutro...
 oracion_simple(o(CI, GN, GV, Apos), Tokens, Resto) :-
     hay_coma_estado(Tokens),
     phrase((
@@ -123,6 +183,9 @@ oracion_simple(o(CI, GN, GV, Apos), Tokens, Resto) :-
         aposicion_final(Apos)
     ), Tokens, Resto).
 
+% Oracion con sujeto omitido
+%    demostramos la capacidad ...
+%    Construimos un circuito...
 oracion_simple(o(sujeto_eliptico, GV)) -->
     g_verbal(GV).
 
@@ -139,17 +202,17 @@ oracion_simple(o(GN, Inciso, GV)) -->
     inciso_oracional(Inciso),
     g_verbal(GV).
 
-% Oración con sujeto + verbo + inciso/complementos posteriores:
-%   "La presurizacion ... dan lugar, respectivamente, a la apertura..."
+% Oración con sujeto + verbo + inciso/complementos posteriores
+%   "El sistema funciona correctamente, según los resultados"
+% Reconoce frases donde el inciso va después del verbo.
 oracion_simple(o(GN, GV, IncisoFinal)) -->
     g_nominal(GN),
     g_verbal(GV),
     inciso_oracional(IncisoFinal).
 
-% Complemento inicial + oración con sujeto explícito:
-%   "Además, el efector puede usarse..."
-%   "En este trabajo, se reutiliza una araña..."
-%   "Para estudiar la durabilidad, realizamos ensayos..."
+% Complemento inicial + oración con sujeto explícito
+% Reconoce frases con dos elementos antepuestos
+%    Sin embargo, en este trabajo, los materiales...
 oracion_simple(o(CI1, CI2, GN, GV)) -->
     complemento_inicial(CI1),
     pausa_obligatoria,
@@ -158,15 +221,16 @@ oracion_simple(o(CI1, CI2, GN, GV)) -->
     g_nominal(GN),
     g_verbal(GV).
 
+% Complemento inicial + oración con sujeto explícito
+%    Además, el efector puede usarse...
 oracion_simple(o(CI, GN, GV)) -->
     complemento_inicial(CI),
     pausa_opcional,
     g_nominal(GN),
     g_verbal(GV).
 
-% Complemento inicial + oración con sujeto omitido:
-%   "Además, demostramos..."
-%   "A continuación, repetimos..."
+% 2 complementos iniciales + oración con sujeto omitido:
+%   Además, en este trabajo, demostramos...
 oracion_simple(o(CI1, CI2, sujeto_eliptico, GV)) -->
     complemento_inicial(CI1),
     pausa_obligatoria,
@@ -174,6 +238,8 @@ oracion_simple(o(CI1, CI2, sujeto_eliptico, GV)) -->
     pausa_opcional,
     g_verbal(GV).
 
+% Complemento inicial + oración con sujeto omitido:
+%   "Además, demostramos..."
 oracion_simple(o(CI, sujeto_eliptico, GV)) -->
     complemento_inicial(CI),
     pausa_opcional,
@@ -189,6 +255,7 @@ oracion_simple(o(CI, GV)) -->
 
 
 % Oración impersonal:
+%   "Se eutanasió una araña..."
 oracion_simple(o(GV)) -->
     g_verbal_impersonal(GV).
 
@@ -209,13 +276,16 @@ oracion_simple(o(GN, GV, Apos)) -->
     g_verbal(GV),
     aposicion_final(Apos).
 
+% Aposición final introducida por coma, con nombre y relativo.
+%    , estado que denominamos neutro
 aposicion_final(apos_estado(N, Rel)) -->
     [','],
     nombre(N),
     relativo_ampliado(Rel).
 
-
 % Aposición final introducida por coma.
+%   , una técnica sencilla
+%   , un actuador listo para usar
 aposicion_final(apos(GN)) -->
     [','],
     g_nominal(GN).
@@ -223,21 +293,16 @@ aposicion_final(apos(GN)) -->
 % =========================================================
 % COMPLEMENTO INICIAL
 % =========================================================
-%
-% Reconoce elementos antepuestos:
-%   Además,
-%   En este trabajo,
-%   Por el contrario,
-%   A continuación,
-%   Para estudiar...
-%   Cuando una araña muere,
-%   Aunque...
-%   Dado que...
+% Un complemento inicial puede ser:
+% - un adverbio o locución adverbial (además, sin embargo, por el contrario...)
+% - un grupo preposicional (en este trabajo, por el contrario...)
+% - un marcador discursivo (sin embargo, no obstante...)
+% - una subordinada (cuando una araña muere, dado que las patas...)
 
 complemento_inicial(ci_adv(GAdv)) -->
     g_adverbial(GAdv).
 
-complemento_inicial(ci_gp(GP)) -->
+complemento_inicial(ci_g_preposicional(GP)) -->
     g_preposicional(GP).
 
 complemento_inicial(ci_marcador(M)) -->
@@ -247,8 +312,6 @@ complemento_inicial(ci_sub(Sub)) -->
     subordinada_inicial(Sub).
 
 % Marcadores discursivos frecuentes del corpus.
-marcador_discursivo(md(ademas)) --> [ademas].
-marcador_discursivo(md(tambien)) --> [tambien].
 marcador_discursivo(md(sin_embargo)) --> [sin, embargo].
 marcador_discursivo(md(no_obstante)) --> [no, obstante].
 marcador_discursivo(md(por_el_contrario)) --> [por, el, contrario].
@@ -263,37 +326,35 @@ marcador_discursivo(md(en_cambio)) --> [en, cambio].
 % RELATIVO
 % =========================================================
 
-% Mantengo el nombre relativo_simple/1 para no romper reglas antiguas.
-relativo_simple(Rel) -->
-    relativo_ampliado(Rel).
-
+% Primero intenta una relativa normal.
 relativo_ampliado(Rel) -->
     relativo_base(Rel).
 
-% Primero se intenta una relativa coordinada, pero sin recursión izquierda.
-% Ejemplo:
+% Se intenta una relativa coordinada, con dos relativos unidos por una conjunción coordinante:
 %   "que denominamos neutro y que corresponde al agarre"
 relativo_ampliado(rel_coord(Rel1, Conj, Rel2)) -->
     relativo_base(Rel1),
     conjuncion_coordinante(Conj),
     relativo_base(Rel2).
 
-% Si no hay coordinación, se acepta una relativa base.
-relativo_ampliado(Rel) -->
-    relativo_base(Rel).
-
-% Relativa simple sin sujeto explícito:
-%   "que imitan la locomoción"
-%   "que actúa como interruptor"
-%   "que requiere un paso"
+% Relativa con "lo que":
+%   "lo que provoca..."
+%   "lo que permite..."
+%   "lo que hizo..."
 relativo_base(rel_lo_que(O)) -->
     [lo, que],
     oracion_simple(O).
 
+% Relativa con "lo que" + verbo sin sujeto:
+%   "lo que provoca que..."
+%   "lo que permite evitar..."
 relativo_base(rel_lo_que(GV)) -->
     [lo, que],
     g_verbal(GV).
 
+% Relativa con sujeto explícito:
+%   que requiere una etapa sencilla
+% que se interpreta como relativo y luego viene un grupo verbal sin sujeto explícito.
 relativo_base(rel(R, GV)) -->
     relativo(R),
     g_verbal(GV).
@@ -315,59 +376,50 @@ relativo_base(rel_prep(P, Det, R, O)) -->
     relativo(R),
     oracion_simple(O).
 
-% Relativa con "lo que":
-%   "lo que provoca..."
-%   "lo que permite..."
-%   "lo que hizo..."
-relativo_base(rel_lo_que(O)) -->
-    [lo, que],
-    oracion_simple(O).
-
-% Relativa con "lo que" + verbo sin sujeto:
-%   "lo que provoca que..."
-%   "lo que permite evitar..."
-relativo_base(rel_lo_que(GV)) -->
-    [lo, que],
-    g_verbal(GV).
-
 
 % =========================================================
-% ALIASES
+% Auxiliares para detección de estructuras específicas en el análisis de oraciones compuestas.
 % =========================================================
 
-gn(GN)     --> g_nominal(GN).
-gv(GV)     --> g_verbal(GV).
-gp(GP)     --> g_preposicional(GP).
-gadj(GAdj) --> g_adjetival(GAdj).
-gadv(GAdv) --> g_adverbial(GAdv).
+g_nominal_antes_de_para(GN, Tokens, Resto) :-
+    partir_antes_de_para(Tokens, Prefix, Resto),
+    phrase(g_nominal(GN), Prefix),
+    !.
 
-% =========================================================
+partir_antes_de_para([para|Resto], [], [para|Resto]) :- !.
+partir_antes_de_para([Token|Tokens], [Token|Prefix], Resto) :-
+    Token \= para,
+    partir_antes_de_para(Tokens, Prefix, Resto).
+
+
 % INCISOS ORACIONALES
-% =========================================================
-%
-% Reconoce fragmentos entre comas. No busca una interpretación
-% perfecta del inciso, solo evita que la coma rompa la oración.
+% Reconoce fragmentos entre comas
 
+%   Todo el proceso, desde la inserción de la aguja, puede realizarse...
 inciso_oracional(inciso(GP)) -->
     [','],
     g_preposicional(GP),
     [','].
 
+%   dan lugar, respectivamente, a la apertura...
 inciso_oracional(inciso(GAdv)) -->
     [','],
     g_adverbial(GAdv),
     [','].
 
+%   Ambos sistemas, sin embargo, se enfrentan...
 inciso_oracional(inciso(M)) -->
     [','],
     marcador_discursivo(M),
     [','].
 
+%   ..., basado en material biótico, ...
 inciso_oracional(inciso(PartF)) -->
     [','],
     participio_frase(PartF),
     [','].
 
+%   ..., completando así el proceso, ...
 inciso_oracional(inciso(Ger)) -->
     [','],
     gerundio_frase(Ger),
@@ -381,6 +433,7 @@ inciso_oracional(inciso(Ger)) -->
 g_nominal(GN) -->
     g_nominal_simple(GN).
 
+% Coordinación con coma: "Juan, María y Pedro"
 g_nominal(gn_lista(GN1, GN2, Conj, GN3)) -->
     g_nominal_simple(GN1),
     [','],
@@ -389,7 +442,7 @@ g_nominal(gn_lista(GN1, GN2, Conj, GN3)) -->
     g_nominal_simple(GN3).
 
 % Coordinación simple: "Juan y María"
-g_nominal(gn(GN1, Conj, GN2)) -->
+g_nominal(g_nominal(GN1, Conj, GN2)) -->
     g_nominal_simple(GN1),
     conjuncion_nominal(Conj),
     g_nominal_simple(GN2).
@@ -402,18 +455,32 @@ g_nominal(gn(GN1, Conj, GN2)) -->
 % Determinante + adjetivo antepuesto + nombre:
 %   "esta alta densidad"
 %   "una fina capa"
-g_nominal_simple(gn(D, N, Adj, Mods)) -->
+g_nominal_simple(g_nominal(D, Adj, N, Mods)) -->
+    determinante(D),
+    adjetivo_antepuesto(Adj),
+    nombre(N),
+    modificadores_nominales(Mods).
+
+% Determinante + nombre + adjetivo:
+%   "la pinza necrobótica"
+%   "el material biótico"
+g_nominal_simple(g_nominal(D, N, Adj, Mods)) -->
     determinante(D),
     nombre(N),
     adjetivo(Adj),
     modificadores_nominales(Mods).
 
-g_nominal_simple(gn(D, N, Mods)) -->
+% Determinante + nombre + modificadores:
+%   "la pinza con forma de garra"
+%   "el prosoma"
+g_nominal_simple(g_nominal(D, N, Mods)) -->
     determinante(D),
     nombre(N),
     modificadores_nominales(Mods).
 
-g_nominal_simple(gn(D, Adj, N, Mods)) -->
+% Determinante + adjetivo antepuesto + nombre + modificadores
+%   una muy fina capa (muy fina como g_adjetival.)
+g_nominal_simple(g_nominal(D, Adj, N, Mods)) -->
     determinante(D),
     g_adjetival(Adj),
     nombre(N),
@@ -423,7 +490,7 @@ g_nominal_simple(gn(D, Adj, N, Mods)) -->
 %   "el efector final necrobotico"
 %   "el material biotico bruto"
 %   "una araña inanimada concreta"
-g_nominal_simple(gn(D, N, Adj1, Adj2, Mods)) -->
+g_nominal_simple(g_nominal(D, N, Adj1, Adj2, Mods)) -->
     determinante(D),
     nombre(N),
     adjetivo(Adj1),
@@ -434,7 +501,7 @@ g_nominal_simple(gn(D, N, Adj1, Adj2, Mods)) -->
 %   "la pinza necrobotica"
 %   "el efector final"
 %   "el material biotico"
-g_nominal_simple(gn(D, N, Adj, Mods)) -->
+g_nominal_simple(g_nominal(D, N, Adj, Mods)) -->
     determinante(D),
     nombre(N),
     adjetivo(Adj),
@@ -444,7 +511,7 @@ g_nominal_simple(gn(D, N, Adj, Mods)) -->
 %   "todo el proceso"
 %   "todas las patas"
 %   "todos los materiales"
-g_nominal_simple(gn(D1, D2, N, Mods)) -->
+g_nominal_simple(g_nominal(D1, D2, N, Mods)) -->
     determinante(D1),
     determinante(D2),
     nombre(N),
@@ -452,7 +519,7 @@ g_nominal_simple(gn(D1, D2, N, Mods)) -->
 
 % Predeterminante + determinante + nombre + adjetivo:
 %   "todas las patas flexionadas"
-g_nominal_simple(gn(D1, D2, N, Adj, Mods)) -->
+g_nominal_simple(g_nominal(D1, D2, N, Adj, Mods)) -->
     determinante(D1),
     determinante(D2),
     nombre(N),
@@ -462,7 +529,7 @@ g_nominal_simple(gn(D1, D2, N, Adj, Mods)) -->
 % Determinante + nombre:
 %   "la pinza"
 %   "el prosoma"
-g_nominal_simple(gn(D, N, Mods)) -->
+g_nominal_simple(g_nominal(D, N, Mods)) -->
     determinante(D),
     nombre(N),
     modificadores_nominales(Mods).
@@ -470,12 +537,14 @@ g_nominal_simple(gn(D, N, Mods)) -->
 % Determinante + cantidad:
 %   "el 130 %"
 %   "los 1000 ciclos"
-g_nominal_simple(gn(D, Cant, Mods)) -->
+g_nominal_simple(g_nominal(D, Cant, Mods)) -->
     determinante(D),
     cantidad(Cant),
     modificadores_nominales(Mods).
 
-g_nominal_simple(gn(D, GP, Mods)) -->
+% Determinante + grupo preposicional:
+%   "el de la araña"
+g_nominal_simple(g_nominal(D, GP, Mods)) -->
     determinante(D),
     g_preposicional(GP),
     modificadores_nominales(Mods).
@@ -484,7 +553,7 @@ g_nominal_simple(gn(D, GP, Mods)) -->
 %   "130 %"
 %   "17 veces"
 %   "5 dias"
-g_nominal_simple(gn(Cant, Mods)) -->
+g_nominal_simple(g_nominal(Cant, Mods)) -->
     cantidad(Cant),
     modificadores_nominales(Mods).
 
@@ -492,20 +561,37 @@ g_nominal_simple(gn(Cant, Mods)) -->
 %   "araña"
 %   "objetos"
 %   "geometrias"
-g_nominal_simple(gn(N, Mods)) -->
+g_nominal_simple(g_nominal(N, Mods)) -->
     nombre(N),
     modificadores_nominales(Mods).
 
-g_nominal_simple(gn(Adj, N, Mods)) -->
+% g adjetival + nombre:
+%   "pequeños actuadores"
+g_nominal_simple(g_nominal(Adj, N, Mods)) -->
     g_adjetival(Adj),
     nombre(N),
     modificadores_nominales(Mods).
+
+% Solo acepta como antepuestos ciertos adjetivos.
+adjetivo_antepuesto(adj(X)) --> % DCG que consume una palabra X.
+    [X], %Consume un token de la lista y llámalo X.
+    { adj_word(X), adjetivo_antepuesto_word(X) }. % Verifica que X sea un adjetivo válido y esté en la lista de adjetivos antepuestos.
+
+adjetivo_antepuesto_word(alta).
+adjetivo_antepuesto_word(elevada).
+adjetivo_antepuesto_word(fina).
+adjetivo_antepuesto_word(unica).
+adjetivo_antepuesto_word(mera).
+adjetivo_antepuesto_word(reducido).
 
 % ---------------------------------------------------------
 % Modificadores nominales como árbol binario encadenado.
 % mod(Mod_actual, Resto)  o  none  si no hay más.
 % ---------------------------------------------------------
 
+% Esto crea una lista encadenada:
+% mod(Mod1, mod(Mod2, mod(Mod3, none)))
+% en vez de una lista Prolog normal.
 modificadores_nominales(mod(Mod, Resto)) -->
     modificador_nominal(Mod),
     modificadores_nominales(Resto).
@@ -513,48 +599,78 @@ modificadores_nominales(mod(Mod, Resto)) -->
 modificadores_nominales(none) -->
     [].
 
-modificador_nominal(gadj(GAdj)) --> g_adjetival(GAdj).
-modificador_nominal(gp(GP))     --> g_preposicional(GP).
-modificador_nominal(rel(Rel))   --> relativo_simple(Rel).
-modificador_nominal(cant(Cant)) --> cantidad(Cant).
-modificador_nominal(gadv(GAdv)) --> g_adverbial(GAdv).
-modificador_nominal(partf(PartF)) --> participio_frase_nominal(PartF).
-modificador_nominal(ger(Ger))   --> gerundio_frase(Ger).
-modificador_nominal(n(n(X)))    --> [X], {nombre_word(X), \+ verbo_word(X)}.
-modificador_nominal(part(part(X))) --> [X], {participio_nominal_valido(X)}.
+% Adjetivos o grupos adjetivales: necrobótico , de alta potencia
+% Grupos preposicionales: con geometrías irregulares, de la araña
+% Relativos: que denominamos neutro, que se interpreta como relativo   
+% Cantidad: 17 veces, 130 %
+% Adverbios, pero con filtro: completamente funcional, todavía no
+% Participios: flexionadas hacia adentro, recubierta de material biótico
+% Nombres como modificadores de otros nombres: araña lobo (lobo es mod.)
+% Participios nominales con filtro: recubierta, flexionada
+modificador_nominal(g_adjetival(GAdj))    --> g_adjetival(GAdj).
+modificador_nominal(g_preposicional(GP))  --> g_preposicional(GP).
+modificador_nominal(rel(Rel))             --> relativo_ampliado(Rel).
+modificador_nominal(cant(Cant))           --> cantidad(Cant).
+modificador_nominal(g_adverbial(GAdv))    --> g_adverbial(GAdv), { gadv_nominal_valido(GAdv) }.
+modificador_nominal(partf(PartF))         --> participio_frase_nominal(PartF).
+modificador_nominal(n(n(X)))              --> [X], {nombre_word(X), \+ verbo_word(X), \+ modal_word(X)}.
+modificador_nominal(part(part(X)))        --> [X], {participio_nominal_valido(X)}.
+
+% ---------------------------------------------------------
+% Filtro de adverbios nominales
+% Evita que ciertos adverbios se peguen como modificadores nominales, lo que daría lugar a estructuras sintácticas no deseadas.
+% ---------------------------------------------------------
+gadv_nominal_valido(g_adverbial(adv(X))) :-
+    \+ adverbio_bloqueado_como_mod_nominal(X).
+
+gadv_nominal_valido(g_adverbial(adv(X), adv(Y))) :-
+    \+ adverbio_bloqueado_como_mod_nominal(X),
+    \+ adverbio_bloqueado_como_mod_nominal(Y).
+
+adverbio_bloqueado_como_mod_nominal(no).
+adverbio_bloqueado_como_mod_nominal(aun).
+adverbio_bloqueado_como_mod_nominal(todavia).
+adverbio_bloqueado_como_mod_nominal(tambien).
 
 % =========================================================
 % GRUPO ADJETIVAL (GADJ)
 % =========================================================
 
-g_adjetival(gadj(GAdv, Adj)) -->
+% Adverbio + adjetivo:
+%  "completamente funcional"
+g_adjetival(g_adjetival(GAdv, Adj)) -->
     g_adverbial(GAdv),
     adjetivo(Adj).
 
-g_adjetival(gadj(Adj1, Adj2)) -->
+% Dos adjetivos seguidos:
+%  "final necrobótico"
+g_adjetival(g_adjetival(Adj1, Adj2)) -->
     adjetivo(Adj1),
     adjetivo(Adj2).
 
-g_adjetival(gadj(GAdv, Adj, GP)) -->
+% Adverbio + adjetivo + grupo preposicional:
+%  "más susceptible a la fractura"
+g_adjetival(g_adjetival(GAdv, Adj, GP)) -->
     g_adverbial(GAdv),
     adjetivo(Adj),
     g_preposicional(GP).
 
-g_adjetival(gadj(GAdv, Adj, p(de), Inf)) -->
+% Adverbio + adjetivo + de + infinitivo:
+%  "más fácil de obtener"
+g_adjetival(g_adjetival(GAdv, Adj, p(de), Inf)) -->
     g_adverbial(GAdv),
     adjetivo(Adj),
     [de],
     infinitivo_frase(Inf).
 
+% Coordinación adjetival
+%    "complicados o incluso imposibles de replicar"
+%     Aquí complicados se coordina con imposibles de replicar.
 g_adjetival(gadj_coord(Adj1, Conj, GAdj2)) -->
     adjetivo(Adj1),
     conjuncion_coordinante(Conj),
     g_adjetival(GAdj2).
 
-% adjetivo + grupo preposicional:
-%   "capaz de agarrar objetos"
-%   "susceptible a la fractura"
-%   "similar a un extensor"
 % Comparativa:
 %   "más rígido que el abdomen"
 %   "más duraderas que ..."
@@ -576,7 +692,7 @@ g_adjetival(gadj_comp_cant(Cant, Adj, que, GN)) -->
 % adjetivo + de + infinitivo:
 %   "capaz de agarrar objetos"
 %   "capaces de producir fuerzas"
-g_adjetival(gadj(Adj, p(de), Inf)) -->
+g_adjetival(g_adjetival(Adj, p(de), Inf)) -->
     adjetivo(Adj),
     [de],
     infinitivo_frase(Inf).
@@ -584,21 +700,27 @@ g_adjetival(gadj(Adj, p(de), Inf)) -->
 % adjetivo + para + infinitivo:
 %   "listo para usar"
 %   "útil para aplicaciones"
-g_adjetival(gadj(Adj, p(para), inf(Inf))) -->
+g_adjetival(g_adjetival(Adj, p(para), inf(Inf))) -->
     adjetivo(Adj),
     [para],
     infinitivo(Inf).
 
-g_adjetival(gadj(Adj, p(para), Inf)) -->
+% adjetivo + para + infinitivo con frase de infinitivo más compleja:
+%   "útil para agarrar objetos"
+g_adjetival(g_adjetival(Adj, p(para), Inf)) -->
     adjetivo(Adj),
     [para],
     infinitivo_frase(Inf).
 
-g_adjetival(gadj(Adj, GP)) -->
+% adjetivo + grupo preposicional:
+%   "sensible a la presión"
+g_adjetival(g_adjetival(Adj, GP)) -->
     adjetivo(Adj),
     g_preposicional(GP).
 
-g_adjetival(gadj(Adj)) -->
+% adjetivo solo:
+%   "flexionada"
+g_adjetival(g_adjetival(Adj)) -->
     adjetivo(Adj).
 
 
@@ -607,27 +729,22 @@ g_adjetival(gadj(Adj)) -->
 % GRUPO ADVERBIAL (GADV)
 % =========================================================
 
-g_adverbial(gadv(Adv)) -->
+% Adverbio solo:
+%   "completamente"
+%   "todavía"
+g_adverbial(g_adverbial(Adv)) -->
     adverbio(Adv).
 
 % Dos adverbios seguidos:
 %   "todavia no"
 %   "muy bien"
-g_adverbial(gadv(Adv1, Adv2)) -->
+g_adverbial(g_adverbial(Adv1, Adv2)) -->
     adverbio(Adv1),
     adverbio(Adv2).
 
-% Adverbio + adjetivo:
-%   "plenamente operativa"
-%   "completamente funcional"
-%   "eficazmente como..." se tratará aparte como complemento
-g_adverbial(gadv(Adv, Adj)) -->
-    adverbio(Adv),
-    adjetivo(Adj).
-
 % Comparativa:
 %   "mas rigido que el abdomen"
-g_adverbial(gadv(Adv, Adj, GN)) -->
+g_adverbial(g_adverbial(Adv, Adj, GN)) -->
     adverbio(Adv),
     adjetivo(Adj),
     [que],
@@ -637,20 +754,22 @@ g_adverbial(gadv(Adv, Adj, GN)) -->
 % GRUPO PREPOSICIONAL (GP)
 % =========================================================
 
-% Locución preposicional + GN:
-%   "a través de la jeringuilla"
-%   "debido a la deshidratación"
-%   "gracias a los patrones"
-%   "a diferencia de nuestra pinza"
-g_preposicional(gp(p(de_que), O)) -->
+% de que + oración simple:
+%   "de que las patas se curvan..."
+g_preposicional(g_preposicional(p(de_que), O)) -->
     [de, que],
     oracion_compuesta(O).
 
-g_preposicional(gp(Loc, GN)) -->
+% Locución preposicional + GN:
+%   "a través de la jeringuilla"
+%   "gracias a la presión"
+g_preposicional(g_preposicional(Loc, GN)) -->
     locucion_preposicional(Loc),
     g_nominal(GN).
 
-g_preposicional(gp(Loc, GN, Conj, GP)) -->
+% Locución preposicional + GN + conjunción coordinante + GP:
+%   "al margen de la seda de araña y de los exoesqueletos mudados"
+g_preposicional(g_preposicional(Loc, GN, Conj, GP)) -->
     locucion_preposicional(Loc),
     g_nominal(GN),
     conjuncion_coordinante(Conj),
@@ -659,38 +778,42 @@ g_preposicional(gp(Loc, GN, Conj, GP)) -->
 % Locución preposicional + infinitivo:
 %   "con el fin de comprender..."
 %   "en lugar de diseñar..."
-g_preposicional(gp(Loc, Inf)) -->
+g_preposicional(g_preposicional(Loc, Inf)) -->
     locucion_preposicional(Loc),
     infinitivo_frase(Inf).
 
 % Preposición + GN:
 %   "de la araña"
 %   "con geometrías irregulares"
-g_preposicional(gp(P, GN)) -->
+g_preposicional(g_preposicional(P, GN)) -->
     preposicion(P),
     g_nominal(GN).
 
-g_preposicional(gp(P, GAdv, GN)) -->
+% Preposición + adverbio + GN:
+%    de aproximadamente diez minutos
+g_preposicional(g_preposicional(P, GAdv, GN)) -->
     preposicion(P),
     g_adverbial(GAdv),
     g_nominal(GN).
 
-% Preposición + infinitivo:
-%   "para agarrar objetos"
-%   "al incorporar materiales"
-g_preposicional(gp(P, inf(Inf))) -->
+% Preposición sin + infinitivo simple:
+%   "sin aplicar presión"
+g_preposicional(g_preposicional(P, inf(Inf))) -->
     preposicion(P),
     { P = p(sin) },
     infinitivo(Inf).
 
-g_preposicional(gp(P, Inf)) -->
+% Preposición + infinitivo:
+%   "para agarrar objetos"
+%   "al incorporar materiales"
+g_preposicional(g_preposicional(P, Inf)) -->
     preposicion(P),
     infinitivo_frase(Inf).
 
 % Preposición + preposición + GN:
 %   "de hasta el 130 %"
 %   "por sobre el sistema" 
-g_preposicional(gp(P1, P2, GN)) -->
+g_preposicional(g_preposicional(P1, P2, GN)) -->
     preposicion(P1),
     preposicion(P2),
     g_nominal(GN).
@@ -698,7 +821,7 @@ g_preposicional(gp(P1, P2, GN)) -->
 % =========================================================
 % LOCUCIONES PREPOSICIONALES
 % =========================================================
-
+% El analizador trata estas secuencias como una sola preposición compleja.
 locucion_preposicional(p(a_traves_de)) --> [a, traves, de].
 locucion_preposicional(p(debido_a)) --> [debido, a].
 locucion_preposicional(p(despues_de)) --> [despues, de].
@@ -721,15 +844,21 @@ locucion_preposicional(p(a_pequena_escala_de)) --> [a, pequeña, escala, de].
 % GRUPO VERBAL (GV)
 % =========================================================
 
+% grupo verbal simple
 g_verbal(GV) -->
     g_verbal_simple(GV).
 
+% Coordinación verbal con inciso entre comas:
+%   produce X y, además, genera Y
 g_verbal(gv_coord(GV1, Conj, Inciso, GV2)) -->
     g_verbal_simple(GV1),
     conjuncion_verbal(Conj),
     inciso_oracional(Inciso),
     g_verbal_simple(GV2).
 
+% Coordinación verbal simple:
+%   puede usarse y se camufla
+%   reutilizamos el cuerpo y creamos una pinza
 g_verbal(gv_coord(GV1, Conj, GV2)) -->
     g_verbal_simple(GV1),
     conjuncion_verbal(Conj),
@@ -742,19 +871,21 @@ g_verbal(gv_coord(GV1, Conj, GV2)) -->
 %   gv_comp/4  -> para patrones con 2 args fijos
 %   gv_comp3/5 -> para patrones con 3 args fijos
 %   gv_comp_v/3 -> para verbo solo vs verbo+comps
-% Estos colapsan none para no introducir nodos vacíos en el árbol.
+% Estos colapsan none para no introducir nodos vacíos en el árbol (evitar árboles con none innecesario)
 % =========================================================
 
-gv_comp(A, B, none,  gv(A, B)).
-gv_comp(A, B, Comps, gv(A, B, Comps)) :- Comps \= none.
+gv_comp(A, B, none,  g_verbal(A, B)).
+gv_comp(A, B, Comps, g_verbal(A, B, Comps)) :- Comps \= none.
 
-gv_comp3(A, B, C, none,  gv(A, B, C)).
-gv_comp3(A, B, C, Comps, gv(A, B, C, Comps)) :- Comps \= none.
+gv_comp3(A, B, C, none,  g_verbal(A, B, C)).
+gv_comp3(A, B, C, Comps, g_verbal(A, B, C, Comps)) :- Comps \= none.
 
-gv_comp_v(V, none,  gv(V)).
-gv_comp_v(V, Comps, gv(V, Comps)) :- Comps \= none.
+gv_comp_v(V, none,  g_verbal(V)).
+gv_comp_v(V, Comps, g_verbal(V, Comps)) :- Comps \= none.
+
 
 % se + verbo + complementos opcionales
+%  "se reutiliza una araña..."
 g_verbal_simple(Nodo) -->
     pronombre_se(Se),
     verbo(V),
@@ -762,6 +893,7 @@ g_verbal_simple(Nodo) -->
     { gv_comp(Se, V, Comps, Nodo) }.
 
 % modal + infinitivo + complementos opcionales
+%  "pueden reutilizarse..."
 g_verbal_simple(Nodo) -->
     modal(Modal),
     infinitivo(Inf),
@@ -789,7 +921,7 @@ g_verbal_simple(Nodo) -->
 
 % verbo copulativo + adjetivo + GN:
 %   "es posible la actuacion manual"
-g_verbal_simple(gv(VC, GAdj, GN)) -->
+g_verbal_simple(g_verbal(VC, GAdj, GN)) -->
     verbo_copulativo(VC),
     g_adjetival(GAdj),
     g_nominal(GN).
@@ -804,6 +936,7 @@ g_verbal_simple(Nodo) -->
     { gv_comp(VC, GAdj, Comps, Nodo) }.
 
 % modal + ser + participio + complementos opcionales
+%  "pueden ser utilizados..."
 g_verbal_simple(Nodo) -->
     modal(Modal),
     auxiliar_ser(Aux),
@@ -821,12 +954,22 @@ g_verbal_simple(Nodo) -->
     { gv_comp3(Modal, Aux, GAdj, Comps, Nodo) }.
 
 % se + auxiliar + participio + complementos
+%   "Se ha explorado..."
 g_verbal_simple(Nodo) -->
     pronombre_se(Se),
     auxiliar(Aux),
     participio(Part),
     complementos_verbales(Comps),
     { gv_comp3(Se, Aux, Part, Comps, Nodo) }.
+
+% Locucion verbal "dar lugar a...":
+%   "dan lugar, respectivamente, a la apertura..."
+% Sin esta regla, lugar podía analizarse como objeto directo normal
+g_verbal_simple(Nodo) -->
+    verbo_dar_lugar(V),
+    [lugar],
+    complementos_verbales(Comps),
+    { gv_comp(V, n(lugar), Comps, Nodo) }.
 
 % auxiliar + ser/sido + participio + complementos:
 %   "han sido utilizados..."
@@ -839,30 +982,56 @@ g_verbal_simple(Nodo) -->
     { gv_comp3(Aux, AuxSer, Part, Comps, Nodo) }.
 
 % verbo copulativo + infinitivo
-g_verbal_simple(gv(VC, Inf)) -->
+%   "Es usar..."
+g_verbal_simple(g_verbal(VC, Inf)) -->
     verbo_copulativo(VC),
     infinitivo(Inf).
 
 % verbo + gn + gp
-g_verbal_simple(gv(V, GN, GP)) -->
+%   "colocamos un peso, destinado a ser agarrado..., sobre la balanza..."
+%    dan lugar, respectivamente, a la apertura...
+g_verbal_simple(g_verbal(V, GN, Inciso, GP, Comps), Tokens, Resto) :-
+    hay_coma_inciso(Tokens),
+    phrase((
+        verbo(V),
+        g_nominal(GN),
+        inciso_oracional(Inciso),
+        g_preposicional(GP),
+        complementos_verbales(Comps)
+    ), Tokens, Resto).
+
+% verbo + gn antes de para + gp + complementos opcionales
+% para que 'para' no se absorba dentro del GN.
+g_verbal_simple(g_verbal(V, GN, GP, Comps)) -->
+    verbo(V),
+    g_nominal_antes_de_para(GN),
+    g_preposicional(GP),
+    complementos_verbales(Comps).
+
+% verbo + gn + gp
+%   "colocamos un peso sobre la balanza"
+g_verbal_simple(g_verbal(V, GN, GP)) -->
     verbo(V),
     g_nominal(GN),
     g_preposicional(GP).
 
 % verbo + gn + gadv
-g_verbal_simple(gv(V, GN, GAdv)) -->
+%   alcanza un rango completo rápidamente
+g_verbal_simple(g_verbal(V, GN, GAdv)) -->
     verbo(V),
     g_nominal(GN),
     g_adverbial(GAdv).
 
 % gadv + verbo + gn
-g_verbal_simple(gv(GAdv, V, GN)) -->
+%   también demostramos la capacidad
+g_verbal_simple(g_verbal(GAdv, V, GN)) -->
     g_adverbial(GAdv),
     verbo(V),
     g_nominal(GN).
 
 % gadv + verbo + gp
-g_verbal_simple(gv(GAdv, V, GP)) -->
+%  "no está en el sistema"
+g_verbal_simple(g_verbal(GAdv, V, GP)) -->
     g_adverbial(GAdv),
     verbo(V),
     g_preposicional(GP).
@@ -876,75 +1045,86 @@ g_verbal_simple(Nodo) -->
     complementos_verbales(Comps),
     {
         ( Comps == none ->
-            Nodo = gv(GAdv, V)
+            Nodo = g_verbal(GAdv, V)
         ;
-            Nodo = gv(GAdv, V, Comps)
+            Nodo = g_verbal(GAdv, V, Comps)
         )
     }.
 
 % verbo + gp
-g_verbal_simple(gv(V, GP)) -->
+%    consiste en...
+g_verbal_simple(g_verbal(V, GP)) -->
     verbo(V),
     g_preposicional(GP).
 
 % verbo + gn
-g_verbal_simple(gv(V, GN)) -->
+%   "colocamos un peso..."
+g_verbal_simple(g_verbal(V, GN)) -->
     verbo(V),
     g_nominal(GN).
 
 % verbo + gadj
-g_verbal_simple(gv(V, GAdj)) -->
+%   "permanece flexionada"
+g_verbal_simple(g_verbal(V, GAdj)) -->
     verbo(V),
     g_adjetival(GAdj).
 
 % verbo + gadv
-g_verbal_simple(gv(V, GAdv)) -->
+%   "actúa eficazmente"
+g_verbal_simple(g_verbal(V, GAdv)) -->
     verbo(V),
     g_adverbial(GAdv).
 
 % gadv + verbo
-g_verbal_simple(gv(GAdv, V)) -->
+%  "también observamos"
+g_verbal_simple(g_verbal(GAdv, V)) -->
     g_adverbial(GAdv),
     verbo(V).
 
 % gadv + verbo copulativo + gadj:
 %   "no es injustificada"
 %   "no están disponibles"
-g_verbal_simple(gv(GAdv, VC, GAdj)) -->
+g_verbal_simple(g_verbal(GAdv, VC, GAdj)) -->
     g_adverbial(GAdv),
     verbo_copulativo(VC),
     g_adjetival(GAdj).
 
 % gadv + verbo copulativo + gn:
 %   "no es un problema"
-g_verbal_simple(gv(GAdv, VC, GN)) -->
+g_verbal_simple(g_verbal(GAdv, VC, GN)) -->
     g_adverbial(GAdv),
     verbo_copulativo(VC),
     g_nominal(GN).
 
 % gadv + verbo copulativo + gp:
 %   "no está en el sistema"
-g_verbal_simple(gv(GAdv, VC, GP)) -->
+g_verbal_simple(g_verbal(GAdv, VC, GP)) -->
     g_adverbial(GAdv),
     verbo_copulativo(VC),
     g_preposicional(GP).
 
 % verbo copulativo + gadj + gp
-g_verbal_simple(gv(VC, GAdj, GP)) -->
+%   "es útil para aplicaciones"
+g_verbal_simple(g_verbal(VC, GAdj, GP)) -->
     verbo_copulativo(VC),
     g_adjetival(GAdj),
     g_preposicional(GP).
 
 % verbo copulativo + gadj
-g_verbal_simple(gv(VC, GAdj)) -->
+%   "es completamente funcional"
+g_verbal_simple(g_verbal(VC, GAdj)) -->
     verbo_copulativo(VC),
     g_adjetival(GAdj).
 
 % verbo copulativo + gn
-g_verbal_simple(gv(VC, GN)) -->
+%  "es un problema"
+g_verbal_simple(g_verbal(VC, GN)) -->
     verbo_copulativo(VC),
+    { VC \= vc(esta) }, % evitar que está se use con GN de forma rara
     g_nominal(GN).
 
+% verbo copulativo + gp
+%   "está en el sistema"
 g_verbal_simple(Nodo) -->
     verbo_copulativo(VC),
     g_preposicional(GP),
@@ -954,7 +1134,6 @@ g_verbal_simple(Nodo) -->
 % auxiliar + participio + complementos opcionales:
 %   "han inspirado robots..."
 %   "ha inspirado el diseño..."
-%   "han sido utilizados..." se cubre con otra regla más arriba
 g_verbal_simple(Nodo) -->
     auxiliar(Aux),
     participio(Part),
@@ -962,24 +1141,24 @@ g_verbal_simple(Nodo) -->
     { gv_comp(Aux, Part, Comps, Nodo) }.
 
 % auxiliar + participio + gp
-g_verbal_simple(gv(Aux, Part, GP)) -->
+g_verbal_simple(g_verbal(Aux, Part, GP)) -->
     auxiliar(Aux),
     participio(Part),
     g_preposicional(GP).
 
 % auxiliar + participio + gn
-g_verbal_simple(gv(Aux, Part, GN)) -->
+g_verbal_simple(g_verbal(Aux, Part, GN)) -->
     auxiliar(Aux),
     participio(Part),
     g_nominal(GN).
 
 % auxiliar + participio
-g_verbal_simple(gv(Aux, Part)) -->
+g_verbal_simple(g_verbal(Aux, Part)) -->
     auxiliar(Aux),
     participio(Part).
 
-% verbo + complementos opcionales (patrón general, al final para no
-% interferir con los patrones específicos anteriores)
+% verbo + complementos opcionales 
+% (patrón general, al final para no interferir con los patrones específicos anteriores)
 g_verbal_simple(Nodo) -->
     verbo(V),
     complementos_verbales(Comps),
@@ -997,20 +1176,20 @@ g_verbal_simple(Nodo) -->
 % VERBOS IMPERSONALES
 % =========================================================
 
-g_verbal_impersonal(gv(GAdv, VI, GP)) -->
+g_verbal_impersonal(g_verbal(GAdv, VI, GP)) -->
     g_adverbial(GAdv),
     verbo_impersonal(VI),
     g_preposicional(GP).
 
-g_verbal_impersonal(gv(VI, GP)) -->
+g_verbal_impersonal(g_verbal(VI, GP)) -->
     verbo_impersonal(VI),
     g_preposicional(GP).
 
-g_verbal_impersonal(gv(GAdv, VI)) -->
+g_verbal_impersonal(g_verbal(GAdv, VI)) -->
     g_adverbial(GAdv),
     verbo_impersonal(VI).
 
-g_verbal_impersonal(gv(VI)) -->
+g_verbal_impersonal(g_verbal(VI)) -->
     verbo_impersonal(VI).
 
 % se + verbo + complementos opcionales (impersonal)
@@ -1033,9 +1212,9 @@ g_verbal_impersonal(Nodo) -->
 % COMPLEMENTOS VERBALES
 % =========================================================
 
-% Si aparece una coma en medio de complementos, la consumimos
-% y seguimos buscando complementos. Esto permite incisos y
-% frases científicas largas sin bloquear todo el análisis.
+% Si aparece una coma en medio de complementos, la consumimos y seguimos buscando complementos. 
+% Esto permite incisos y frases científicas largas sin bloquear todo el análisis.
+%   Ejemplo: "dan lugar, respectivamente, a la apertura..."
 complementos_verbales(comps(Comp, Resto)) -->
     [','],
     complemento_verbal_poscoma(Comp),
@@ -1048,6 +1227,8 @@ complementos_verbales(comps(Comp, Resto)) -->
     complemento_verbal(Comp),
     complementos_verbales(Resto).
 
+% Coordinación de complementos con conjunción entre dos complementos:
+%   "geometrías, volúmenes y masas variables"
 complementos_verbales(comps_coord(Comp, Conj, Resto)) -->
     complemento_verbal(Comp),
     pausa_opcional,
@@ -1055,41 +1236,55 @@ complementos_verbales(comps_coord(Comp, Conj, Resto)) -->
     complementos_verbales(Resto).
 
 % Sin más complementos.
+% Permite empezar una secuencia de complementos directamente con y.
+%   y de hasta el 130 %
+complementos_verbales(comps_coord_cont(Conj, Comp, Resto)) -->
+    conjuncion_coordinante(Conj),
+    { Conj = conj(y) },
+    complemento_verbal(Comp),
+    complementos_verbales(Resto).
+
 complementos_verbales(none) -->
     [].
 
-complemento_verbal(gp(GP))       --> g_preposicional(GP).
-complemento_verbal(rel(Rel))     --> relativo_ampliado(Rel).
-complemento_verbal(ger(Ger))     --> gerundio_frase(Ger).
-complemento_verbal(inf(Inf))     --> infinitivo_frase(Inf).
-complemento_verbal(gn(GN))       --> g_nominal(GN).
-complemento_verbal(partf(PartF)) --> participio_frase(PartF).
-complemento_verbal(gadj(GAdj))   --> g_adjetival(GAdj).
-complemento_verbal(gadv(GAdv))   --> g_adverbial(GAdv).
-complemento_verbal(sub(Sub))     --> subordinada(Sub).
-complemento_verbal(cant(Cant))   --> cantidad(Cant).
+complemento_verbal(g_preposicional(GP)) --> g_preposicional(GP).
+complemento_verbal(subc(Sub))           --> subordinada_completiva(Sub).
+complemento_verbal(rel(Rel))            --> relativo_ampliado(Rel).
+complemento_verbal(ger(Ger))            --> gerundio_frase(Ger).
+complemento_verbal(inf(Inf))            --> infinitivo_frase(Inf).
+complemento_verbal(g_nominal(GN))       --> g_nominal(GN).
+complemento_verbal(partf(PartF))        --> participio_frase(PartF).
+complemento_verbal(g_adjetival(GAdj))   --> g_adjetival(GAdj).
+complemento_verbal(g_adverbial(GAdv))   --> g_adverbial(GAdv).
+complemento_verbal(sub(Sub))            --> subordinada(Sub).
+complemento_verbal(cant(Cant))          --> cantidad(Cant).
 
 % Complemento predicativo simple:
 %   "denominamos neutro"
-%   "consideramos útil"
+%   en 'estado que denominamos neutro'; neutro no es un objeto normal, sino un atributo/predicativo del objeto.
 complemento_verbal(pred_adj(Adj)) -->
     adjetivo(Adj).
 
 complemento_verbal(pred_nom(N)) -->
     nombre(N).
 
-complemento_verbal_poscoma(rel(Rel))     --> relativo_ampliado(Rel).
-complemento_verbal_poscoma(ger(Ger))     --> gerundio_frase(Ger).
-complemento_verbal_poscoma(partf(PartF)) --> participio_incidental(PartF).
-complemento_verbal_poscoma(sub(Sub))     --> subordinada(Sub).
-complemento_verbal_poscoma(gp(GP))       --> g_preposicional_incidental(GP).
-complemento_verbal_poscoma(gadv(GAdv))   --> g_adverbial_incidental(GAdv).
+complemento_verbal_poscoma(rel(Rel))            --> relativo_ampliado(Rel).
+complemento_verbal_poscoma(ger(Ger))            --> gerundio_frase(Ger).
+complemento_verbal_poscoma(partf(PartF))        --> participio_incidental(PartF).
+complemento_verbal_poscoma(sub(Sub))            --> subordinada(Sub).
+complemento_verbal_poscoma(g_preposicional(GP)) --> g_preposicional_incidental(GP).
+complemento_verbal_poscoma(g_adverbial(GAdv))   --> g_adverbial_incidental(GAdv).
 
+subordinada_completiva(comp_que(O)) -->
+    [que],
+    oracion_compuesta(O).
+
+% Solo permite ciertas preposiciones después de coma
 g_preposicional_incidental(GP) -->
     preposicion(P),
     { preposicion_incidental_word(P) },
     g_nominal(GN),
-    { GP = gp(P, GN) }.
+    { GP = g_preposicional(P, GN) }.
 
 preposicion_incidental_word(p(entre)).
 preposicion_incidental_word(p(debido)).
@@ -1097,25 +1292,27 @@ preposicion_incidental_word(p(a)).
 preposicion_incidental_word(p(de)).
 preposicion_incidental_word(p(sobre)).
 
-g_adverbial_incidental(gadv(Adv)) -->
+
+% Reconoce adverbios incidentales que pueden aparecer entre comas como modificadores
+%   "... , respectivamente,... "
+g_adverbial_incidental(g_adverbial(Adv)) -->
     adverbio(Adv),
     { adverbio_incidental_word(Adv) }.
 
 adverbio_incidental_word(adv(respectivamente)).
 
+% Reconoce participios incidentales que pueden aparecer entre comas como modificadores
+%   , destinado a ser agarrado...
 participio_incidental(PartF) -->
     participio(Part),
-    { participio_incidental_word(Part) },
+    { Part \= part(estado) },
     complementos_verbales(Comps),
     { part_nodo(Part, Comps, PartF) }.
-
-participio_incidental_word(Part) :-
-    Part \= part(estado).
 
 % =========================================================
 % INFINITIVO FRASE
 % =========================================================
-
+% Auxiliar para crear nodos limpios sin none
 inf_nodo(Inf, none,  inf(Inf)).
 inf_nodo(Inf, Comps, inf(Inf, Comps)) :- Comps \= none.
 
@@ -1139,6 +1336,7 @@ infinitivo_frase(inf(AuxSer, Part, Comps)) -->
 %   "sacrificando una araña..."
 %   "siguiendo un procedimiento..."
 
+% Auxiliar para crear nodos limpios sin none
 ger_nodo(Ger, none, ger(Ger)).
 ger_nodo(Ger, Comps, ger(Ger, Comps)) :- Comps \= none.
 
@@ -1158,26 +1356,29 @@ gerundio_frase(ger(Ger, GAdv, Comps)) -->
 % =========================================================
 % PARTICIPIO FRASE
 % =========================================================
+
+% Auxiliar para crear nodos limpios sin none
+part_nodo(Part, none, partf(Part)).
+part_nodo(Part, Comps, partf(Part, Comps)) :- Comps \= none.
+
 % Reconoce construcciones como:
 %   "destinado a ser agarrado por la pinza"
 %   "compuesto por una maquina"
 %   "basado en material biotico"
 %   "relacionadas con la longevidad"
-
-part_nodo(Part, none, partf(Part)).
-part_nodo(Part, Comps, partf(Part, Comps)) :- Comps \= none.
-
 participio_frase(Nodo) -->
     participio(Part),
     complementos_verbales(Comps),
     { part_nodo(Part, Comps, Nodo) }.
 
+% Permite participios como modificadores nominales.
 participio_frase_nominal(Nodo) -->
     [X],
     { participio_nominal_valido(X), Part = part(X) },
     complementos_verbales(Comps),
     { part_nodo(Part, Comps, Nodo) }.
 
+% Solo si está en el léxico como participio y no está bloqueado.
 participio_nominal_valido(X) :-
     part_word(X),
     \+ participio_finito_bloqueado(X).
@@ -1185,6 +1386,7 @@ participio_nominal_valido(X) :-
 participio_finito_bloqueado(aprovecha).
 participio_finito_bloqueado(experimento).
 participio_finito_bloqueado(presento).
+participio_finito_bloqueado(personalizado).
 
 % =========================================================
 % SUBORDINADA
@@ -1207,11 +1409,13 @@ subordinada_inicial(sub_ini(Comp, O)) -->
     subordinante_inicial(Comp),
     oracion_compuesta(O).
 
+% Una vez + participio:
 % "Una vez fraguado el pegamento"
 subordinada_inicial(sub_ini(una_vez, PartF)) -->
     [una, vez],
     participio_frase(PartF).
 
+% Tras + GN:
 % "Tras la muerte"
 subordinada_inicial(sub_ini(tras, GN)) -->
     [tras],
@@ -1234,10 +1438,11 @@ subordinante_inicial(subord(a_medida_que)) --> [a, medida, que].
 % =========================================================
 % LÉXICO: CONVERSIÓN DE PALABRAS A CATEGORÍAS
 % =========================================================
-
+% Estas reglas convierten tokens en nodos de árbol.
 determinante(det(X))    --> [X], {det_word(X)}.
 nombre(n(X))            --> [X], {nombre_word(X)}.
 verbo(v(X))             --> [X], {verbo_word(X)}.
+verbo_dar_lugar(v(X))   --> [X], {verbo_dar_lugar_word(X)}.
 verbo_copulativo(vc(X)) --> [X], {vc_word(X)}.
 verbo_impersonal(vi(X)) --> [X], {vi_word(X)}.
 auxiliar(aux(X))        --> [X], {aux_word(X)}.
@@ -1259,7 +1464,7 @@ pronombre_personal(pron(X)) --> [X], {pron_personal_word(X)}.
 % =========================================================
 % CANTIDADES, NÚMEROS Y UNIDADES
 % =========================================================
-%
+
 % Permite reconocer expresiones como:
 %   130 %
 %   0.35 mn
@@ -1267,7 +1472,7 @@ pronombre_personal(pron(X)) --> [X], {pron_personal_word(X)}.
 %   5.5 kpa
 %   1000 ciclos
 %   17 veces
-%
+
 % El tokenizador debe haber convertido "0,35" en "0.35".
 
 numero(num(X)) -->
@@ -1306,9 +1511,10 @@ cantidad(cant(Num, veces)) -->
 % CONJUNCIONES
 % =========================================================
 
+% Reconoce conjunciones para unir oraciones
 conjuncion_oracional(Conj) -->
     conjuncion(Conj),
-    { Conj \= conj(si) }.
+    { Conj \= conj(si), Conj \= conj(o), Conj \= conj(u) }.
 
 conjuncion_nominal(Conj) --> conjuncion_coordinante(Conj).
 conjuncion_verbal(Conj)  --> conjuncion_coordinante(Conj).
@@ -1316,7 +1522,7 @@ conjuncion_verbal(Conj)  --> conjuncion_coordinante(Conj).
 conjuncion_coordinante(conj(X)) --> [X], {conj_coord_word(X)}.
 
 % =========================================================
-% PAUSA OPCIONAL (coma)
+% PAUSA (coma)
 % =========================================================
 
 pausa_opcional --> [','].
@@ -1328,12 +1534,16 @@ pausa_obligatoria --> [','].
 % PREDICADOS AUXILIARES
 % =========================================================
 
+% Comprueba todos los tokens.
 tokens_conocidos([]).
 
 tokens_conocidos([Token|Resto]) :-
     token_conocido(Token),
     tokens_conocidos(Resto).
 
+% El corte ! evita seguir probando más categorías una vez reconocida una.
+%   Esto no significa que la palabra tenga una sola categoría en el análisis. 
+%   Solo significa que para la fase de validación basta con que esté en alguna categoría.
 token_conocido(',') :- !.
 token_conocido('%') :- !.
 token_conocido(Token) :- atom_number(Token, _), !.
@@ -1360,34 +1570,50 @@ token_conocido(Token) :- se_word(Token), !.
 token_conocido(Token) :- pron_personal_word(Token), !.
 token_conocido(Token) :- unidad_word(Token), !.
 
+% Sirve exclusivamente para la locución: dar lugar a
+verbo_dar_lugar_word(da).
+verbo_dar_lugar_word(dan).
+
+% Busca una coma seguida de conjunción coordinante:
 hay_coma_conjuncion([',', Conj|_]) :-
     conj_coord_word(Conj),
     !.
-
 hay_coma_conjuncion([_|Resto]) :-
     hay_coma_conjuncion(Resto).
 
-hay_y_oracional([y, se|_]) :- !.
-hay_y_oracional([y, Det, _, se|_]) :-
+% Busca una coma seguida de "y" o "se" (para detectar incisos como "y, además, ...")
+hay_y_oracional([y, se|_]) :- !. % Detecta: y se ...
+hay_y_oracional([y, Det, _, se|_]) :- % y + determinante + algo + se
     det_word(Det),
     !.
-hay_y_oracional([_|Resto]) :-
+hay_y_oracional([_|Resto]) :- % Si no se encuentra el patrón, sigue buscando en el resto de la lista.
     hay_y_oracional(Resto).
 
+% Busca una coma seguida de un marcador enumerativo como "motivos" o "razones" para yuxtapuesta explicativa
 hay_coma_explicativa([Marcador, ','|_]) :-
     marcador_enumerativo(Marcador),
     !.
-
 hay_coma_explicativa([_|Resto]) :-
     hay_coma_explicativa(Resto).
 
 marcador_enumerativo(motivos).
 marcador_enumerativo(razones).
 
+% Se usa para forzar la regla con aposición final.
 hay_coma_estado([',', estado|_]) :- !.
 hay_coma_estado([_|Resto]) :-
     hay_coma_estado(Resto).
 
+% Busca una coma seguida de un verbo, adverbio, preposición o participio para detectar incisos 
+hay_coma_inciso([',', Token|_]) :-
+    ( part_word(Token) ; ger_word(Token) ; adv_word(Token) ; prep_word(Token) ),
+    !.
+hay_coma_inciso([_|Resto]) :-
+    hay_coma_inciso(Resto).
+
+% Reconoce tokens con guion medio -, como "130-150" 
+% Código ASCII 45 es -
+% Comprueba que antes y después del guion haya dígitos.
 rango_numerico_atom(Token) :-
     atom(Token),
     atom_codes(Token, Codes),
@@ -1423,13 +1649,14 @@ es_nodo_complejo(rel(_,_)).
 es_nodo_complejo(rel_prep(_,_,_,_)).
 es_nodo_complejo(rel_lo_que(_)).
 es_nodo_complejo(ci_adv(_)).
-es_nodo_complejo(ci_gp(_)).
+es_nodo_complejo(ci_g_preposicional(_)).
 es_nodo_complejo(ci_marcador(_)).
 es_nodo_complejo(ci_sub(_)).
 
 % ---------------------------------------------------------
 % es_oracion_simple/1
 % ---------------------------------------------------------
+% una oración con complemento inicial ya no es “simple” a efectos de coordinación mixta.
 es_oracion_simple(o(_, _)).
 es_oracion_simple(o(_)).
 
@@ -1441,6 +1668,7 @@ tipo_oracion(or(_,_,_),  or).
 tipo_oracion(ocm(_,_,_), ocm).
 tipo_oracion(ocm(_),     ocm).
 
+% Si el árbol contiene complejidad, aunque sea o(...), lo clasifica como ocm.
 tipo_oracion(O, ocm) :-
     contiene_complejidad(O),
     !.
@@ -1511,5 +1739,8 @@ simplificar(o(sujeto_eliptico, gv_coord(GV1, _, GV2)), Resultado) :-
 % ---------------------------------------------------------
 % analiza_lista/2
 % ---------------------------------------------------------
+% Entrada sencilla para analizar una lista de tokens.
+% Devuelve el árbol si la oración es aceptada.
 analiza_lista(Lista, Arbol) :-
     phrase(oracion(Arbol), Lista).
+
