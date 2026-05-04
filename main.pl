@@ -9,6 +9,8 @@
 %:- consult('lexico-claude.pl').
 %:- consult('lexico-gpt.pl').
 :- consult('lexico.pl').
+:- consult('semantico.pl').
+:- consult('deteccion.pl').
 :- consult('metricas.pl').
 :- consult('comparativo.pl').
 
@@ -43,10 +45,11 @@ dibujar(Lista) :-
     draw(Arbol).
 
 % ---------------------------------------------------------
-% tipo(+Lista, -Tipo)
-% Devuelve el tipo principal de la oracion.
+% tipo_lista(+Lista, -Tipo)
+% Devuelve el tipo principal de la oracion dada como lista de tokens.
+% (Renombrado de tipo/2 para evitar conflicto con tipo/2 de semantico.pl)
 % ---------------------------------------------------------
-tipo(Lista, Tipo) :-
+tipo_lista(Lista, Tipo) :-
     analizar(Lista, Arbol),
     tipo_oracion(Arbol, Tipo).
 
