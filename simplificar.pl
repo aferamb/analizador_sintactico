@@ -68,7 +68,7 @@ simplificar_pendientes([], _Visitadas, []).
 
 simplificar_pendientes([Oracion|Resto], Visitadas, Resultado) :-
     \+ memberchk(Oracion, Visitadas),
-    once(paso_simplificacion(Oracion, Nuevas0)),
+    paso_simplificacion(Oracion, Nuevas0),
     limpiar_paso(Oracion, Nuevas0, Nuevas),
     !,
     append(Nuevas, Resto, Pendientes),
@@ -107,6 +107,11 @@ paso_simplificacion(oc(O1, _, O2), [O1, O2]).
 paso_simplificacion(ocm(O1, _, O2), [O1, O2]).
 
 % 2. Relativas.
+paso_simplificacion(or(GN, rel_coord(Rel1, _, Rel2), GVPrinc), [ORel1, ORel2, OPrinc]) :-
+    oracion_de_relativa(GN, Rel1, ORel1),
+    oracion_de_relativa(GN, Rel2, ORel2),
+    OPrinc = o(GN, GVPrinc).
+
 paso_simplificacion(or(GN, rel(_, GVRel), GVPrinc), [o(GN, GVRel), o(GN, GVPrinc)]).
 
 paso_simplificacion(O, [OPrincipal, ORelativa]) :-
@@ -115,7 +120,20 @@ paso_simplificacion(O, [OPrincipal, ORelativa]) :-
     construir_oracion_norm(oracion_norm(CIs, Sujeto, GVSinRel, Extras), OPrincipal),
     oracion_de_relativa(Antecedente, Rel, ORelativa).
 
-% 3. Subordinadas iniciales capaces de convertirse en oracion.
+paso_simplificacion(O, [OPrincipal, ORel1, ORel2]) :-
+    normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
+    extraer_relativa_de_gv(GV, GVSinRel, Antecedente, rel_coord(Rel1, _, Rel2)),
+    construir_oracion_norm(oracion_norm(CIs, Sujeto, GVSinRel, Extras), OPrincipal),
+    oracion_de_relativa(Antecedente, Rel1, ORel1),
+    oracion_de_relativa(Antecedente, Rel2, ORel2).
+
+paso_simplificacion(O, Resultado) :-
+    normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
+    extraer_aposicion_relativa(Extras, ExtrasSinApos, OracionesApos),
+    construir_oracion_norm(oracion_norm(CIs, Sujeto, GV, ExtrasSinApos), OPrincipal),
+    append([OPrincipal], OracionesApos, Resultado).
+
+% 3. Subordinadas y completivas capaces de convertirse en oracion.
 paso_simplificacion(O, [OSub, OPrincipal]) :-
     normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
     extraer_subordinada_inicial(CIs, CIsSinSub, OSub),
@@ -129,7 +147,20 @@ paso_simplificacion(O, Resultado) :-
     tokens_de_arbol(Sujeto, TokensSujeto),
     prefijar_sujeto(TokensSujeto, OracionesTexto, Resultado).
 
-% 5. Coordinacion verbal o predicativa.
+% 5. Incisos, gerundios y participios con informacion separable.
+paso_simplificacion(O, [OPrincipal, OSec]) :-
+    normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
+    extraer_no_finita_de_gv(GV, GVSin, NoFinita),
+    construir_oracion_norm(oracion_norm(CIs, Sujeto, GVSin, Extras), OPrincipal),
+    oracion_desde_no_finita(Sujeto, NoFinita, OSec).
+
+paso_simplificacion(O, [OPrincipal, OSec]) :-
+    normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
+    extraer_no_finita_de_extras(Extras, ExtrasSin, NoFinita),
+    construir_oracion_norm(oracion_norm(CIs, Sujeto, GV, ExtrasSin), OPrincipal),
+    oracion_desde_no_finita(Sujeto, NoFinita, OSec).
+
+% 6. Coordinacion verbal o predicativa.
 paso_simplificacion(O, [O1, O2]) :-
     normalizar_oracion(O, oracion_norm(CIs, Sujeto, gv_coord(GV1, _, GV2), Extras)),
     construir_oracion_norm(oracion_norm(CIs, Sujeto, GV1, Extras), O1),
@@ -146,17 +177,24 @@ paso_simplificacion(O, [O1, O2]) :-
     construir_oracion_norm(oracion_norm(CIs, Sujeto, GV1, Extras), O1),
     construir_oracion_norm(oracion_norm(CIs, Sujeto, GV2, Extras), O2).
 
-% 6. Complementos iniciales coordinados.
+% 7. Complementos iniciales coordinados.
 paso_simplificacion(O, [O1, O2]) :-
     normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
     dividir_complemento_inicial_coord(CIs, CIs1, CIs2),
     construir_oracion_norm(oracion_norm(CIs1, Sujeto, GV, Extras), O1),
     construir_oracion_norm(oracion_norm(CIs2, Sujeto, GV, Extras), O2).
 
-% 7. Division binaria de complementos coordinados.
+% 8. Division binaria de complementos coordinados.
 paso_simplificacion(O, [O1, O2]) :-
     normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
     dividir_gv_por_complemento_coord(GV, GV1, GV2),
+    construir_oracion_norm(oracion_norm(CIs, Sujeto, GV1, Extras), O1),
+    construir_oracion_norm(oracion_norm(CIs, Sujeto, GV2, Extras), O2).
+
+% 9. Coordinaciones en infinitivos internos.
+paso_simplificacion(O, [O1, O2]) :-
+    normalizar_oracion(O, oracion_norm(CIs, Sujeto, GV, Extras)),
+    dividir_infinitivo_coord_en_term(GV, GV1, GV2),
     construir_oracion_norm(oracion_norm(CIs, Sujeto, GV1, Extras), O1),
     construir_oracion_norm(oracion_norm(CIs, Sujeto, GV2, Extras), O2).
 
@@ -262,26 +300,6 @@ alternativa_directa(comps(Comp1, comps_coord_cont(conj(_), Comp2, Resto)), [
     comps(Comp1, none),
     comps(Comp2, Resto)
 ]).
-
-% Caso distributivo frecuente: "celulas y tejidos naturales o de ingenieria".
-alternativa_directa(
-    comps(
-        g_nominal(g_nominal(N1, none)),
-        comps_coord_cont(
-            conj(_),
-            g_nominal(g_nominal(N2, none)),
-            comps_coord(g_nominal(g_nominal(_Mod1, none)), conj(_), Resto)
-        )
-    ),
-    Variantes
-) :-
-    variantes_comps(Resto, RestoVariantes),
-    findall(
-        comps(g_nominal(g_nominal(N, mod_nominal_simple(_Mod), none)), RV),
-        ( member(N, [N1, N2]), member(RV, [none|RestoVariantes]) ),
-        Variantes0
-    ),
-    quitar_duplicados(Variantes0, Variantes).
 
 variantes_comps(none, []) :- !.
 
@@ -552,7 +570,29 @@ dividir_adjetivo_coord_en_args([Arg|Resto], [Arg|Resto1], [Arg|Resto2]) :-
 extraer_relativa_de_gv(GV, GVSinRel, Antecedente, Rel) :-
     extraer_relativa_de_complemento_en_term(GV, GVSinRel, Antecedente, Rel).
 
+extraer_relativa_de_complemento_en_term(comps(rel(Rel), Resto), Resto, sujeto_impersonal, Rel) :- !.
+
+extraer_relativa_de_complemento_en_term(comps(Comp, Resto), comps(CompSin, Resto), Antecedente, Rel) :-
+    extraer_relativa_de_complemento_en_term(Comp, CompSin, Antecedente, Rel),
+    CompSin \= none,
+    !.
+
+extraer_relativa_de_complemento_en_term(comps(Comp, Resto), Resto, Antecedente, Rel) :-
+    extraer_relativa_de_complemento_en_term(Comp, none, Antecedente, Rel),
+    !.
+
+extraer_relativa_de_complemento_en_term(comps(Comp, Resto), comps(Comp, RestoSin), Antecedente, Rel) :-
+    extraer_relativa_de_complemento_en_term(Resto, RestoSin, Antecedente, Rel),
+    !.
+
 extraer_relativa_de_complemento_en_term(g_nominal(GN), g_nominal(GNSinRel), g_nominal(GNSinRel), Rel) :-
+    contiene_relativo_local(GN),
+    quitar_primera_relativa(GN, GNSinRel, Rel),
+    !.
+
+extraer_relativa_de_complemento_en_term(GN, GNSinRel, g_nominal(GNSinRel), Rel) :-
+    compound(GN),
+    GN =.. [g_nominal|_],
     contiene_relativo_local(GN),
     quitar_primera_relativa(GN, GNSinRel, Rel),
     !.
@@ -577,12 +617,23 @@ oracion_de_relativa(Antecedente, rel(_, O), ORelativa) :-
     !,
     construir_oracion_norm(oracion_norm(CIs, Antecedente, GV, Extras), ORelativa).
 
+oracion_de_relativa(_, rel_lo_que(O), ORelativa) :-
+    normalizar_oracion(O, oracion_norm(CIs, sujeto_eliptico, GV, Extras)),
+    !,
+    construir_oracion_norm(oracion_norm(CIs, g_nominal(g_nominal(det(esto), none)), GV, Extras), ORelativa).
+
+oracion_de_relativa(_, rel_lo_que(GV), o(g_nominal(g_nominal(det(esto), none)), GV)) :- !.
+
+oracion_de_relativa(_, rel_prep(_, _, _, O), O) :- !.
+
 contiene_relativo_local(Term) :-
     sub_term(Sub, Term),
     es_relativa_extraible(Sub),
     !.
 
 es_relativa_extraible(rel(_, _)).
+es_relativa_extraible(rel_lo_que(_)).
+es_relativa_extraible(rel_prep(_, _, _, _)).
 
 quitar_primera_relativa(Term, SinRel, Rel) :-
     quitar_relativa_mod(Term, SinRel, Rel),
@@ -611,6 +662,189 @@ extraer_subordinada_inicial([ci_sub(sub_ini(_Subord, OSub))|Resto], Resto, OSub)
 extraer_subordinada_inicial([CI|Resto], [CI|RestoSinSub], OSub) :-
     extraer_subordinada_inicial(Resto, RestoSinSub, OSub).
 
+extraer_aposicion_relativa([apos_estado(N, Rel)|Resto], Resto, Oraciones) :-
+    antecedente_desde_nombre(N, Antecedente),
+    oraciones_de_relativa(Antecedente, Rel, Oraciones),
+    !.
+
+extraer_aposicion_relativa([Extra|Resto], [Extra|RestoSin], Oraciones) :-
+    extraer_aposicion_relativa(Resto, RestoSin, Oraciones).
+
+antecedente_desde_nombre(N, g_nominal(g_nominal(det(el), N, none))).
+
+oraciones_de_relativa(Antecedente, rel_coord(Rel1, _, Rel2), [O1, O2]) :-
+    !,
+    oracion_de_relativa(Antecedente, Rel1, O1),
+    oracion_de_relativa(Antecedente, Rel2, O2).
+
+oraciones_de_relativa(Antecedente, Rel, [O]) :-
+    oracion_de_relativa(Antecedente, Rel, O).
+
+extraer_completiva_de_gv(GV, GVSinSub, OSub) :-
+    extraer_completiva_en_term(GV, GVSinSub, OSub).
+
+extraer_completiva_en_term(subc(comp_que(OSub)), none, OSub) :- !.
+extraer_completiva_en_term(comp_que(OSub), none, OSub) :- !.
+
+extraer_completiva_en_term(comps(subc(comp_que(OSub)), Resto), Resto, OSub) :- !.
+
+extraer_completiva_en_term(comps(Comp, Resto), comps(CompSin, Resto), OSub) :-
+    extraer_completiva_en_term(Comp, CompSin, OSub),
+    CompSin \= none,
+    !.
+
+extraer_completiva_en_term(comps(Comp, Resto), Resto, OSub) :-
+    extraer_completiva_en_term(Comp, none, OSub),
+    !.
+
+extraer_completiva_en_term(comps(Comp, Resto), comps(Comp, RestoSin), OSub) :-
+    extraer_completiva_en_term(Resto, RestoSin, OSub),
+    !.
+
+extraer_completiva_en_term(Term, TermSin, OSub) :-
+    compound(Term),
+    Term =.. [F|Args],
+    extraer_completiva_en_args(Args, ArgsSin, OSub),
+    TermSin =.. [F|ArgsSin].
+
+extraer_completiva_en_args([Arg|Resto], [ArgSin|Resto], OSub) :-
+    extraer_completiva_en_term(Arg, ArgSin, OSub),
+    ArgSin \= none,
+    !.
+
+extraer_completiva_en_args([Arg|Resto], Resto, OSub) :-
+    extraer_completiva_en_term(Arg, none, OSub),
+    !.
+
+extraer_completiva_en_args([Arg|Resto], [Arg|RestoSin], OSub) :-
+    extraer_completiva_en_args(Resto, RestoSin, OSub).
+
+extraer_no_finita_de_gv(GV, GVSin, NoFinita) :-
+    contiene_no_finita(GV),
+    extraer_no_finita_en_term(GV, GVSin, NoFinita).
+
+extraer_no_finita_de_extras([inciso(NoFinita)|Resto], Resto, NoFinita) :-
+    es_no_finita(NoFinita),
+    !.
+
+extraer_no_finita_de_extras([Extra|Resto], [Extra|RestoSin], NoFinita) :-
+    extraer_no_finita_de_extras(Resto, RestoSin, NoFinita).
+
+es_no_finita(ger(_)).
+es_no_finita(ger(_, _)).
+es_no_finita(ger(_, _, _)).
+es_no_finita(partf(_)).
+es_no_finita(partf(_, _)).
+
+contiene_no_finita(Term) :-
+    sub_term(Sub, Term),
+    es_no_finita(Sub),
+    !.
+
+extraer_no_finita_en_term(ger(Ger), none, ger(Ger)) :- !.
+extraer_no_finita_en_term(ger(Ger, Comps), none, ger(Ger, Comps)) :- !.
+extraer_no_finita_en_term(ger(Ger, GAdv, Comps), none, ger(Ger, GAdv, Comps)) :- !.
+extraer_no_finita_en_term(partf(Part), none, partf(Part)) :- !.
+extraer_no_finita_en_term(partf(Part, Comps), none, partf(Part, Comps)) :- !.
+
+extraer_no_finita_en_term(comps(Comp, Resto), comps(CompSin, Resto), NoFinita) :-
+    extraer_no_finita_en_term(Comp, CompSin, NoFinita),
+    CompSin \= none,
+    !.
+
+extraer_no_finita_en_term(comps(Comp, Resto), Resto, NoFinita) :-
+    extraer_no_finita_en_term(Comp, none, NoFinita),
+    !.
+
+extraer_no_finita_en_term(comps(Comp, Resto), comps(Comp, RestoSin), NoFinita) :-
+    extraer_no_finita_en_term(Resto, RestoSin, NoFinita),
+    !.
+
+extraer_no_finita_en_term(Term, TermSin, NoFinita) :-
+    compound(Term),
+    Term =.. [F|Args],
+    extraer_no_finita_en_args(Args, ArgsSin, NoFinita),
+    TermSin =.. [F|ArgsSin].
+
+extraer_no_finita_en_args([Arg|Resto], [ArgSin|Resto], NoFinita) :-
+    extraer_no_finita_en_term(Arg, ArgSin, NoFinita),
+    ArgSin \= none,
+    !.
+
+extraer_no_finita_en_args([Arg|Resto], Resto, NoFinita) :-
+    extraer_no_finita_en_term(Arg, none, NoFinita),
+    !.
+
+extraer_no_finita_en_args([Arg|Resto], [Arg|RestoSin], NoFinita) :-
+    extraer_no_finita_en_args(Resto, RestoSin, NoFinita).
+
+oracion_desde_no_finita(Sujeto, ger(Ger), o(SujetoSeguro, g_verbal(v(V)))) :-
+    Ger = ger(_),
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    gerundio_a_verbo(Ger, V),
+    !.
+
+oracion_desde_no_finita(Sujeto, ger(ger(Ger, Comps)), o(SujetoSeguro, g_verbal(v(V), Comps))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    gerundio_a_verbo(Ger, V),
+    !.
+
+oracion_desde_no_finita(Sujeto, ger(ger(Ger, GAdv, Comps)), o(SujetoSeguro, g_verbal(v(V), GAdv, Comps))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    gerundio_a_verbo(Ger, V),
+    !.
+
+oracion_desde_no_finita(Sujeto, ger(ger(Ger, Comps1), Comps2), o(SujetoSeguro, g_verbal(v(V), CompsFinal))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    gerundio_a_verbo(Ger, V),
+    combinar_comps(Comps1, Comps2, CompsFinal),
+    !.
+
+oracion_desde_no_finita(Sujeto, ger(ger(Ger, GAdv, Comps1), Comps2), o(SujetoSeguro, g_verbal(v(V), GAdv, CompsFinal))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    gerundio_a_verbo(Ger, V),
+    combinar_comps(Comps1, Comps2, CompsFinal),
+    !.
+
+oracion_desde_no_finita(Sujeto, ger(Ger, Comps), o(SujetoSeguro, g_verbal(v(V), Comps))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    gerundio_a_verbo(Ger, V),
+    !.
+
+oracion_desde_no_finita(Sujeto, ger(Ger, GAdv, Comps), o(SujetoSeguro, g_verbal(v(V), GAdv, Comps))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    gerundio_a_verbo(Ger, V),
+    !.
+
+oracion_desde_no_finita(Sujeto, partf(Part), o(SujetoSeguro, g_verbal(aux(es), Part))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    !.
+
+oracion_desde_no_finita(Sujeto, partf(Part, Comps), o(SujetoSeguro, g_verbal(aux(es), Part, Comps))) :-
+    sujeto_para_no_finita(Sujeto, SujetoSeguro),
+    !.
+
+sujeto_para_no_finita(sujeto_eliptico, g_nominal(g_nominal(det(esto), none))) :- !.
+sujeto_para_no_finita(sujeto_impersonal, g_nominal(g_nominal(det(esto), none))) :- !.
+sujeto_para_no_finita(Sujeto, Sujeto).
+
+gerundio_a_verbo(ger(dando), da).
+gerundio_a_verbo(ger(completando), completa).
+gerundio_a_verbo(ger(contrayendo), contrae).
+gerundio_a_verbo(ger(sacrificando), sacrifica).
+gerundio_a_verbo(ger(eutanasiando), eutanasia).
+gerundio_a_verbo(ger(siguiendo), sigue).
+gerundio_a_verbo(ger(utilizando), utiliza).
+gerundio_a_verbo(ger(aplicando), aplica).
+gerundio_a_verbo(ger(variando), varia).
+gerundio_a_verbo(ger(centrandonos), se_centra).
+gerundio_a_verbo(ger(extendiendo), extiende).
+gerundio_a_verbo(ger(extendiendose), se_extienden).
+gerundio_a_verbo(ger(actuando), actua).
+gerundio_a_verbo(ger(Ger, _), V) :- gerundio_a_verbo(Ger, V), !.
+gerundio_a_verbo(ger(Ger, _, _), V) :- gerundio_a_verbo(Ger, V), !.
+gerundio_a_verbo(ger(X), X).
+
 % =========================================================
 % COMPLEMENTOS INICIALES
 % =========================================================
@@ -633,6 +867,57 @@ dividir_ci_coord(
 
 gp_a_gn(g_preposicional(p(de), GN), GN) :- !.
 gp_a_gn(g_preposicional(_, GN), GN).
+
+dividir_sujeto_coord(g_nominal(GN1, conj(_), GN2), g_nominal(GN1), g_nominal(GN2)) :- !.
+
+dividir_sujeto_coord(
+    g_nominal(g_nominal(GN1, conj(_), GN2)),
+    g_nominal(GN1),
+    g_nominal(GN2)
+) :- !.
+
+dividir_sujeto_coord(
+    gn_lista(GN1, GN2, Conj, GN3),
+    GN1,
+    g_nominal(g_nominal(GN2, Conj, GN3))
+) :- !.
+
+dividir_infinitivo_coord_en_term(
+    inf(inf(I1), comps_coord_cont(_, inf(inf(I2), C2), Resto)),
+    inf(inf(I1)),
+    inf(inf(I2), CFinal)
+) :-
+    combinar_comps(C2, Resto, CFinal),
+    !.
+
+dividir_infinitivo_coord_en_term(
+    inf(inf(I1), comps(Comp, comps_coord_cont(_, inf(inf(I2), C2), Resto))),
+    inf(inf(I1), comps(Comp, none)),
+    inf(inf(I2), CFinal)
+) :-
+    combinar_comps(C2, Resto, CFinal),
+    !.
+
+dividir_infinitivo_coord_en_term(Term, Term1, Term2) :-
+    compound(Term),
+    Term =.. [F|Args],
+    dividir_infinitivo_coord_en_args(Args, Args1, Args2),
+    Term1 =.. [F|Args1],
+    Term2 =.. [F|Args2].
+
+dividir_infinitivo_coord_en_args([Arg|Resto], [A1|Resto], [A2|Resto]) :-
+    dividir_infinitivo_coord_en_term(Arg, A1, A2),
+    !.
+
+dividir_infinitivo_coord_en_args([Arg|Resto], [Arg|Resto1], [Arg|Resto2]) :-
+    dividir_infinitivo_coord_en_args(Resto, Resto1, Resto2).
+
+combinar_comps(none, Resto, Resto) :- !.
+combinar_comps(Comps, none, Comps) :- !.
+combinar_comps(comps(Comp, Resto1), Resto2, comps(Comp, RestoFinal)) :-
+    combinar_comps(Resto1, Resto2, RestoFinal),
+    !.
+combinar_comps(Comps, Resto, comps(Comps, Resto)).
 
 % =========================================================
 % AUXILIARES DE RECONSTRUCCION
@@ -728,6 +1013,9 @@ tokens_de_arbol(a_diferencia_de, [a, diferencia, de]) :- !.
 tokens_de_arbol(de_que, [de, que]) :- !.
 tokens_de_arbol(despues_de, [despues, de]) :- !.
 tokens_de_arbol(del_orden_de, [del, orden, de]) :- !.
+tokens_de_arbol(se_extiende, [se, extiende]) :- !.
+tokens_de_arbol(se_extienden, [se, extienden]) :- !.
+tokens_de_arbol(se_centra, [se, centra]) :- !.
 
 tokens_de_arbol(mod_nominal_simple(n(X)), [X]) :- !.
 
