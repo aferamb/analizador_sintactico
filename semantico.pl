@@ -40,9 +40,7 @@
 
 % --- Seres vivos y organismos completos ---
 tipo(araña, ser_vivo).
-tipo(araña, objeto_fisico).      % "araña de luces" (lámpara) 
 tipo(arañas, ser_vivo).
-tipo(arañas, objeto_fisico).
 tipo(cadaver, ser_vivo).           % cuerpo muerto tratado aún como origen biológico
 tipo(cadaver, objeto_fisico).      % como objeto inerte 
 tipo(abeja, ser_vivo).
@@ -389,15 +387,14 @@ compatible(componente_mecanico, proceso_mecanico). % el circuito funciona, la ag
 % Devuelve todas las categorías semánticas de una palabra (incluyendo ambigüedad).
 % Ejemplo:
 %   ?- categoria(araña, C).
-%   C = ser_vivo ;
-%   C = objeto_fisico.
+%   C = ser_vivo.
 categoria(Palabra, Categoria) :-
     tipo(Palabra, Categoria).
 
 % es_ambiguo(+Palabra)
 % True si la palabra tiene más de una categoría semántica.
 % Ejemplo:
-%   ?- es_ambiguo(araña).    % true  (ser_vivo / objeto_fisico)
+%   ?- es_ambiguo(pata).     % true  (componente_biologico / objeto_fisico)
 %   ?- es_ambiguo(musculo).  % false
 es_ambiguo(Palabra) :-
     tipo(Palabra, C1),
