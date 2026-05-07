@@ -299,9 +299,23 @@ analizar_todos_semanticamente :-
     write('========== CORPUS CLAUDE =========='), nl,
     analizar_todos_semanticamente_claude.
 
+% motivo_breve(+ClaseInterna, +Info, -Motivo)
+% Genera una descripción breve del motivo de clasificación.
+motivo_breve(correcta,     _,                        '') :- !.
+motivo_breve(no_analizable, _,                       'no analizable sintacticamente') :- !.
+motivo_breve(ambigua,      [Pal-_ | _],              Motivo) :-
+    format(atom(Motivo), "ambiguedad: '~w'", [Pal]), !.
+motivo_breve(ambigua,      _,                        'ambiguedad detectada') :- !.
+motivo_breve(incoherente,  incoherencia(_, [S-V|_]), Motivo) :-
+    format(atom(Motivo), "sujeto '~w' + verbo '~w' incompatibles", [S, V]), !.
+motivo_breve(no_literal,   no_literal(_, [S-V|_]),   Motivo) :-
+    format(atom(Motivo), "'~w' (inanimado) realiza '~w'", [S, V]), !.
+motivo_breve(_, _, '').
+
 % resumen_corpus/0
 % Clasifica todas las oraciones según las tres categorías del enunciado (3.4):
 %   correcta | ambigua | problematica
+% Muestra también el motivo breve de la clasificación.
 resumen_corpus :-
     write('=== CLASIFICACION DEL CORPUS (correcta / ambigua / problematica) ==='), nl,
     nl,
@@ -309,8 +323,16 @@ resumen_corpus :-
     forall(
         oracion_gpt(N, Texto),
         (
-            clasificar_oracion_enunciado(Texto, Clase),
-            format("GPT #~w [~w]~n", [N, Clase])
+            clasificar_oracion(Texto, ClaseInterna, Info),
+            (   ClaseInterna = incoherente -> Clase = problematica
+            ;   ClaseInterna = no_literal  -> Clase = problematica
+            ;   Clase = ClaseInterna
+            ),
+            motivo_breve(ClaseInterna, Info, Motivo),
+            (   Motivo = ''
+            ->  format("GPT #~w [~w]~n", [N, Clase])
+            ;   format("GPT #~w [~w] - ~w~n", [N, Clase, Motivo])
+            )
         )
     ),
     nl,
@@ -318,8 +340,16 @@ resumen_corpus :-
     forall(
         oracion_claude(N, Texto),
         (
-            clasificar_oracion_enunciado(Texto, Clase),
-            format("Claude #~w [~w]~n", [N, Clase])
+            clasificar_oracion(Texto, ClaseInterna, Info),
+            (   ClaseInterna = incoherente -> Clase = problematica
+            ;   ClaseInterna = no_literal  -> Clase = problematica
+            ;   Clase = ClaseInterna
+            ),
+            motivo_breve(ClaseInterna, Info, Motivo),
+            (   Motivo = ''
+            ->  format("Claude #~w [~w]~n", [N, Clase])
+            ;   format("Claude #~w [~w] - ~w~n", [N, Clase, Motivo])
+            )
         )
     ).
 

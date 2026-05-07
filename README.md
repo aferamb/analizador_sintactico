@@ -455,8 +455,10 @@ un archivo `tests.pl` y `swipl` está instalado, ejecuta:
 swipl -q -s tests.pl -g run_tests -t halt
 ```
 
-Actualmente no hay `tests.pl` en el repositorio, por lo que la validación Prolog
-automatizada queda pendiente de añadir una suite de pruebas.
+La suite `tests.pl` contiene pruebas de tokenización, aceptación, clasificación
+de tipos sintácticos y simplificación sobre casos representativos del corpus.
+Si alguna prueba falla, el hook cancela el push local y GitHub Actions marca el
+check como fallido en pull requests y en `main`.
 
 Flujo auxiliar de ramas:
 
