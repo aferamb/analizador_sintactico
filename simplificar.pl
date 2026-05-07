@@ -1019,6 +1019,7 @@ tokens_de_arbol(se_centra, [se, centra]) :- !.
 
 tokens_de_arbol(mod_nominal_simple(n(X)), [X]) :- !.
 
+
 tokens_de_arbol(Term, [Term]) :-
     atomic(Term),
     !.
