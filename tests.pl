@@ -1,10 +1,12 @@
 :- encoding(utf8).
 
 :- use_module(library(plunit)).
+:- use_module(library(readutil)).
 :- use_module(library(time)).
 
 :- consult('main.pl').
 :- consult('metricas_lexico_semanticas.pl').
+:- consult('comparativo_lexico_semantico.pl').
 
 analisis_timeout(5).
 
@@ -162,3 +164,76 @@ test(analiza_oracion_real_claude) :-
     assertion(NTokens > 0).
 
 :- end_tests(metricas_lexico_semanticas).
+
+:- begin_tests(comparativo_lexico_semantico).
+
+test(resultado_ls_por_corpus) :-
+    resultado_ls_gpt(1, TextoGPT, RGPT),
+    resultado_ls_claude(1, TextoClaude, RClaude),
+    once(sub_string(TextoGPT, _, _, _, "pinza")),
+    once(sub_string(TextoClaude, _, _, _, "efector")),
+    valor_resultado_ls(RGPT, n_tokens_total, TokensGPT),
+    valor_resultado_ls(RClaude, n_tokens_total, TokensClaude),
+    assertion(TokensGPT > 0),
+    assertion(TokensClaude > 0).
+
+test(jaccard_casos_base) :-
+    jaccard_ls([a, b], [b, c], J1),
+    jaccard_ls([], [], J2),
+    jaccard_ls([], [a], J3),
+    assertion(J1 == 0.3333),
+    assertion(J2 == 1),
+    assertion(J3 == 0).
+
+test(comparacion_par_1_exclusivas) :-
+    comparacion_ls(1, Comparacion),
+    valor_comparacion_ls(Comparacion, jaccard_global, JGlobal),
+    valor_comparacion_ls(Comparacion, exclusivas_sust_gpt, SustGPT),
+    valor_comparacion_ls(Comparacion, exclusivas_sust_claude, SustClaude),
+    valor_comparacion_ls(Comparacion, interesante, Interesante),
+    assertion(JGlobal > 0),
+    assertion(memberchk(pinza, SustGPT)),
+    assertion(memberchk(efector, SustClaude)),
+    assertion(Interesante == si).
+
+test(sustituciones_lexicas_por_combinaciones) :-
+    comparacion_ls(1, Comparacion),
+    valor_comparacion_ls(Comparacion, sustituciones, Sustituciones),
+    assertion(memberchk(sustitucion(1, sustantivo, pinza, efector), Sustituciones)),
+    assertion(memberchk(sustitucion(1, tecnico, pinza, efector), Sustituciones)).
+
+test(top_palabras_usa_frecuencia_absoluta) :-
+    top_palabras_ls(gpt, sustantivo, 3, Top),
+    assertion(memberchk(araña-25, Top)),
+    assertion(memberchk(pinza-23, Top)).
+
+test(exportar_tsv_ls_temporal) :-
+    tmp_file_stream(text, Archivo, Stream),
+    close(Stream),
+    setup_call_cleanup(
+        true,
+        (
+            with_output_to(string(_), exportar_tsv_ls(Archivo)),
+            read_file_to_string(Archivo, Contenido, []),
+            split_string(Contenido, "\n", "\n", Lineas),
+            Lineas = [Cabecera|_],
+            length(Lineas, NLineas),
+            assertion(NLineas == 51),
+            assertion(sub_string(Cabecera, _, _, _, "jaccard_global")),
+            assertion(sub_string(Cabecera, _, _, _, "lista_sust_gpt"))
+        ),
+        borrar_si_existe(Archivo)
+    ).
+
+test(resumen_lexico_semantico_ejecuta) :-
+    with_output_to(string(Salida), resumen_lexico_semantico),
+    assertion(sub_string(Salida, _, _, _, "RESUMEN LEXICO-SEMANTICO")).
+
+:- end_tests(comparativo_lexico_semantico).
+
+borrar_si_existe(Archivo) :-
+    exists_file(Archivo),
+    !,
+    delete_file(Archivo).
+
+borrar_si_existe(_).
