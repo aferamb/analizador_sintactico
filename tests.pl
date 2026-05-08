@@ -4,6 +4,7 @@
 :- use_module(library(time)).
 
 :- consult('main.pl').
+:- consult('metricas_lexico_semanticas.pl').
 
 analisis_timeout(5).
 
@@ -109,3 +110,55 @@ test(arbol_coordinado_genera_dos_simples) :-
     ]).
 
 :- end_tests(simplificacion).
+
+:- begin_tests(metricas_lexico_semanticas).
+
+test(detecta_locucion_sin_embargo) :-
+    detectar_locuciones([sin, embargo, la, pinza], Tokens),
+    assertion(Tokens = [locucion([sin, embargo], adverbio, _), la, pinza]).
+
+test(clasifica_todas_las_clases_ambiguas) :-
+    clasificar_tokens([la, que], Clasificados),
+    findall(ClaseLa, member(clasificado(la, ClaseLa, _), Clasificados), La0),
+    findall(ClaseQue, member(clasificado(que, ClaseQue, _), Clasificados), Que0),
+    sort(La0, La),
+    sort(Que0, Que),
+    assertion(La == [determinante, pronombre]),
+    assertion(Que == [conjuncion, pronombre]).
+
+test(oracion_plan_metricas_basicas) :-
+    analizar_lexico_semantico(
+        "La pinza necrobótica es capaz de agarrar objetos.",
+        Resultado
+    ),
+    valor_resultado_ls(Resultado, n_tokens_total, NTokens),
+    valor_resultado_ls(Resultado, n_tecnicas, NTecnicas),
+    valor_resultado_ls(Resultado, lista_tecnicos, Tecnicos),
+    valor_resultado_ls(Resultado, dominio_dominante, Dominio),
+    valor_submetrica_ls(Resultado, sub_verbos, verb_infinitivos, Infinitivos),
+    assertion(NTokens == 8),
+    assertion(NTecnicas == 2),
+    assertion(Tecnicos == [necrobotica, pinza]),
+    assertion(Dominio == entidad_robotica),
+    assertion(Infinitivos == 1).
+
+test(cuenta_no_clasificados_sin_contar_comas) :-
+    analizar_lexico_semantico("La pinza, 0,35.", Resultado),
+    valor_resultado_ls(Resultado, n_tokens_total, NTokens),
+    valor_resultado_ls(Resultado, n_no_clasificados, NNoClasificados),
+    assertion(NTokens == 3),
+    assertion(NNoClasificados == 1).
+
+test(analiza_oracion_real_gpt) :-
+    oracion_gpt(1, Texto),
+    con_tiempo(analizar_lexico_semantico(Texto, Resultado)),
+    valor_resultado_ls(Resultado, n_tokens_total, NTokens),
+    assertion(NTokens > 0).
+
+test(analiza_oracion_real_claude) :-
+    oracion_claude(1, Texto),
+    con_tiempo(analizar_lexico_semantico(Texto, Resultado)),
+    valor_resultado_ls(Resultado, n_tokens_total, NTokens),
+    assertion(NTokens > 0).
+
+:- end_tests(metricas_lexico_semanticas).
