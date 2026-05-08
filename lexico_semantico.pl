@@ -161,31 +161,65 @@ forma_erronea(centrandones, centrandonos).
 % PUENTE CON EL LEXICO SINTACTICO ACTUAL
 % =========================================================
 
-categoria_lexica(P, unidad_word) :- unidad_word(P).
-categoria_lexica(P, det_word) :- det_word(P).
-categoria_lexica(P, nombre_word) :- nombre_word(P).
-categoria_lexica(P, verbo_word) :- verbo_word(P).
-categoria_lexica(P, vc_word) :- vc_word(P).
-categoria_lexica(P, vi_word) :- vi_word(P).
-categoria_lexica(P, aux_word) :- aux_word(P).
-categoria_lexica(P, aux_ser_word) :- aux_ser_word(P).
-categoria_lexica(P, part_word) :- part_word(P).
-categoria_lexica(P, modal_word) :- modal_word(P).
-categoria_lexica(P, inf_word) :- inf_word(P).
-categoria_lexica(P, adj_word) :- adj_word(P).
-categoria_lexica(P, adv_word) :- adv_word(P).
-categoria_lexica(P, prep_word) :- prep_word(P).
-categoria_lexica(P, conj_word) :- conj_word(P).
-categoria_lexica(P, conj_coord_word) :- conj_coord_word(P).
-categoria_lexica(P, rel_word) :- rel_word(P).
-categoria_lexica(P, ger_word) :- ger_word(P).
-categoria_lexica(P, subord_word) :- subord_word(P).
-categoria_lexica(P, se_word) :- se_word(P).
-categoria_lexica(P, pron_personal_word) :- pron_personal_word(P).
+categoria_lexica(P, Categoria) :-
+    categoria_extra(P, Categoria),
+    \+ categoria_excluida(P, Categoria).
+categoria_lexica(P, Categoria) :-
+    categoria_base_lexico(P, Categoria),
+    \+ categoria_excluida(P, Categoria).
 
-categoria_lexica(centrandones, ger_word).
-categoria_lexica(veces, nombre_word).
-categoria_lexica(utilizarse, inf_word).
+categoria_base_lexico(P, unidad_word) :- unidad_word(P).
+categoria_base_lexico(P, det_word) :- det_word(P).
+categoria_base_lexico(P, nombre_word) :- nombre_word(P).
+categoria_base_lexico(P, verbo_word) :- verbo_word(P).
+categoria_base_lexico(P, vc_word) :- vc_word(P).
+categoria_base_lexico(P, vi_word) :- vi_word(P).
+categoria_base_lexico(P, aux_word) :- aux_word(P).
+categoria_base_lexico(P, aux_ser_word) :- aux_ser_word(P).
+categoria_base_lexico(P, part_word) :- part_word(P).
+categoria_base_lexico(P, modal_word) :- modal_word(P).
+categoria_base_lexico(P, inf_word) :- inf_word(P).
+categoria_base_lexico(P, adj_word) :- adj_word(P).
+categoria_base_lexico(P, adv_word) :- adv_word(P).
+categoria_base_lexico(P, prep_word) :- prep_word(P).
+categoria_base_lexico(P, conj_word) :- conj_word(P).
+categoria_base_lexico(P, conj_coord_word) :- conj_coord_word(P).
+categoria_base_lexico(P, rel_word) :- rel_word(P).
+categoria_base_lexico(P, ger_word) :- ger_word(P).
+categoria_base_lexico(P, subord_word) :- subord_word(P).
+categoria_base_lexico(P, se_word) :- se_word(P).
+categoria_base_lexico(P, pron_personal_word) :- pron_personal_word(P).
+
+categoria_extra(centrandones, ger_word).
+categoria_extra(embargo, nombre_word).
+categoria_extra(gran, adj_word).
+categoria_extra(contrario, adj_word).
+categoria_extra(futuro, adj_word).
+categoria_extra(obstante, adj_word).
+categoria_extra(unico, adj_word).
+categoria_extra(utilizarse, inf_word).
+categoria_extra(veces, nombre_word).
+
+categoria_excluida(P, adv_word) :-
+    memberchk(P, [
+        gran, dos, tres, diez, maximo, hacia, si, embargo, obstante,
+        contrario, contraste, segundo
+    ]).
+categoria_excluida(P, nombre_word) :-
+    memberchk(P, [
+        artificiales, autonoma, dos, tres, diez, natural, naturales,
+        unico, unicos, universal, volvieran
+    ]).
+categoria_excluida(esta, vc_word).
+categoria_excluida(esta, aux_word).
+categoria_excluida(esta, part_word).
+categoria_excluida(esta, adj_word).
+categoria_excluida(P, part_word) :-
+    memberchk(P, [estado]).
+categoria_excluida(P, adj_word) :-
+    memberchk(P, [datos, estado, materiales]).
+categoria_excluida(estado, aux_ser_word).
+categoria_excluida(forma, verbo_word).
 
 categoria_pronominal(P) :-
     ( categoria_lexica(P, pron_personal_word)
@@ -250,7 +284,7 @@ significado_sustantivo(P, abstracto) :-
     ]),
     !.
 significado_sustantivo(P, colectivo) :-
-    memberchk(P, [sistema, sistemas, conjunto, datos]),
+    memberchk(P, [conjunto]),
     !.
 significado_sustantivo(_, concreto).
 
@@ -287,11 +321,11 @@ femenino_lexico(P) :-
         fuerza, fuerzas, geometrica, gota, hidraulica, hidrostatica,
         hipodermica, hipotesis, imagenes, inanimada, ingenieria, innata,
         inteligencia, interfaz, interna, jeringa, jeringuilla, la, las, manera,
-        mano, maquina, masa, masas, mecanica, medusas, membrana, muestras,
+        mano, maquina, masa, masas, mecanica, medusas, membrana, microscopia, muestras,
         naturaleza, necrobotica, ninguna, numerosas, otras, pata, patas, pegada,
         pequeña, pequeñas, perdida, pinza, potencia, precisa, presion, propia,
         quebradizas, razones, recubierta, refinada, relacion, restrictivas,
-        roboticas, seda, sencilla, simultanea, sola, temperatura, textura,
+        roboticas, seda, sencilla, simultanea, sola, temperatura, textura, hemolinfa,
         todas, una, unica, variedad, variables, vida
     ]).
 
@@ -309,7 +343,7 @@ masculino_lexico(P) :-
         diseños, dispositivo, dispositivos, duros, efector, ejemplo, el,
         ensayo, ensayos, entorno, entornos, estado, esternon, estudio,
         exoesqueleto, exoesqueletos, flexores, fundamento, futuro, guepardos,
-        hallazgos, interruptor, lado, led, lobo, lock, luer, lugar, margen,
+        hallazgos, interruptor, lado, led, lobo, lock, luer, lugar, margen, material,
         materiales, mecanismo, mecanismos, metodos, micronewtonios,
         micronewtons, minutos, motivos, movimiento, movimientos, musculos,
         neutro, niveles, objetos, operativo, papel, pares, paso, pasos,
@@ -334,17 +368,16 @@ rasgos_adjetivo(P, [
 
 tipo_propiedad_adjetivo(P, relacional) :-
     memberchk(P, [
-        acrilica, acrilico, analitica, animal, artificiales, autonoma,
+        acrilica, acrilico, analitica, animal,
         biocompatibles, biohibridos, bioinspirado, biologicos, biomimetico,
         biomimeticos, biotico, bioticos, domesticas, electronica, geometrica,
-        hidraulica, hidraulicos, hidrostatica, hipodermica, manual, materiales,
-        mecanica, muscular, musculares, natural, naturales, necrobotica,
-        necrobotico, neumatica, roboticas, roboticos, situacional, universal,
-        ventral
+        hidraulica, hidraulicos, hidrostatica, hipodermica, manual,
+        mecanica, muscular, musculares, necrobotica, necrobotico, neumatica,
+        roboticas, roboticos, situacional, ventral, futuro, futuros
     ]),
     !.
 tipo_propiedad_adjetivo(P, adverbial) :-
-    memberchk(P, [actual, anterior, futura, futuro, futuros, mera, solo]),
+    memberchk(P, [actual, anterior, futura, mera]),
     !.
 tipo_propiedad_adjetivo(_, calificativo).
 
@@ -352,7 +385,7 @@ grado_adjetivo(P, comparativo) :-
     memberchk(P, [mayor, menor, mejor]),
     !.
 grado_adjetivo(P, superlativo_absoluto) :-
-    memberchk(P, [maximo, maxima, minimo, minima, optimo, unica, unico, unicos]),
+    memberchk(P, [maximo, maxima, minimo, minima, optimo]),
     !.
 grado_adjetivo(_, positivo).
 
@@ -381,7 +414,7 @@ determinante_especifico(dos, [tipo(numeral(cardinal)), valor(2)]).
 determinante_especifico(tres, [tipo(numeral(cardinal)), valor(3)]).
 determinante_especifico(diez, [tipo(numeral(cardinal)), valor(10)]).
 determinante_especifico(cientos, [tipo(numeral(cardinal)), valor(indeterminado_plural)]).
-determinante_especifico(ambos, [tipo(indefinido), genero(masculino), numero(plural)]).
+determinante_especifico(ambos, [tipo(numeral(dual)), valor(2), genero(masculino), numero(plural)]).
 determinante_especifico(cada, [tipo(indefinido), numero(singular)]).
 determinante_especifico(muchas, [tipo(indefinido), genero(femenino), numero(plural)]).
 determinante_especifico(otras, [tipo(indefinido), genero(femenino), numero(plural)]).
@@ -434,9 +467,6 @@ forma_verbal(ser, infinitivo).
 forma_verbal(P, conjugada) :- verbo_finito(P).
 
 participio_morfologico(P) :-
-    P = estado,
-    !.
-participio_morfologico(P) :-
     ( atom_concat(_, ado, P)
     ; atom_concat(_, ada, P)
     ; atom_concat(_, ados, P)
@@ -455,8 +485,8 @@ verbo_finito(P) :-
         aprovecha, biodegrada, camufla, caracterizamos, carece, colocamos,
         combinan, conecta, construimos, contienen, corresponde, creamos,
         curvan, curven, dan, deja, demostramos, denomina, denominamos,
-        desplazo, elegimos, emplean, enfrentan, es, esta, estan, eutanasio,
-        extiende, explotan, fijaron, forma, fue, genera, ha, hace, han, hizo,
+        desplazo, elegimos, emplean, enfrentan, es, estan, eutanasio,
+        extiende, explotan, fijaron, fue, genera, ha, hace, han, hizo,
         imitan, implican, introduce, mostramos, muere, muestran, observa, observamos,
         obtuvo, permanecen, permite, planteamos, podemos, podran, podria, podriamos,
         podrian, poseen, presento, presuriza, producen, proponemos, provoca,
@@ -469,7 +499,7 @@ funcion_verbal(P, copulativo) :-
     categoria_lexica(P, vc_word),
     !.
 funcion_verbal(P, semicopulativo) :-
-    memberchk(P, [permanecen, resulta, volvieran]),
+    memberchk(P, [permanecen, resulta]),
     !.
 funcion_verbal(_, predicativo).
 
@@ -493,9 +523,6 @@ transitividad_verbal(P, transitivo) :-
     !.
 transitividad_verbal(_, contextual).
 
-voz_verbal(P, pasivo_reflejo) :-
-    atom_concat(_, se, P),
-    !.
 voz_verbal(_, contextual).
 
 tipo_especial_verbal(P, auxiliar) :-
@@ -507,7 +534,7 @@ tipo_especial_verbal(P, modal) :-
     categoria_lexica(P, modal_word),
     !.
 tipo_especial_verbal(P, pronominal) :-
-    atom_concat(_, se, P),
+    memberchk(P, [camuflarse, oponerse]),
     !.
 tipo_especial_verbal(_, ninguno).
 
@@ -515,7 +542,7 @@ regularidad_verbal(P, irregular) :-
     memberchk(P, [
         es, esta, estan, fue, ha, han, ser, sido, hace, hizo, tienen, puede,
         pueden, podemos, podran, podria, podriamos, podrian, puedan, da, dan,
-        dando, van, volvieran
+        van, volvieran
     ]),
     !.
 regularidad_verbal(_, regular).
@@ -534,27 +561,24 @@ rasgos_adverbio(P, [
     forma_adverbio(P, Forma).
 
 significado_adverbio(P, lugar) :-
-    memberchk(P, [adentro, afuera, alla, dentro, fuera, hacia]),
+    memberchk(P, [adentro, afuera, alla, dentro, fuera]),
     !.
 significado_adverbio(P, tiempo) :-
     memberchk(P, [aun, despues, habitualmente, todavia, ya]),
     !.
 significado_adverbio(P, cantidad_grado) :-
-    memberchk(P, [aproximadamente, casi, gran, mas, maximo, menos, muy]),
+    memberchk(P, [aproximadamente, casi, mas, menos, muy]),
     !.
 significado_adverbio(P, negacion) :-
     memberchk(P, [no]),
     !.
-significado_adverbio(P, afirmacion) :-
-    memberchk(P, [si]),
-    !.
 significado_adverbio(P, orden) :-
-    memberchk(P, [primero, segundo, dos, tres, diez]),
+    memberchk(P, [primero, despues, finalmente]),
     !.
 significado_adverbio(_, modo).
 
 funcion_adverbio(P, conector_discursivo) :-
-    memberchk(P, [ademas, embargo, obstante, contrario, contraste, asi]),
+    memberchk(P, [ademas, asi]),
     !.
 funcion_adverbio(P, focal) :-
     memberchk(P, [incluso, solo, unicamente, solamente]),
