@@ -220,7 +220,10 @@ test(exportar_tsv_ls_temporal) :-
             length(Lineas, NLineas),
             assertion(NLineas == 51),
             assertion(sub_string(Cabecera, _, _, _, "jaccard_global")),
-            assertion(sub_string(Cabecera, _, _, _, "lista_sust_gpt"))
+            assertion(sub_string(Cabecera, _, _, _, "lista_sust_gpt")),
+            assertion(sub_string(Cabecera, _, _, _, "lista_adv_gpt")),
+            assertion(sub_string(Cabecera, _, _, _, "lista_tecnicos_gpt")),
+            assertion(sub_string(Cabecera, _, _, _, "exclusivas_tecnicas_gpt"))
         ),
         borrar_si_existe(Archivo)
     ).

@@ -1,0 +1,594 @@
+par,categoria,palabra_gpt,palabra_claude,tecnica,interpretacion
+1,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+1,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+1,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+1,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+1,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+1,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+1,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+1,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+1,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+1,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+1,tecnico,pinza,efector,si,diferencia terminologica tecnica
+1,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+2,sustantivo,manera,efector,si,Claude usa termino mas tecnico
+2,sustantivo,manera,forma,no,sustitucion lexica
+2,sustantivo,manera,mano,no,sustitucion lexica
+2,sustantivo,manual,efector,si,Claude usa termino mas tecnico
+2,sustantivo,manual,forma,no,sustitucion lexica
+2,sustantivo,manual,mano,no,sustitucion lexica
+2,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+2,sustantivo,pinza,forma,si,GPT usa termino mas tecnico
+2,sustantivo,pinza,mano,si,GPT usa termino mas tecnico
+2,tecnico,pinza,efector,si,diferencia terminologica tecnica
+2,verbo,servir,usarse,no,sustitucion lexica
+3,adjetivo,antagonistas,antagonicos,no,sustitucion lexica
+3,verbo,tienen,poseen,no,sustitucion lexica
+4,adjetivo,injustificada,fundamento,no,sustitucion lexica
+4,verbo,es,carece,no,sustitucion lexica
+5,sustantivo,animal,animales,no,sustitucion lexica
+5,sustantivo,animal,biomimeticos,no,sustitucion lexica
+5,sustantivo,apariencia,animales,no,sustitucion lexica
+5,sustantivo,apariencia,biomimeticos,no,sustitucion lexica
+7,adjetivo,sencilla,sencillo,no,sustitucion lexica
+7,adverbio,solo,asi,no,sustitucion lexica
+7,adverbio,solo,inaugurando,no,sustitucion lexica
+7,adverbio,solo,unicamente,no,sustitucion lexica
+7,sustantivo,etapa,paso,no,sustitucion lexica
+7,sustantivo,etapa,sencillo,no,sustitucion lexica
+7,sustantivo,inicio,paso,no,sustitucion lexica
+7,sustantivo,inicio,sencillo,no,sustitucion lexica
+7,verbo,dando,inaugurando,no,sustitucion lexica
+8,verbo,ampliarse,extenderse,no,sustitucion lexica
+9,sustantivo,campo,ambito,no,sustitucion lexica
+10,adjetivo,escalas,pequeña,no,sustitucion lexica
+10,adjetivo,pequeñas,pequeña,no,sustitucion lexica
+10,sustantivo,escalas,escala,no,sustitucion lexica
+10,sustantivo,escalas,mera,no,sustitucion lexica
+10,sustantivo,escalas,pequeña,no,sustitucion lexica
+10,sustantivo,ingenieria,escala,no,sustitucion lexica
+10,sustantivo,ingenieria,mera,no,sustitucion lexica
+10,sustantivo,ingenieria,pequeña,no,sustitucion lexica
+10,sustantivo,longitud,escala,no,sustitucion lexica
+10,sustantivo,longitud,mera,no,sustitucion lexica
+10,sustantivo,longitud,pequeña,no,sustitucion lexica
+10,sustantivo,pequeñas,escala,no,sustitucion lexica
+10,sustantivo,pequeñas,mera,no,sustitucion lexica
+10,sustantivo,pequeñas,pequeña,no,sustitucion lexica
+11,adjetivo,debido,concreta,no,sustitucion lexica
+11,adjetivo,debido,dada,no,sustitucion lexica
+11,adjetivo,debido,final,no,sustitucion lexica
+11,sustantivo,debido,centrandonos,no,sustitucion lexica
+11,sustantivo,debido,concreta,no,sustitucion lexica
+11,sustantivo,debido,dada,no,sustitucion lexica
+11,sustantivo,debido,efector,si,Claude usa termino mas tecnico
+11,sustantivo,debido,final,no,sustitucion lexica
+11,sustantivo,pinza,centrandonos,si,GPT usa termino mas tecnico
+11,sustantivo,pinza,concreta,si,GPT usa termino mas tecnico
+11,sustantivo,pinza,dada,si,GPT usa termino mas tecnico
+11,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+11,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+11,tecnico,pinza,efector,si,diferencia terminologica tecnica
+11,verbo,centrandones,centrandonos,no,sustitucion lexica
+11,verbo,centrandones,dada,no,sustitucion lexica
+11,verbo,debido,centrandonos,no,sustitucion lexica
+11,verbo,debido,dada,no,sustitucion lexica
+12,adjetivo,muertas,fallecidas,no,sustitucion lexica
+12,verbo,hace,fallecidas,no,sustitucion lexica
+12,verbo,hace,provoca,no,sustitucion lexica
+13,adjetivo,gran,elevada,no,sustitucion lexica
+13,sustantivo,araña,arañas,si,diferencia terminologica tecnica
+13,sustantivo,araña,elevada,si,GPT usa termino mas tecnico
+13,tecnico,araña,arañas,si,diferencia terminologica tecnica
+13,verbo,disenar,diseñar,no,sustitucion lexica
+13,verbo,disenar,elevada,no,sustitucion lexica
+13,verbo,disenar,realizar,no,sustitucion lexica
+13,verbo,producir,diseñar,no,sustitucion lexica
+13,verbo,producir,elevada,no,sustitucion lexica
+13,verbo,producir,realizar,no,sustitucion lexica
+14,adjetivo,explorado,explorada,no,sustitucion lexica
+14,adjetivo,explorado,sido,no,sustitucion lexica
+14,adverbio,aparte,aun,no,sustitucion lexica
+14,adverbio,todavia,aun,no,sustitucion lexica
+14,sustantivo,explorado,explorada,no,sustitucion lexica
+14,sustantivo,explorado,margen,no,sustitucion lexica
+14,verbo,explorado,explorada,no,sustitucion lexica
+14,verbo,explorado,sido,no,sustitucion lexica
+15,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+15,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+15,adjetivo,necrobotica,variados,si,GPT usa termino mas tecnico
+15,adjetivo,variables,final,no,sustitucion lexica
+15,adjetivo,variables,necrobotico,si,Claude usa termino mas tecnico
+15,adjetivo,variables,variados,no,sustitucion lexica
+15,sustantivo,anclaje,cables,no,sustitucion lexica
+15,sustantivo,anclaje,efector,si,Claude usa termino mas tecnico
+15,sustantivo,anclaje,final,no,sustitucion lexica
+15,sustantivo,anclaje,necrobotico,si,Claude usa termino mas tecnico
+15,sustantivo,anclaje,variados,no,sustitucion lexica
+15,sustantivo,necrobotica,cables,si,GPT usa termino mas tecnico
+15,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+15,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+15,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+15,sustantivo,necrobotica,variados,si,GPT usa termino mas tecnico
+15,sustantivo,pinza,cables,si,GPT usa termino mas tecnico
+15,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+15,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+15,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+15,sustantivo,pinza,variados,si,GPT usa termino mas tecnico
+15,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+15,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+15,tecnico,pinza,efector,si,diferencia terminologica tecnica
+15,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+16,adjetivo,operativa,curado,no,sustitucion lexica
+16,adjetivo,operativa,operativo,no,sustitucion lexica
+16,sustantivo,fraguado,curado,no,sustitucion lexica
+16,sustantivo,fraguado,efector,si,Claude usa termino mas tecnico
+16,sustantivo,fraguado,operativo,no,sustitucion lexica
+16,sustantivo,pinza,curado,si,GPT usa termino mas tecnico
+16,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+16,sustantivo,pinza,operativo,si,GPT usa termino mas tecnico
+16,tecnico,pinza,efector,si,diferencia terminologica tecnica
+16,verbo,crear,curado,no,sustitucion lexica
+16,verbo,crear,obtener,no,sustitucion lexica
+16,verbo,fraguado,curado,no,sustitucion lexica
+16,verbo,fraguado,obtener,no,sustitucion lexica
+17,adjetivo,correspondiente,final,no,sustitucion lexica
+17,adjetivo,correspondiente,necrobotico,si,Claude usa termino mas tecnico
+17,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+17,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+17,sustantivo,necrobotica,adentro,si,GPT usa termino mas tecnico
+17,sustantivo,necrobotica,corresponde,si,GPT usa termino mas tecnico
+17,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+17,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+17,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+17,sustantivo,pinza,adentro,si,GPT usa termino mas tecnico
+17,sustantivo,pinza,corresponde,si,GPT usa termino mas tecnico
+17,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+17,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+17,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+17,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+17,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+17,tecnico,pinza,efector,si,diferencia terminologica tecnica
+17,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+18,sustantivo,jeringa,afuera,si,GPT usa termino mas tecnico
+18,sustantivo,jeringa,efector,si,diferencia terminologica tecnica
+18,sustantivo,jeringa,jeringuilla,si,diferencia terminologica tecnica
+18,sustantivo,jeringa,traves,si,GPT usa termino mas tecnico
+18,sustantivo,pinza,afuera,si,GPT usa termino mas tecnico
+18,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+18,sustantivo,pinza,jeringuilla,si,diferencia terminologica tecnica
+18,sustantivo,pinza,traves,si,GPT usa termino mas tecnico
+18,tecnico,jeringa,efector,si,diferencia terminologica tecnica
+18,tecnico,jeringa,jeringuilla,si,diferencia terminologica tecnica
+18,tecnico,pinza,efector,si,diferencia terminologica tecnica
+18,tecnico,pinza,jeringuilla,si,diferencia terminologica tecnica
+18,verbo,accionan,actuan,no,sustitucion lexica
+20,adjetivo,simultaneos,final,no,sustitucion lexica
+20,adverbio,eficazmente,actuando,no,sustitucion lexica
+20,adverbio,eficazmente,efectivamente,no,sustitucion lexica
+20,sustantivo,lugar,efector,si,Claude usa termino mas tecnico
+20,sustantivo,lugar,final,no,sustitucion lexica
+20,sustantivo,lugar,forma,no,sustitucion lexica
+20,sustantivo,lugar,simultanea,no,sustitucion lexica
+20,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+20,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+20,sustantivo,pinza,forma,si,GPT usa termino mas tecnico
+20,sustantivo,pinza,simultanea,si,GPT usa termino mas tecnico
+20,tecnico,pinza,efector,si,diferencia terminologica tecnica
+20,verbo,actuan,actuando,no,sustitucion lexica
+20,verbo,actuan,producen,no,sustitucion lexica
+20,verbo,dan,actuando,no,sustitucion lexica
+20,verbo,dan,producen,no,sustitucion lexica
+20,verbo,lugar,actuando,no,sustitucion lexica
+20,verbo,lugar,producen,no,sustitucion lexica
+21,adjetivo,destinado,final,no,sustitucion lexica
+21,adjetivo,destinado,necrobotico,si,Claude usa termino mas tecnico
+21,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+21,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+21,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+21,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+21,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+21,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+21,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+21,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+21,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+21,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+21,tecnico,pinza,efector,si,diferencia terminologica tecnica
+21,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+22,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+22,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+22,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+22,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+22,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+22,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+22,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+22,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+22,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+22,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+22,tecnico,pinza,efector,si,diferencia terminologica tecnica
+22,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+23,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+23,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+23,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+23,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+23,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+23,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+23,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+23,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+23,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+23,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+23,tecnico,pinza,efector,si,diferencia terminologica tecnica
+23,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+25,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+25,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+25,sustantivo,jeringa,efector,si,diferencia terminologica tecnica
+25,sustantivo,jeringa,final,si,GPT usa termino mas tecnico
+25,sustantivo,jeringa,jeringuilla,si,diferencia terminologica tecnica
+25,sustantivo,jeringa,necrobotico,si,diferencia terminologica tecnica
+25,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+25,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+25,sustantivo,necrobotica,jeringuilla,si,diferencia terminologica tecnica
+25,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+25,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+25,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+25,sustantivo,pinza,jeringuilla,si,diferencia terminologica tecnica
+25,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+25,sustantivo,señalamos,efector,si,Claude usa termino mas tecnico
+25,sustantivo,señalamos,final,no,sustitucion lexica
+25,sustantivo,señalamos,jeringuilla,si,Claude usa termino mas tecnico
+25,sustantivo,señalamos,necrobotico,si,Claude usa termino mas tecnico
+25,tecnico,jeringa,efector,si,diferencia terminologica tecnica
+25,tecnico,jeringa,jeringuilla,si,diferencia terminologica tecnica
+25,tecnico,jeringa,necrobotico,si,diferencia terminologica tecnica
+25,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+25,tecnico,necrobotica,jeringuilla,si,diferencia terminologica tecnica
+25,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+25,tecnico,pinza,efector,si,diferencia terminologica tecnica
+25,tecnico,pinza,jeringuilla,si,diferencia terminologica tecnica
+25,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+25,verbo,señalamos,observamos,no,sustitucion lexica
+26,sustantivo,pinza,arañas,si,diferencia terminologica tecnica
+26,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+26,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+26,tecnico,pinza,arañas,si,diferencia terminologica tecnica
+26,tecnico,pinza,efector,si,diferencia terminologica tecnica
+27,adjetivo,necrobotica,conecta,si,GPT usa termino mas tecnico
+27,adjetivo,necrobotica,curado,si,GPT usa termino mas tecnico
+27,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+27,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+27,sustantivo,fraguado,curado,no,sustitucion lexica
+27,sustantivo,fraguado,efector,si,Claude usa termino mas tecnico
+27,sustantivo,fraguado,final,no,sustitucion lexica
+27,sustantivo,fraguado,jeringuilla,si,Claude usa termino mas tecnico
+27,sustantivo,fraguado,necrobotico,si,Claude usa termino mas tecnico
+27,sustantivo,jeringa,curado,si,GPT usa termino mas tecnico
+27,sustantivo,jeringa,efector,si,diferencia terminologica tecnica
+27,sustantivo,jeringa,final,si,GPT usa termino mas tecnico
+27,sustantivo,jeringa,jeringuilla,si,diferencia terminologica tecnica
+27,sustantivo,jeringa,necrobotico,si,diferencia terminologica tecnica
+27,sustantivo,necrobotica,curado,si,GPT usa termino mas tecnico
+27,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+27,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+27,sustantivo,necrobotica,jeringuilla,si,diferencia terminologica tecnica
+27,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+27,sustantivo,pinza,curado,si,GPT usa termino mas tecnico
+27,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+27,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+27,sustantivo,pinza,jeringuilla,si,diferencia terminologica tecnica
+27,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+27,sustantivo,vez,curado,no,sustitucion lexica
+27,sustantivo,vez,efector,si,Claude usa termino mas tecnico
+27,sustantivo,vez,final,no,sustitucion lexica
+27,sustantivo,vez,jeringuilla,si,Claude usa termino mas tecnico
+27,sustantivo,vez,necrobotico,si,Claude usa termino mas tecnico
+27,tecnico,jeringa,efector,si,diferencia terminologica tecnica
+27,tecnico,jeringa,jeringuilla,si,diferencia terminologica tecnica
+27,tecnico,jeringa,necrobotico,si,diferencia terminologica tecnica
+27,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+27,tecnico,necrobotica,jeringuilla,si,diferencia terminologica tecnica
+27,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+27,tecnico,pinza,efector,si,diferencia terminologica tecnica
+27,tecnico,pinza,jeringuilla,si,diferencia terminologica tecnica
+27,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+27,verbo,acopla,conecta,no,sustitucion lexica
+27,verbo,acopla,curado,no,sustitucion lexica
+27,verbo,fraguado,conecta,no,sustitucion lexica
+27,verbo,fraguado,curado,no,sustitucion lexica
+28,sustantivo,falta,ausencia,no,sustitucion lexica
+28,verbo,extenderlas,extender,no,sustitucion lexica
+29,sustantivo,motivos,araña,si,Claude usa termino mas tecnico
+29,sustantivo,motivos,punto,no,sustitucion lexica
+29,sustantivo,motivos,razones,no,sustitucion lexica
+29,sustantivo,sitio,araña,si,Claude usa termino mas tecnico
+29,sustantivo,sitio,punto,no,sustitucion lexica
+29,sustantivo,sitio,razones,no,sustitucion lexica
+31,adjetivo,muchas,numerosas,no,sustitucion lexica
+31,sustantivo,muchas,numerosas,no,sustitucion lexica
+32,verbo,sacrificando,eutanasiando,no,sustitucion lexica
+33,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+33,sustantivo,manera,efector,si,Claude usa termino mas tecnico
+33,sustantivo,manera,forma,no,sustitucion lexica
+33,sustantivo,manera,necrobotico,si,Claude usa termino mas tecnico
+33,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+33,sustantivo,necrobotica,forma,si,GPT usa termino mas tecnico
+33,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+33,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+33,sustantivo,pinza,forma,si,GPT usa termino mas tecnico
+33,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+33,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+33,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+33,tecnico,pinza,efector,si,diferencia terminologica tecnica
+33,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+34,adjetivo,accionada,accionado,no,sustitucion lexica
+34,adjetivo,accionada,final,no,sustitucion lexica
+34,adjetivo,accionada,plenamente,no,sustitucion lexica
+34,adjetivo,accionada,restrictivos,no,sustitucion lexica
+34,adjetivo,accionada,resulta,no,sustitucion lexica
+34,adjetivo,accionada,sencillo,no,sustitucion lexica
+34,adjetivo,accionada,tediosos,no,sustitucion lexica
+34,adjetivo,accionada,unico,no,sustitucion lexica
+34,adjetivo,restrictivas,accionado,no,sustitucion lexica
+34,adjetivo,restrictivas,final,no,sustitucion lexica
+34,adjetivo,restrictivas,plenamente,no,sustitucion lexica
+34,adjetivo,restrictivas,restrictivos,no,sustitucion lexica
+34,adjetivo,restrictivas,resulta,no,sustitucion lexica
+34,adjetivo,restrictivas,sencillo,no,sustitucion lexica
+34,adjetivo,restrictivas,tediosos,no,sustitucion lexica
+34,adjetivo,restrictivas,unico,no,sustitucion lexica
+34,adjetivo,sencilla,accionado,no,sustitucion lexica
+34,adjetivo,sencilla,final,no,sustitucion lexica
+34,adjetivo,sencilla,plenamente,no,sustitucion lexica
+34,adjetivo,sencilla,restrictivos,no,sustitucion lexica
+34,adjetivo,sencilla,resulta,no,sustitucion lexica
+34,adjetivo,sencilla,sencillo,no,sustitucion lexica
+34,adjetivo,sencilla,tediosos,no,sustitucion lexica
+34,adjetivo,sencilla,unico,no,sustitucion lexica
+34,adjetivo,sola,accionado,no,sustitucion lexica
+34,adjetivo,sola,final,no,sustitucion lexica
+34,adjetivo,sola,plenamente,no,sustitucion lexica
+34,adjetivo,sola,restrictivos,no,sustitucion lexica
+34,adjetivo,sola,resulta,no,sustitucion lexica
+34,adjetivo,sola,sencillo,no,sustitucion lexica
+34,adjetivo,sola,tediosos,no,sustitucion lexica
+34,adjetivo,sola,unico,no,sustitucion lexica
+34,adjetivo,tediosas,accionado,no,sustitucion lexica
+34,adjetivo,tediosas,final,no,sustitucion lexica
+34,adjetivo,tediosas,plenamente,no,sustitucion lexica
+34,adjetivo,tediosas,restrictivos,no,sustitucion lexica
+34,adjetivo,tediosas,resulta,no,sustitucion lexica
+34,adjetivo,tediosas,sencillo,no,sustitucion lexica
+34,adjetivo,tediosas,tediosos,no,sustitucion lexica
+34,adjetivo,tediosas,unico,no,sustitucion lexica
+34,adverbio,completamente,plenamente,no,sustitucion lexica
+34,sustantivo,etapa,accionado,no,sustitucion lexica
+34,sustantivo,etapa,efector,si,Claude usa termino mas tecnico
+34,sustantivo,etapa,final,no,sustitucion lexica
+34,sustantivo,etapa,paso,no,sustitucion lexica
+34,sustantivo,etapa,pasos,no,sustitucion lexica
+34,sustantivo,etapa,restrictivos,no,sustitucion lexica
+34,sustantivo,etapa,sencillo,no,sustitucion lexica
+34,sustantivo,etapa,tediosos,no,sustitucion lexica
+34,sustantivo,etapas,accionado,no,sustitucion lexica
+34,sustantivo,etapas,efector,si,Claude usa termino mas tecnico
+34,sustantivo,etapas,final,no,sustitucion lexica
+34,sustantivo,etapas,paso,no,sustitucion lexica
+34,sustantivo,etapas,pasos,no,sustitucion lexica
+34,sustantivo,etapas,restrictivos,no,sustitucion lexica
+34,sustantivo,etapas,sencillo,no,sustitucion lexica
+34,sustantivo,etapas,tediosos,no,sustitucion lexica
+34,sustantivo,pinza,accionado,si,GPT usa termino mas tecnico
+34,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+34,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+34,sustantivo,pinza,paso,si,GPT usa termino mas tecnico
+34,sustantivo,pinza,pasos,si,GPT usa termino mas tecnico
+34,sustantivo,pinza,restrictivos,si,GPT usa termino mas tecnico
+34,sustantivo,pinza,sencillo,si,GPT usa termino mas tecnico
+34,sustantivo,pinza,tediosos,si,GPT usa termino mas tecnico
+34,tecnico,pinza,efector,si,diferencia terminologica tecnica
+34,verbo,accionada,accionado,no,sustitucion lexica
+34,verbo,accionada,eludir,no,sustitucion lexica
+34,verbo,accionada,resulta,no,sustitucion lexica
+34,verbo,es,accionado,no,sustitucion lexica
+34,verbo,es,eludir,no,sustitucion lexica
+34,verbo,es,resulta,no,sustitucion lexica
+34,verbo,evitar,accionado,no,sustitucion lexica
+34,verbo,evitar,eludir,no,sustitucion lexica
+34,verbo,evitar,resulta,no,sustitucion lexica
+35,verbo,reproducir,replicar,no,sustitucion lexica
+36,adjetivo,basada,basado,no,sustitucion lexica
+36,adjetivo,basada,final,no,sustitucion lexica
+36,adjetivo,basada,necrobotico,si,Claude usa termino mas tecnico
+36,adjetivo,necrobotica,basado,si,GPT usa termino mas tecnico
+36,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+36,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+36,sustantivo,basada,efector,si,Claude usa termino mas tecnico
+36,sustantivo,basada,final,no,sustitucion lexica
+36,sustantivo,basada,necrobotico,si,Claude usa termino mas tecnico
+36,sustantivo,diferencia,efector,si,Claude usa termino mas tecnico
+36,sustantivo,diferencia,final,no,sustitucion lexica
+36,sustantivo,diferencia,necrobotico,si,Claude usa termino mas tecnico
+36,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+36,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+36,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+36,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+36,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+36,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+36,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+36,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+36,tecnico,pinza,efector,si,diferencia terminologica tecnica
+36,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+36,verbo,aportar,basado,no,sustitucion lexica
+36,verbo,aportar,proporcionar,no,sustitucion lexica
+36,verbo,basada,basado,no,sustitucion lexica
+36,verbo,basada,proporcionar,no,sustitucion lexica
+37,adverbio,no_obstante,sin_embargo,no,sustitucion lexica
+38,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+38,adjetivo,necrobotica,fragiles,si,GPT usa termino mas tecnico
+38,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+38,adjetivo,quebradizas,final,no,sustitucion lexica
+38,adjetivo,quebradizas,fragiles,no,sustitucion lexica
+38,adjetivo,quebradizas,necrobotico,si,Claude usa termino mas tecnico
+38,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+38,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+38,sustantivo,necrobotica,fragiles,si,GPT usa termino mas tecnico
+38,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+38,sustantivo,necrobotica,provoco,si,GPT usa termino mas tecnico
+38,sustantivo,necrobotica,señalamos,si,GPT usa termino mas tecnico
+38,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+38,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+38,sustantivo,pinza,fragiles,si,GPT usa termino mas tecnico
+38,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+38,sustantivo,pinza,provoco,si,GPT usa termino mas tecnico
+38,sustantivo,pinza,señalamos,si,GPT usa termino mas tecnico
+38,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+38,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+38,tecnico,pinza,efector,si,diferencia terminologica tecnica
+38,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+38,verbo,hizo,provoco,no,sustitucion lexica
+38,verbo,hizo,señalamos,no,sustitucion lexica
+38,verbo,observamos,provoco,no,sustitucion lexica
+38,verbo,observamos,señalamos,no,sustitucion lexica
+39,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+39,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+39,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+39,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+39,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+39,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+39,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+39,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+39,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+39,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+39,tecnico,pinza,efector,si,diferencia terminologica tecnica
+39,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+40,adjetivo,presento,experimento,no,sustitucion lexica
+40,sustantivo,presento,experimento,no,sustitucion lexica
+40,verbo,presento,recubrir,no,sustitucion lexica
+41,adjetivo,refinada,precisa,no,sustitucion lexica
+42,adjetivo,futuros,final,no,sustitucion lexica
+42,adjetivo,futuros,futuro,no,sustitucion lexica
+42,adjetivo,futuros,maximo,no,sustitucion lexica
+42,adjetivo,futuros,necrobotico,si,Claude usa termino mas tecnico
+42,adjetivo,futuros,reducido,no,sustitucion lexica
+42,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+42,adjetivo,necrobotica,futuro,si,GPT usa termino mas tecnico
+42,adjetivo,necrobotica,maximo,si,GPT usa termino mas tecnico
+42,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+42,adjetivo,necrobotica,reducido,si,GPT usa termino mas tecnico
+42,adjetivo,pequeño,final,no,sustitucion lexica
+42,adjetivo,pequeño,futuro,no,sustitucion lexica
+42,adjetivo,pequeño,maximo,no,sustitucion lexica
+42,adjetivo,pequeño,necrobotico,si,Claude usa termino mas tecnico
+42,adjetivo,pequeño,reducido,no,sustitucion lexica
+42,adjetivo,plenamente,final,no,sustitucion lexica
+42,adjetivo,plenamente,futuro,no,sustitucion lexica
+42,adjetivo,plenamente,maximo,no,sustitucion lexica
+42,adjetivo,plenamente,necrobotico,si,Claude usa termino mas tecnico
+42,adjetivo,plenamente,reducido,no,sustitucion lexica
+42,sustantivo,flexibilidad,conformidad,no,sustitucion lexica
+42,sustantivo,flexibilidad,efector,si,Claude usa termino mas tecnico
+42,sustantivo,flexibilidad,final,no,sustitucion lexica
+42,sustantivo,flexibilidad,futuro,no,sustitucion lexica
+42,sustantivo,flexibilidad,maximo,no,sustitucion lexica
+42,sustantivo,flexibilidad,necrobotico,si,Claude usa termino mas tecnico
+42,sustantivo,flexibilidad,reducido,no,sustitucion lexica
+42,sustantivo,flexibilidad,trabajo,no,sustitucion lexica
+42,sustantivo,necrobotica,conformidad,si,GPT usa termino mas tecnico
+42,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+42,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+42,sustantivo,necrobotica,futuro,si,GPT usa termino mas tecnico
+42,sustantivo,necrobotica,maximo,si,GPT usa termino mas tecnico
+42,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+42,sustantivo,necrobotica,reducido,si,GPT usa termino mas tecnico
+42,sustantivo,necrobotica,trabajo,si,GPT usa termino mas tecnico
+42,sustantivo,pinza,conformidad,si,GPT usa termino mas tecnico
+42,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+42,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+42,sustantivo,pinza,futuro,si,GPT usa termino mas tecnico
+42,sustantivo,pinza,maximo,si,GPT usa termino mas tecnico
+42,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+42,sustantivo,pinza,reducido,si,GPT usa termino mas tecnico
+42,sustantivo,pinza,trabajo,si,GPT usa termino mas tecnico
+42,sustantivo,trabajos,conformidad,no,sustitucion lexica
+42,sustantivo,trabajos,efector,si,Claude usa termino mas tecnico
+42,sustantivo,trabajos,final,no,sustitucion lexica
+42,sustantivo,trabajos,futuro,no,sustitucion lexica
+42,sustantivo,trabajos,maximo,no,sustitucion lexica
+42,sustantivo,trabajos,necrobotico,si,Claude usa termino mas tecnico
+42,sustantivo,trabajos,reducido,no,sustitucion lexica
+42,sustantivo,trabajos,trabajo,no,sustitucion lexica
+42,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+42,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+42,tecnico,pinza,efector,si,diferencia terminologica tecnica
+42,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+42,verbo,aumentar,emplearse,no,sustitucion lexica
+42,verbo,aumentar,mejorar,no,sustitucion lexica
+42,verbo,aumentar,podria,no,sustitucion lexica
+42,verbo,aumentar,reducido,no,sustitucion lexica
+42,verbo,podrian,emplearse,no,sustitucion lexica
+42,verbo,podrian,mejorar,no,sustitucion lexica
+42,verbo,podrian,podria,no,sustitucion lexica
+42,verbo,podrian,reducido,no,sustitucion lexica
+42,verbo,utilizarse,emplearse,no,sustitucion lexica
+42,verbo,utilizarse,mejorar,no,sustitucion lexica
+42,verbo,utilizarse,podria,no,sustitucion lexica
+42,verbo,utilizarse,reducido,no,sustitucion lexica
+43,verbo,podrian,podran,no,sustitucion lexica
+44,adjetivo,duros,rigidos,no,sustitucion lexica
+44,sustantivo,duros,rigidos,no,sustitucion lexica
+44,sustantivo,duros,suelen,no,sustitucion lexica
+44,sustantivo,menudo,rigidos,no,sustitucion lexica
+44,sustantivo,menudo,suelen,no,sustitucion lexica
+44,verbo,implican,entrañar,no,sustitucion lexica
+44,verbo,implican,rigidos,no,sustitucion lexica
+44,verbo,implican,suelen,no,sustitucion lexica
+45,sustantivo,micronewtons,centenas,no,sustitucion lexica
+45,sustantivo,micronewtons,efector,si,Claude usa termino mas tecnico
+45,sustantivo,micronewtons,micronewtonios,no,sustitucion lexica
+45,sustantivo,necrobotica,centenas,si,GPT usa termino mas tecnico
+45,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+45,sustantivo,necrobotica,micronewtonios,si,GPT usa termino mas tecnico
+45,sustantivo,pinza,centenas,si,GPT usa termino mas tecnico
+45,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+45,sustantivo,pinza,micronewtonios,si,GPT usa termino mas tecnico
+45,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+45,tecnico,pinza,efector,si,diferencia terminologica tecnica
+46,adjetivo,acrilica,acrilico,no,sustitucion lexica
+46,adjetivo,unica,acrilico,no,sustitucion lexica
+46,sustantivo,acrilica,acrilico,no,sustitucion lexica
+46,sustantivo,acrilica,adhesivo,no,sustitucion lexica
+46,sustantivo,acrilica,individual,no,sustitucion lexica
+47,sustantivo,pedicelo,peciolo,no,sustitucion lexica
+47,verbo,sacrifico,eutanasio,no,sustitucion lexica
+48,adjetivo,suplementario,complementario,no,sustitucion lexica
+48,sustantivo,suplementario,complementario,no,sustitucion lexica
+49,adjetivo,necrobotica,final,si,GPT usa termino mas tecnico
+49,adjetivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+49,sustantivo,ensayos,efector,si,Claude usa termino mas tecnico
+49,sustantivo,ensayos,ensayo,no,sustitucion lexica
+49,sustantivo,ensayos,final,no,sustitucion lexica
+49,sustantivo,ensayos,necrobotico,si,Claude usa termino mas tecnico
+49,sustantivo,ensayos,sistema,no,sustitucion lexica
+49,sustantivo,montaje,efector,si,Claude usa termino mas tecnico
+49,sustantivo,montaje,ensayo,no,sustitucion lexica
+49,sustantivo,montaje,final,no,sustitucion lexica
+49,sustantivo,montaje,necrobotico,si,Claude usa termino mas tecnico
+49,sustantivo,montaje,sistema,no,sustitucion lexica
+49,sustantivo,necrobotica,efector,si,diferencia terminologica tecnica
+49,sustantivo,necrobotica,ensayo,si,GPT usa termino mas tecnico
+49,sustantivo,necrobotica,final,si,GPT usa termino mas tecnico
+49,sustantivo,necrobotica,necrobotico,si,diferencia terminologica tecnica
+49,sustantivo,necrobotica,sistema,si,GPT usa termino mas tecnico
+49,sustantivo,pinza,efector,si,diferencia terminologica tecnica
+49,sustantivo,pinza,ensayo,si,GPT usa termino mas tecnico
+49,sustantivo,pinza,final,si,GPT usa termino mas tecnico
+49,sustantivo,pinza,necrobotico,si,diferencia terminologica tecnica
+49,sustantivo,pinza,sistema,si,GPT usa termino mas tecnico
+49,tecnico,necrobotica,efector,si,diferencia terminologica tecnica
+49,tecnico,necrobotica,necrobotico,si,diferencia terminologica tecnica
+49,tecnico,pinza,efector,si,diferencia terminologica tecnica
+49,tecnico,pinza,necrobotico,si,diferencia terminologica tecnica
+50,adjetivo,baja,eutanasiada,no,sustitucion lexica
+50,sustantivo,temperatura,eutanasiada,no,sustitucion lexica
+50,sustantivo,temperatura,frio,no,sustitucion lexica
+50,verbo,sacrifica,es,no,sustitucion lexica
+50,verbo,sacrifica,eutanasiada,no,sustitucion lexica

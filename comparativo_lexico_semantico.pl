@@ -628,9 +628,13 @@ listas_tsv_ls([
     lista_sust_gpt, lista_sust_claude,
     lista_adj_gpt, lista_adj_claude,
     lista_verb_gpt, lista_verb_claude,
+    lista_adv_gpt, lista_adv_claude,
+    lista_tecnicos_gpt, lista_tecnicos_claude,
     exclusivas_sust_gpt, exclusivas_sust_claude,
     exclusivas_verb_gpt, exclusivas_verb_claude,
-    exclusivas_adj_gpt, exclusivas_adj_claude
+    exclusivas_adj_gpt, exclusivas_adj_claude,
+    exclusivas_adv_gpt, exclusivas_adv_claude,
+    exclusivas_tecnicas_gpt, exclusivas_tecnicas_claude
 ]).
 
 nombres_metricas_corpus_tsv([], []).
@@ -668,9 +672,13 @@ valores_listas_tsv_ls(RGPT, RClaude, Comparacion, [
     SustGPT, SustClaude,
     AdjGPT, AdjClaude,
     VerbGPT, VerbClaude,
+    AdvGPT, AdvClaude,
+    TecGPT, TecClaude,
     ESG, ESC,
     EVG, EVC,
-    EAG, EAC
+    EAG, EAC,
+    EAdvG, EAdvC,
+    ETG, ETC
 ]) :-
     valor_resultado_ls(RGPT, lista_sustantivos, SustGPT),
     valor_resultado_ls(RClaude, lista_sustantivos, SustClaude),
@@ -678,12 +686,20 @@ valores_listas_tsv_ls(RGPT, RClaude, Comparacion, [
     valor_resultado_ls(RClaude, lista_adjetivos, AdjClaude),
     valor_resultado_ls(RGPT, lista_verbos, VerbGPT),
     valor_resultado_ls(RClaude, lista_verbos, VerbClaude),
+    valor_resultado_ls(RGPT, lista_adverbios, AdvGPT),
+    valor_resultado_ls(RClaude, lista_adverbios, AdvClaude),
+    valor_resultado_ls(RGPT, lista_tecnicos, TecGPT),
+    valor_resultado_ls(RClaude, lista_tecnicos, TecClaude),
     valor_comparacion_ls(Comparacion, exclusivas_sust_gpt, ESG),
     valor_comparacion_ls(Comparacion, exclusivas_sust_claude, ESC),
     valor_comparacion_ls(Comparacion, exclusivas_verb_gpt, EVG),
     valor_comparacion_ls(Comparacion, exclusivas_verb_claude, EVC),
     valor_comparacion_ls(Comparacion, exclusivas_adj_gpt, EAG),
-    valor_comparacion_ls(Comparacion, exclusivas_adj_claude, EAC).
+    valor_comparacion_ls(Comparacion, exclusivas_adj_claude, EAC),
+    valor_comparacion_ls(Comparacion, exclusivas_adv_gpt, EAdvG),
+    valor_comparacion_ls(Comparacion, exclusivas_adv_claude, EAdvC),
+    valor_comparacion_ls(Comparacion, exclusivas_tecnicas_gpt, ETG),
+    valor_comparacion_ls(Comparacion, exclusivas_tecnicas_claude, ETC).
 
 % =========================================================
 % UTILIDADES
