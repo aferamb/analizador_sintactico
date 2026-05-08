@@ -224,6 +224,58 @@ Clasificar una frase concreta del corpus:
 swipl -q -s main.pl -g "oracion_gpt(11,T), clasificar_oracion(T,Clase,Info), write(Clase), nl, write(Info), nl, halt."
 ```
 
+Ejemplos de comandos que producen cada una de las salidas posibles:
+
+Salida `correcta`:
+
+```bash
+swipl -q -s main.pl -g "oracion_claude(1,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+correcta
+```
+
+Salida `ambigua`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(1,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+ambigua
+```
+
+Salida `no_literal`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(33,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+no_literal
+```
+
+Salida `incoherente`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(7,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+incoherente
+```
+
+Salida `no_analizable`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(11,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+no_analizable
+```
+
 `clasificar_oracion/3` devuelve:
 
 - `correcta`: no se detectan problemas semanticos.
@@ -519,6 +571,190 @@ La guia completa de ramas, hooks, Pull Requests y CI esta en
 ├── scripts/                        # Utilidades de desarrollo
 ├── requirements-dev.txt            # Dependencias Python de desarrollo
 └── CONTRIBUTING.md                 # Guia de contribucion
+```
+
+## Estructura de CLASES DE PALABRAS DEL ESPAÑOL
+
+```text
+
+├── 1. SUSTANTIVO
+│   ├── Por el referente
+│   │   ├── Propio
+│   │   └── Común
+│   ├── Por el significado
+│   │   ├── Concreto
+│   │   ├── Abstracto
+│   │   ├── Individual
+│   │   └── Colectivo
+│   ├── Por la contabilidad
+│   │   ├── Contable
+│   │   └── No contable (masa)
+│   └── Por el género
+│       ├── Masculino
+│       ├── Femenino
+│       └── Común
+│
+├── 2. ADJETIVO
+│   ├── Por el tipo de propiedad
+│   │   ├── Calificativo
+│   │   ├── Relacional
+│   │   └── Adverbial
+│   ├── Por su posición
+│   │   ├── Epíteto (antepuesto)
+│   │   ├── Predicativo
+│   │   └── Atributivo (pospuesto)
+│   └── Por el grado
+│       ├── Positivo
+│       ├── Comparativo
+│       ├── Superlativo relativo
+│       └── Superlativo absoluto
+│
+├── 3. DETERMINANTE
+│   ├── Artículos
+│   │   ├── Determinado
+│   │   └── Indeterminado
+│   ├── Demostrativos
+│   │   ├── De proximidad
+│   │   ├── De distancia media
+│   │   └── De lejanía
+│   ├── Posesivos
+│   │   ├── Átonos (antepuestos)
+│   │   └── Tónicos (pospuestos)
+│   ├── Numerales
+│   │   ├── Cardinales
+│   │   ├── Ordinales
+│   │   ├── Fraccionarios
+│   │   └── Multiplicativos
+│   ├── Indefinidos
+│   └── Interrogativos y exclamativos
+│       ├── Interrogativo
+│       └── Exclamativo
+│
+├── 4. PRONOMBRE
+│   ├── Personales
+│   │   ├── Sujeto
+│   │   ├── Objeto átono (clítico)
+│   │   ├── Objeto tónico (con preposición)
+│   │   ├── Reflexivo
+│   │   └── Recíproco
+│   ├── Demostrativo
+│   ├── Posesivo
+│   ├── Relativo
+│   ├── Interrogativo
+│   ├── Exclamativo
+│   ├── Indefinido
+│   └── Numeral pronominal
+│
+├── 5. VERBO
+│   ├── Formas no personales
+│   │   ├── Infinitivo
+│   │   ├── Gerundio
+│   │   └── Participio
+│   ├── Por su función predicativa
+│   │   ├── Predicativo
+│   │   ├── Copulativo
+│   │   └── Semicopulativo
+│   ├── Por la transitividad
+│   │   ├── Transitivo
+│   │   ├── Intransitivo
+│   │   └── Ditransitivo
+│   ├── Por la voz
+│   │   ├── Activo
+│   │   ├── Pasivo perifrástico
+│   │   └── Pasivo reflejo
+│   ├── Tipos especiales
+│   │   ├── Auxiliar
+│   │   ├── Pronominal
+│   │   ├── Defectivo
+│   │   ├── Impersonal
+│   │   └── Unipersonal
+│   └── Por la regularidad
+│       ├── Regular
+│       └── Irregular
+│
+├── 6. ADVERBIO
+│   ├── Por el significado
+│   │   ├── De lugar
+│   │   ├── De tiempo
+│   │   ├── De modo
+│   │   ├── De cantidad / grado
+│   │   ├── De afirmación
+│   │   ├── De negación
+│   │   ├── De duda
+│   │   └── De orden
+│   ├── Por su función discursiva
+│   │   ├── Focal
+│   │   ├── Oracional (disjunto)
+│   │   ├── Conector discursivo
+│   │   └── Aspectual
+│   ├── Por la forma
+│   │   ├── Simple
+│   │   ├── Derivado en -mente
+│   │   └── Locución adverbial
+│   └── Interrogativos y exclamativos
+│       ├── Interrogativo
+│       ├── Exclamativo
+│       └── Relativo
+│
+├── 7. PREPOSICIÓN
+│   ├── Propias
+│   │   ├── a
+│   │   ├── ante
+│   │   ├── bajo
+│   │   ├── cabe
+│   │   ├── con
+│   │   ├── contra
+│   │   ├── de
+│   │   ├── desde
+│   │   ├── durante
+│   │   ├── en
+│   │   ├── entre
+│   │   ├── hacia
+│   │   ├── hasta
+│   │   ├── mediante
+│   │   ├── para
+│   │   ├── por
+│   │   ├── según
+│   │   ├── sin
+│   │   ├── so
+│   │   ├── sobre
+│   │   ├── tras
+│   │   ├── versus
+│   │   └── vía
+│   └── Locuciones preposicionales
+│
+├── 8. CONJUNCIÓN
+│   ├── Coordinantes
+│   │   ├── Copulativas
+│   │   ├── Disyuntivas
+│   │   ├── Adversativas
+│   │   ├── Distributivas
+│   │   └── Explicativas
+│   ├── Subordinantes
+│   │   ├── Completivas
+│   │   ├── Causales
+│   │   ├── Consecutivas
+│   │   ├── Condicionales
+│   │   ├── Concesivas
+│   │   ├── Finales
+│   │   ├── Temporales
+│   │   ├── Modales
+│   │   └── Comparativas
+│   └── Locuciones conjuntivas
+│
+└── 9. INTERJECCIÓN
+    ├── Por su origen
+    │   ├── Propia
+    │   └── Impropia
+    ├── Por su función
+    │   ├── Expresiva
+    │   ├── Apelativa
+    │   └── Representativa
+    └── Fórmulas rutinarias
+        ├── De saludo y despedida
+        ├── De cortesía
+        ├── De deseo
+        └── Locución interjectiva
 ```
 
 ## Licencia
