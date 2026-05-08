@@ -1,0 +1,9 @@
+corpus,categoria,total,porcentaje
+GPT,coord_copulativa,35,49.3
+GPT,coord_adversativa,0,0.0
+GPT,subord_completiva,26,36.62
+GPT,subord_otras,10,14.08
+Claude,coord_copulativa,36,50.0
+Claude,coord_adversativa,0,0.0
+Claude,subord_completiva,26,36.11
+Claude,subord_otras,10,13.89

@@ -1,0 +1,13 @@
+corpus,categoria,total,porcentaje
+GPT,articulo_determinado,139,67.15
+GPT,articulo_indeterminado,37,17.87
+GPT,demostrativo,8,3.86
+GPT,posesivo,11,5.31
+GPT,numeral,6,2.9
+GPT,indefinido,6,2.9
+Claude,articulo_determinado,137,68.84
+Claude,articulo_indeterminado,34,17.09
+Claude,demostrativo,8,4.02
+Claude,posesivo,10,5.03
+Claude,numeral,5,2.51
+Claude,indefinido,5,2.51

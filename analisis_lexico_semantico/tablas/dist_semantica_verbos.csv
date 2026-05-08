@@ -1,0 +1,11 @@
+corpus,categoria,total,porcentaje
+GPT,accion_fisica,7,24.14
+GPT,proceso_biologico,3,10.34
+GPT,accion_tecnica,11,37.93
+GPT,accion_cognitiva,4,13.79
+GPT,accion_comunicativa,4,13.79
+Claude,accion_fisica,8,28.57
+Claude,proceso_biologico,2,7.14
+Claude,accion_tecnica,11,39.29
+Claude,accion_cognitiva,3,10.71
+Claude,accion_comunicativa,4,14.29

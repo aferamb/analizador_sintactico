@@ -1,0 +1,7 @@
+corpus,categoria,total,porcentaje
+GPT,abstracto,89,18.02
+GPT,concreto,405,81.98
+GPT,colectivo,0,0.0
+Claude,abstracto,85,15.83
+Claude,concreto,452,84.17
+Claude,colectivo,0,0.0
