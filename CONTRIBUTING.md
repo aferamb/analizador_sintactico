@@ -5,7 +5,7 @@
 - Each person works on their fixed personal branch (current team pattern: `*_branch`).
 - Merge to `main` only through Pull Requests.
 - CI must pass before merge.
-- Local `git push` runs the `pre-push` checks automatically and blocks the push if lint or tests fail.
+- Local `git push` runs the `pre-push` checks automatically and blocks the push if validation fails.
 
 Commands below use `python`.
 If `python` is not available in your shell, use `python3` instead.
@@ -49,9 +49,12 @@ Windows PowerShell:
 python scripts/workflow.py --help
 ```
 
-6. Optional manual lint check:
+6. Optional manual validation check:
 ```bash
 ruff check .
+pytest -q
+for f in *.pl; do swipl -q -s "$f" -g halt; done
+swipl -q -s tests.pl -g run_tests -t halt
 ```
 
 ### Setup Flow
@@ -62,7 +65,7 @@ flowchart TD
     B --> C[Run dev setup]
     C --> D[Activate .venv]
     D --> E[Verify workflow helper]
-    E --> F[Optional ruff check]
+    E --> F[Optional validation check]
 ```
 
 Archived draft diagram assets are stored in `docs/diagrams/contributing-workflow-draft.mmd` and `docs/diagrams/contributing-workflow-draft.png`.
@@ -123,7 +126,7 @@ If this is the first push of that branch, use:
 ```bash
 git push -u origin yourname_branch
 ```
-5. The pre-push hook runs `ruff check .` automatically and also runs `swipl -q -s tests.pl -g run_tests -t halt` when `tests.pl` exists and `swipl` is available. If any check fails, push is cancelled.
+5. The pre-push hook runs Ruff, pytest, Prolog load checks and the Prolog test suite when `swipl` is available. If any check fails, push is cancelled.
 
 ### Open Pull Request
 1. Create PR from `yourname_branch` to `main`.
@@ -136,7 +139,7 @@ git push -u origin yourname_branch
 ```mermaid
 flowchart TD
     A[git push] --> B[Local pre-push hook]
-    B --> C{Lint and local tests pass?}
+    B --> C{Local validation passes?}
     C -- No --> D[Fix locally and push again]
     C -- Yes --> E[Open PR to main]
     E --> F[GitHub Actions CI]
@@ -152,7 +155,7 @@ flowchart TD
 What it does, in order:
 1. Creates `.venv` if it does not exist (or recreates it with `--recreate`).
 2. Upgrades `pip` inside that virtual environment.
-3. Installs tools from `requirements-dev.txt` (Ruff).
+3. Installs development tools from `requirements-dev.txt` (Ruff, pytest and Python analysis dependencies).
 4. Creates/updates activation helpers:
 ```bash
 scripts/activate_venv.sh
@@ -182,18 +185,26 @@ Expected output:
 ### `.githooks/pre-push`
 What it does every time you run `git push`:
 1. Locates a Python interpreter (prefers `.venv` Python first).
-2. Checks Ruff availability.
-3. Runs:
+2. Checks Ruff and pytest availability.
+3. Runs Ruff:
 ```bash
 ruff check .
 ```
-4. If `tests.pl` exists and `swipl` is available, runs:
+4. Runs Python tests:
+```bash
+pytest -q
+```
+5. If `swipl` is available, checks that all top-level Prolog files load:
+```bash
+for f in *.pl; do swipl -q -s "$f" -g halt; done
+```
+6. If `tests.pl` exists and `swipl` is available, runs:
 ```bash
 swipl -q -s tests.pl -g run_tests -t halt
 ```
-5. If lint or tests fail, push is cancelled with a clear message.
-6. If `swipl` is not installed locally, the hook warns and skips local Prolog tests.
-7. If checks pass, push continues normally.
+7. If any available check fails, push is cancelled with a clear message.
+8. If `swipl` is not installed locally, the hook warns and skips local Prolog checks.
+9. If checks pass, push continues normally.
 
 ### `scripts/workflow.py start`
 What it does:
@@ -226,23 +237,26 @@ Policy used in this repo:
 1. Prefer `git switch` for branch operations (clear intent and safer defaults).
 2. Use `git checkout` only as compatibility fallback for older Git versions.
 
-## Linting (Minimal)
+## Local Validation
 Run locally:
 ```bash
 ruff check .
+pytest -q
+for f in *.pl; do swipl -q -s "$f" -g halt; done
+swipl -q -s tests.pl -g run_tests -t halt
 ```
 
-This lint also runs automatically on `git push` through `.githooks/pre-push`.
-If `tests.pl` exists and `swipl` is installed, the same hook also runs the Prolog test suite.
+These checks also run automatically on `git push` through `.githooks/pre-push`.
+GitHub Actions runs the same validation set.
 
-If lint fails:
+If validation fails:
 1. Read each reported issue.
 2. Fix manually in your code.
-3. Run `ruff check .` again.
+3. Run the failed command again.
 4. Commit only when clean.
 
 Note:
-- Validation is intentionally lightweight: Ruff plus the Prolog test suite when available.
+- Validation covers Ruff, Python unit tests, Prolog file loading and the Prolog test suite.
 - No auto-formatting is enforced.
 - Line length is intentionally ignored to avoid style friction.
 
@@ -285,11 +299,13 @@ python scripts/workflow.py start
 python scripts/workflow.py sync-commit
 ```
 
-### CI fails (lint or tests)
+### CI fails (validation)
 1. Open failed job logs in GitHub Actions.
 2. Reproduce locally:
 ```bash
 ruff check .
+pytest -q
+for f in *.pl; do swipl -q -s "$f" -g halt; done
 swipl -q -s tests.pl -g run_tests -t halt
 ```
 3. Fix errors, commit, and push again.
@@ -324,12 +340,15 @@ python scripts/workflow.py sync-commit
 git push
 ```
 
-### Push rejected because lint failed
+### Push rejected because validation failed
 1. Read the `pre-push` hook output.
-2. Fix lint issues.
+2. Fix the reported lint, Python or Prolog issue.
 3. Re-run locally:
 ```bash
 ruff check .
+pytest -q
+for f in *.pl; do swipl -q -s "$f" -g halt; done
+swipl -q -s tests.pl -g run_tests -t halt
 ```
 4. Push again.
 
@@ -349,6 +368,8 @@ git status
 git branch -vv
 git log --oneline --graph --decorate --all
 ruff check .
+pytest -q
+for f in *.pl; do swipl -q -s "$f" -g halt; done
 swipl -q -s tests.pl -g run_tests -t halt
 ```
 

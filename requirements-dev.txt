@@ -3,3 +3,4 @@ matplotlib==3.9.2
 pandas
 numpy
 cycler
+pytest>=8,<9

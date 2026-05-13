@@ -46,6 +46,21 @@ can_run_python() {
   "$1" -c "import sys" >/dev/null 2>&1
 }
 
+run_prolog_load_checks() {
+  shopt -s nullglob
+  local files=( *.pl )
+  if (( ${#files[@]} == 0 )); then
+    say_warn "No .pl files found."
+    return 0
+  fi
+
+  local f
+  for f in "${files[@]}"; do
+    echo "Checking $f"
+    swipl -q -s "$f" -g halt
+  done
+}
+
 if [[ -x "$ROOT_DIR/.venv/bin/python" ]] && can_run_python "$ROOT_DIR/.venv/bin/python"; then
   PYTHON_CMD="$ROOT_DIR/.venv/bin/python"
 elif [[ -x "$ROOT_DIR/.venv/Scripts/python.exe" ]] && can_run_python "$ROOT_DIR/.venv/Scripts/python.exe"; then
@@ -66,21 +81,37 @@ if ! "$PYTHON_CMD" -m ruff --version >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! "$PYTHON_CMD" -m pytest --version >/dev/null 2>&1; then
+  say_error "Pytest is not available for '$PYTHON_CMD'."
+  say_warn "Run the setup script first: $PYTHON_CMD scripts/dev_setup.py"
+  exit 1
+fi
+
 if ! run_check "Running lint: ruff check ." "$PYTHON_CMD" -m ruff check .; then
   say_error "Lint failed. Push cancelled. Fix issues and push again."
   exit 1
 fi
 
-if [[ -f "$ROOT_DIR/tests.pl" ]]; then
-  if command -v swipl >/dev/null 2>&1; then
+if ! run_check "Running Python tests: pytest -q" "$PYTHON_CMD" -m pytest -q; then
+  say_error "Python tests failed. Push cancelled. Fix issues and push again."
+  exit 1
+fi
+
+if command -v swipl >/dev/null 2>&1; then
+  if ! run_check "Checking Prolog files load" run_prolog_load_checks; then
+    say_error "Prolog load check failed. Push cancelled. Fix issues and push again."
+    exit 1
+  fi
+
+  if [[ -f "$ROOT_DIR/tests.pl" ]]; then
     if ! run_check "Running tests: swipl -q -s tests.pl -g run_tests -t halt" swipl -q -s tests.pl -g run_tests -t halt; then
       say_error "Tests failed. Push cancelled. Fix issues and push again."
       exit 1
     fi
     say_ok "Tests passed."
-  else
-    say_warn "swipl not found. Skipping local Prolog tests."
   fi
+else
+  say_warn "swipl not found. Skipping local Prolog checks."
 fi
 
 say_ok "All pre-push checks passed. Continuing push."
