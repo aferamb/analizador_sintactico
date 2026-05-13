@@ -28,15 +28,15 @@ metricas y la comparacion entre traducciones.
 
 ## Requisitos
 
-Para ejecutar el analizador hace falta SWI-Prolog. Python solo es necesario para
-generar tablas y graficas a partir del TSV exportado.
+Para ejecutar el analizador hace falta SWI-Prolog. Python se usa para las
+herramientas de desarrollo, los tests Python y la generacion de tablas y
+graficas a partir del TSV exportado.
 
 | Herramienta | Obligatoria | Uso |
 | --- | --- | --- |
 | SWI-Prolog | Si | Ejecutar `main.pl`, lanzar consultas y correr tests Prolog. |
-| Python 3 | No | Generar tablas y graficas con `analisis_graficas.py`. |
-| pandas, matplotlib | No | Dependencias del analisis Python. |
-| Ruff | No | Lint de scripts Python durante desarrollo. |
+| Python 3 | No | Tests Python, lint y generacion de graficas/tablas. |
+| Dependencias de `requirements-dev.txt` | No | Ruff, pytest y librerias de analisis Python. |
 
 Instalacion orientativa de SWI-Prolog:
 
@@ -506,12 +506,6 @@ Limitaciones:
 
 ## Validacion y desarrollo
 
-Ejecutar tests Prolog:
-
-```bash
-swipl -q -s tests.pl -g run_tests -t halt
-```
-
 Crear entorno de desarrollo:
 
 ```bash
@@ -535,6 +529,18 @@ Ejecutar lint de scripts Python:
 ```bash
 ruff check .
 ```
+
+Comprobaciones completas que replica el CI:
+
+```bash
+ruff check .
+for f in *.pl; do swipl -q -s "$f" -g halt; done
+swipl -q -s tests.pl -g run_tests -t halt
+pytest -q
+```
+
+Los tests Prolog estan en `tests.pl`. Los tests unitarios Python estan en
+`tests_python/`.
 
 La guia completa de ramas, hooks, Pull Requests y CI esta en
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
@@ -568,6 +574,7 @@ La guia completa de ramas, hooks, Pull Requests y CI esta en
 │   ├── tablas/                     # CSV generados
 │   └── graficas/                   # PNG generados
 ├── tests.pl                        # Pruebas Prolog
+├── tests_python/                   # Pruebas unitarias Python
 ├── scripts/                        # Utilidades de desarrollo
 ├── requirements-dev.txt            # Dependencias Python de desarrollo
 └── CONTRIBUTING.md                 # Guia de contribucion

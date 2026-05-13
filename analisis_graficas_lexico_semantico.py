@@ -313,6 +313,28 @@ def guardar_figura(fig: plt.Figure, ruta: Path) -> None:
     plt.close(fig)
 
 
+def anadir_tendencia_lineal(
+    ax: plt.Axes,
+    x: pd.Series,
+    y: pd.Series,
+    color: str,
+    label: str,
+) -> None:
+    datos = pd.DataFrame(
+        {
+            "x": pd.to_numeric(x, errors="coerce"),
+            "y": pd.to_numeric(y, errors="coerce"),
+        }
+    ).replace([np.inf, -np.inf], np.nan).dropna()
+    if len(datos) < 2 or datos["x"].nunique() < 2:
+        return
+
+    pendiente, intercepto = np.polyfit(datos["x"], datos["y"], 1)
+    xs = np.linspace(datos["x"].min(), datos["x"].max(), 100)
+    ys = pendiente * xs + intercepto
+    ax.plot(xs, ys, color=color, linestyle="--", linewidth=2, label=label)
+
+
 def guardar_tabla_png(df: pd.DataFrame, ruta: Path, titulo: str, max_rows: int = 24, max_cols: int = 8) -> None:
     ruta.parent.mkdir(parents=True, exist_ok=True)
     fig, ax = plt.subplots(figsize=(10, 10))
@@ -824,6 +846,14 @@ def graficas_d4(df: pd.DataFrame, ruta: Path) -> None:
     fig, ax = plt.subplots(figsize=(7, 5))
     ax.scatter(df["long_media_palabra_gpt"], df["ttr_gpt"], label="GPT", color=PALETTE["gpt"], alpha=0.8)
     ax.scatter(df["long_media_palabra_claude"], df["ttr_claude"], label="Claude", color=PALETTE["claude"], alpha=0.8)
+    anadir_tendencia_lineal(ax, df["long_media_palabra_gpt"], df["ttr_gpt"], PALETTE["gpt"], "Tendencia GPT")
+    anadir_tendencia_lineal(
+        ax,
+        df["long_media_palabra_claude"],
+        df["ttr_claude"],
+        PALETTE["claude"],
+        "Tendencia Claude",
+    )
     ax.set_title("Longitud media de palabra vs TTR")
     ax.set_xlabel("Longitud media de palabra")
     ax.set_ylabel("TTR")
