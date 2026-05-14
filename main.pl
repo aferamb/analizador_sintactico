@@ -9,6 +9,9 @@
 %:- consult('lexico-claude.pl').
 %:- consult('lexico-gpt.pl').
 :- consult('lexico.pl').
+:- consult('simplificar.pl').
+:- consult('semantico.pl').
+:- consult('deteccion.pl').
 :- consult('metricas.pl').
 :- consult('comparativo.pl').
 
@@ -43,10 +46,11 @@ dibujar(Lista) :-
     draw(Arbol).
 
 % ---------------------------------------------------------
-% tipo(+Lista, -Tipo)
-% Devuelve el tipo principal de la oracion.
+% tipo_lista(+Lista, -Tipo)
+% Devuelve el tipo principal de la oracion dada como lista de tokens.
+% (Renombrado de tipo/2 para evitar conflicto con tipo/2 de semantico.pl)
 % ---------------------------------------------------------
-tipo(Lista, Tipo) :-
+tipo_lista(Lista, Tipo) :-
     analizar(Lista, Arbol),
     tipo_oracion(Arbol, Tipo).
 
@@ -64,7 +68,8 @@ simplificar_oracion(Lista, Simples) :-
 % ---------------------------------------------------------
 simplificar_e_imprimir(Lista) :-
     simplificar_oracion(Lista, Simples),
-    write(Simples), nl.
+    simplificaciones_a_texto(Simples, Textos),
+    imprimir_lista_textos(Textos).
 
 % =========================================================
 % TOKENIZACION BASICA DESDE TEXTO
@@ -206,6 +211,10 @@ tipo_texto(Texto, Tipo) :-
 simplificar_texto(Texto, Simples) :-
     analizar_texto(Texto, Arbol),
     simplificar(Arbol, Simples).
+
+simplificar_texto_legible(Texto, Textos) :-
+    simplificar_texto(Texto, Simples),
+    simplificaciones_a_texto(Simples, Textos).
 % =========================================================
 % PREDICADOS DE PRUEBA SOBRE LOS CORPUS EN TEXTO
 % =========================================================
@@ -246,7 +255,9 @@ probar_texto(Texto) :-
             write('Tipo: '), write(Tipo), nl,
             (
                 once(simplificar(Arbol, Simples)) ->
-                    write('Simplificacion: '), write(Simples), nl
+                    simplificaciones_a_texto(Simples, Textos),
+                    write('Simplificacion:'), nl,
+                    imprimir_lista_textos(Textos)
             ;
                     write('Simplificacion: no disponible'), nl
             )
@@ -422,3 +433,13 @@ probar_partes_basicas(Texto) :-
     ;
         write('Inf: no'), nl
     ).
+
+imprimir_lista_textos(Textos) :-
+    imprimir_lista_textos(Textos, 1).
+
+imprimir_lista_textos([], _).
+
+imprimir_lista_textos([Texto|Resto], N) :-
+    write('  '), write(N), write('. '), write(Texto), nl,
+    N1 is N + 1,
+    imprimir_lista_textos(Resto, N1).

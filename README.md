@@ -1,36 +1,44 @@
-# Analizador sintáctico en Prolog
+# Analizador sintactico en Prolog
 
-Proyecto de análisis sintáctico de oraciones en español implementado con DCG
-(*Definite Clause Grammars*) en SWI-Prolog. El sistema reconoce estructuras
-oracionales básicas y compuestas, construye árboles sintácticos, clasifica el
-tipo de oración, puede simplificar oraciones complejas en oraciones simples y
-dibuja árboles en formato ASCII.
+Proyecto de analisis sintactico de oraciones en espanol implementado con DCG
+(*Definite Clause Grammars*) en SWI-Prolog. El sistema analiza frases del
+corpus GPT/Claude sobre necrobotica, construye arboles sintacticos, clasifica
+el tipo de oracion, simplifica estructuras complejas, enriquece con informacion
+semantica y detecta problemas de interpretacion.
 
-El punto de entrada práctico es `main.pl`. La gramática principal está en
-`sintactico.pl` y el dibujado de árboles está en `draw.pl`.
+El punto de entrada recomendado es `main.pl`. Desde ahi se cargan la gramatica,
+el lexico, los corpus, el modulo semantico, la deteccion de problemas, las
+metricas y la comparacion entre traducciones.
 
 ## Estado del proyecto
 
-| Parte | Estado | Descripción |
+| Parte | Estado | Uso |
 | --- | --- | --- |
-| `main.pl` | Operativo | API cómoda para analizar listas de tokens o texto plano. |
-| `sintactico.pl` | Operativo | Gramática DCG, clasificación de oraciones y simplificación. |
-| `draw.pl` | Operativo | Dibuja árboles sintácticos como diagramas ASCII. |
-| `semantico.pl` | Disponible, no integrado | Base semántica consultable por separado. |
-| `gramatica_basica.pl`, `gramatica2.pl`, `gramatica2_completa.pl` | Histórico / fases previas | Versiones anteriores de la gramática usadas durante la práctica. |
-| `conjunto_oraciones.pl`, `deteccion.pl`, `mejoras.pl` | Pendiente | Archivos reservados para corpus, detección y mejoras futuras. |
+| `main.pl` | Operativo | Punto de entrada y predicados comodos para ejecutar el analizador. |
+| `sintactico.pl` | Operativo | Gramatica DCG, clasificacion y simplificacion. |
+| `draw.pl` | Operativo | Dibujo ASCII de arboles sintacticos. |
+| `conjunto_oraciones_gpt.pl` | Operativo | Corpus de 50 frases de la traduccion GPT. |
+| `conjunto_oraciones_claude.pl` | Operativo | Corpus de 50 frases de la traduccion Claude. |
+| `lexico.pl` | Operativo | Lexico comun usado por la gramatica principal. |
+| `semantico.pl` | Operativo | Categorias semanticas, ambiguedad y compatibilidad sujeto-verbo. |
+| `deteccion.pl` | Operativo | Deteccion de ambiguedad, incoherencia y uso no literal. |
+| `metricas.pl` | Operativo | Metricas de longitud, conectores, relativos, tecnicismos y arbol. |
+| `comparativo.pl` | Operativo | Comparacion GPT/Claude, resumen global y exportacion TSV. |
+| `mejoras.pl` | Reservado | Archivo preparado para mejoras adicionales futuras. Las mejoras ejecutables actuales estan en `metricas.pl`, `comparativo.pl` y `analisis_graficas.py`. |
 
 ## Requisitos
 
-Para ejecutar el analizador solo hace falta SWI-Prolog.
+Para ejecutar el analizador hace falta SWI-Prolog. Python se usa para las
+herramientas de desarrollo, los tests Python y la generacion de tablas y
+graficas a partir del TSV exportado.
 
 | Herramienta | Obligatoria | Uso |
 | --- | --- | --- |
-| SWI-Prolog | Sí | Ejecutar los archivos `.pl` y lanzar consultas. |
-| Python 3 | No | Scripts auxiliares de entorno, workflow y lint. |
-| Ruff | No | Lint de scripts Python mediante `requirements-dev.txt`. |
+| SWI-Prolog | Si | Ejecutar `main.pl`, lanzar consultas y correr tests Prolog. |
+| Python 3 | No | Tests Python, lint y generacion de graficas/tablas. |
+| Dependencias de `requirements-dev.txt` | No | Ruff, pytest y librerias de analisis Python. |
 
-Instalación orientativa de SWI-Prolog:
+Instalacion orientativa de SWI-Prolog:
 
 ```bash
 # Debian / Ubuntu / WSL
@@ -43,386 +51,460 @@ sudo apt install swi-prolog
 brew install swi-prolog
 ```
 
-En Windows se puede instalar desde el instalador oficial de SWI-Prolog.
-
-Comprueba la instalación:
+Comprueba la instalacion:
 
 ```bash
 swipl --version
 ```
 
-## Ejecución rápida
-
-Desde la raíz del repositorio:
+Si vas a generar graficas:
 
 ```bash
-swipl -s main.pl
+python3 -m pip install pandas matplotlib
 ```
 
-Después, dentro de la consola de Prolog:
+## Ejecucion rapida
 
-```prolog
-?- acepta([juan, analiza, el, sistema]).
-true.
-
-?- analizar([juan, analiza, el, sistema], Arbol).
-Arbol = o(gn(n(juan)), gv(v(analiza), gn(det(el), n(sistema)))).
-
-?- tipo([juan, analiza, el, sistema, y, maria, evalua, el, modelo], Tipo).
-Tipo = oc.
-
-?- simplificar_oracion([juan, come, y, bebe], Simples).
-Simples = [o(gn(n(juan)), gv(v(come))), o(gn(n(juan)), gv(v(bebe)))].
-```
-
-También se puede ejecutar una consulta sin entrar en la consola interactiva:
+Desde la raiz del repositorio, abre una consola interactiva de Prolog:
 
 ```bash
-swipl -q -s main.pl -g "analizar([juan,analiza,el,sistema], A), write(A), nl, halt."
+swipl -q -s main.pl
 ```
 
-## Uso con texto plano
-
-`main.pl` incluye una tokenización básica para poder escribir frases como texto.
-La tokenización convierte a minúsculas, separa por espacios, conserva las comas
-como el token `','` y transforma cada palabra en átomo Prolog.
+Dentro de SWI-Prolog puedes ejecutar consultas como estas:
 
 ```prolog
-?- tokenizar_basico("Juan, que analiza el sistema, presenta el resultado", L).
-L = [juan, ',', que, analiza, el, sistema, ',', presenta, el, resultado].
-
-?- analizar_texto("Juan analiza el sistema", Arbol).
-Arbol = o(gn(n(juan)), gv(v(analiza), gn(det(el), n(sistema)))).
-
-?- tipo_texto("Juan analiza el sistema y Maria evalua el modelo", Tipo).
-Tipo = oc.
-
-?- simplificar_texto("Juan come y bebe", Simples).
-Simples = [o(gn(n(juan)), gv(v(come))), o(gn(n(juan)), gv(v(bebe)))].
+?- probar_gpt(2).
+?- probar_claude(2).
+?- analizar_semanticamente_gpt(2).
+?- analizar_semanticamente_claude(2).
+?- comparar(2).
 ```
 
-Limitaciones de la tokenización:
+Tambien puedes ejecutar consultas directamente desde la terminal sin entrar en
+la consola interactiva:
 
-- No hace lematización.
-- No normaliza tildes automáticamente.
-- No realiza análisis morfológico.
-- No separa toda la puntuación posible como haría un tokenizador NLP completo.
-- Solo funcionarán las palabras registradas en el léxico de `sintactico.pl`.
+```bash
+swipl -q -s main.pl -g "probar_gpt(3), halt."
+```
+
+## Ejemplos del corpus
+
+Los corpus estan definidos en `conjunto_oraciones_gpt.pl` y
+`conjunto_oraciones_claude.pl`. Algunos ejemplos utiles para probar el sistema:
+
+| Corpus | N | Frase |
+| --- | --- | --- |
+| GPT | 2 | "Además, la pinza puede servir como dispositivo manual y se camufla de manera innata en entornos exteriores." |
+| GPT | 3 | "Las patas de las arañas no tienen pares musculares antagonistas." |
+| GPT | 11 | "En este trabajo proponemos aprovechar materiales bióticos como componentes robóticos listos para usar debido a su facilidad de obtención e implementación, centrandones en particular en el uso de una araña como ejemplo útil de pinza para aplicaciones roboticas." |
+| Claude | 3 | "Las patas de las arañas no poseen pares musculares antagónicos." |
+| Claude | 11 | "En este trabajo proponemos aprovechar los materiales bióticos como componentes robóticos listos para usar, dada su facilidad de obtención e implementación, centrándonos en el uso de una araña concreta como ejemplo útil de efector final para aplicaciones robóticas." |
+
+Para recuperar el texto exacto desde Prolog:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(3, Texto), write(Texto), nl, halt."
+swipl -q -s main.pl -g "oracion_claude(3, Texto), write(Texto), nl, halt."
+```
+
+## Output del analizador sintactico
+
+El analisis sintactico se puede ver de cuatro formas: aceptacion, arbol Prolog,
+tipo de oracion y arbol ASCII.
+
+### Salida completa de una frase del corpus
+
+```bash
+swipl -q -s main.pl -g "probar_gpt(3), halt."
+```
+
+`probar_gpt/1` y `probar_claude/1` imprimen:
+
+- `Texto`: frase original del corpus.
+- `Tokens`: lista de atomos tras `tokenizar_basico/2`.
+- `Arbol`: arbol sintactico Prolog si la gramatica acepta la frase.
+- `Tipo`: etiqueta sintactica principal (`o`, `oc`, `or`, `ocm`).
+- `Simplificacion`: lista de oraciones simples derivadas del arbol.
+
+Version resumida:
+
+```bash
+swipl -q -s main.pl -g "probar_gpt_rapido(3), halt."
+swipl -q -s main.pl -g "probar_claude_rapido(3), halt."
+```
+
+### Arbol sintactico como termino Prolog
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(3,T), analizar_texto(T,A), write(A), nl, halt."
+```
+
+Tambien puedes usar texto libre si todas las palabras estan en el lexico:
+
+```bash
+swipl -q -s main.pl -g "analizar_texto('Las patas de las arañas no tienen pares musculares antagonistas.', A), write(A), nl, halt."
+```
+
+### Tipo de oracion
+
+Para texto:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(3,T), tipo_texto(T,Tipo), write(Tipo), nl, halt."
+```
+
+Para una lista de tokens:
+
+```bash
+swipl -q -s main.pl -g "tipo_lista([las,patas,de,las,arañas,no,tienen,pares,musculares,antagonistas], Tipo), write(Tipo), nl, halt."
+```
+
+### Arbol ASCII
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(3,T), dibujar_texto(T), halt."
+```
+
+En frases largas el arbol ASCII puede ser muy ancho. Para inspeccion rapida suele
+ser mas legible usar `probar_gpt_rapido/1` o imprimir el termino Prolog.
+
+### Simplificacion
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(2,T), simplificar_texto(T,S), write(S), nl, halt."
+```
+
+La salida es una lista de arboles simples. Si la oracion es coordinada o mixta,
+la lista permite ver como se separan las proposiciones principales.
+
+## Output del enriquecimiento semantico
+
+El enriquecimiento semantico usa `semantico.pl` y se integra en las consultas de
+`deteccion.pl`.
+
+Consulta directa de categorias:
+
+```bash
+swipl -q -s main.pl -g "tipos_de(araña, Tipos), write(Tipos), nl, halt."
+swipl -q -s main.pl -g "tipos_de(pinza, Tipos), write(Tipos), nl, halt."
+swipl -q -s main.pl -g "(compatibles_sujeto_verbo(araña, extiende) -> write(si); write(no)), nl, halt."
+```
+
+Analisis semantico completo de una frase del corpus:
+
+```bash
+swipl -q -s main.pl -g "analizar_semanticamente_gpt(2), halt."
+```
+
+La salida de `analizar_semanticamente_gpt/1` y
+`analizar_semanticamente_claude/1` muestra:
+
+- `[AMBIGUEDAD LEXICA]`: tokens con mas de una categoria semantica.
+- `Pares sujeto-verbo detectados`: pares extraidos del arbol sintactico.
+- `[INCOHERENCIA SEMANTICA]`: pares sujeto-verbo incompatibles.
+- `[USO NO LITERAL / METAFORICO]`: acciones propias de animados aplicadas a entidades inanimadas.
+- `Clasificacion`: clase final interna (`correcta`, `ambigua`, `no_literal`, `incoherente` o `no_analizable`).
+
+Para analizar ambos corpus completos:
+
+```bash
+swipl -q -s main.pl -g "analizar_todos_semanticamente, halt."
+```
+
+## Output de deteccion de errores
+
+La deteccion esta en `deteccion.pl`. Clasifica problemas de interpretacion sobre
+el texto y, cuando puede, usa el arbol sintactico para extraer pares
+sujeto-verbo.
+
+Clasificar una frase concreta del corpus:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(11,T), clasificar_oracion(T,Clase,Info), write(Clase), nl, write(Info), nl, halt."
+```
+
+Ejemplos de comandos que producen cada una de las salidas posibles:
+
+Salida `correcta`:
+
+```bash
+swipl -q -s main.pl -g "oracion_claude(1,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+correcta
+```
+
+Salida `ambigua`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(1,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+ambigua
+```
+
+Salida `no_literal`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(33,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+no_literal
+```
+
+Salida `incoherente`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(7,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+incoherente
+```
+
+Salida `no_analizable`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(11,T), clasificar_oracion(T,Clase,_), write(Clase), nl, halt."
+```
+
+```text
+no_analizable
+```
+
+`clasificar_oracion/3` devuelve:
+
+- `correcta`: no se detectan problemas semanticos.
+- `ambigua`: hay palabras con varias categorias semanticas.
+- `no_literal`: hay uso metaforico o no literal.
+- `incoherente`: hay incompatibilidad sujeto-verbo.
+- `no_analizable`: la gramatica no consigue construir arbol.
+
+Resumen con las tres categorias del enunciado (`correcta`, `ambigua`,
+`problematica`):
+
+```bash
+swipl -q -s main.pl -g "resumen_corpus, halt."
+```
+
+Ver solo las oraciones con problemas:
+
+```bash
+swipl -q -s main.pl -g "resumen_problemas, halt."
+```
+
+Si quieres comprobar por que falla una frase concreta, usa los predicados de
+diagnostico de `main.pl`:
+
+```bash
+swipl -q -s main.pl -g "oracion_gpt(11,T), probar_rapido(T), halt."
+swipl -q -s main.pl -g "probar_partes_basicas('materiales bioticos'), halt."
+```
+
+## Output de mejoras y comparacion
+
+El archivo `mejoras.pl` esta reservado, pero las mejoras ejecutables del flujo
+actual estan en la comparacion automatica, las metricas y las graficas.
+
+### Comparar un par GPT/Claude
+
+```bash
+swipl -q -s main.pl -g "comparar(3), halt."
+```
+
+`comparar/1` imprime:
+
+- Texto GPT y texto Claude del mismo numero de par.
+- `Aceptada`: si la gramatica acepta cada version.
+- `Tipo`: tipo sintactico detectado.
+- `Longitud tokens`, `Comas`, `Conectores`, `Relativos` y `Terminos tecnicos`.
+- `Oraciones simples tras simplificar`.
+- `Profundidad arbol` y `Nodos arbol`.
+- Comparacion final: ambas aceptadas, solo GPT, solo Claude, ninguna, mismo tipo y diferencia de longitud.
+
+### Resumen global
+
+```bash
+swipl -q -s main.pl -g "resumen_comparativo, halt."
+```
+
+El resumen global muestra aceptacion sintactica por corpus, comparacion por
+pares, medias y distribucion de tipos.
+
+### Exportar resultados TSV
+
+```bash
+swipl -q -s main.pl -g "exportar_tsv('resultados_comparacion.tsv'), halt."
+```
+
+El TSV incluye una fila por par GPT/Claude con las metricas principales:
+aceptacion, tipo, longitud, comas, conectores, relativos, tecnicismos,
+simplificacion, profundidad y nodos.
+
+### Generar tablas y graficas
+
+```bash
+python3 analisis_graficas.py resultados_comparacion.tsv
+```
+
+El script lee el TSV y genera:
+
+- Tablas CSV en `analisis_python/tablas/`.
+- Graficas PNG en `analisis_python/graficas/`.
+
+Archivos principales:
+
+| Ruta | Contenido |
+| --- | --- |
+| `analisis_python/tablas/resumen_global.csv` | Aceptacion y coincidencia global. |
+| `analisis_python/tablas/medias_por_corpus.csv` | Medias de metricas por corpus. |
+| `analisis_python/tablas/distribucion_tipos.csv` | Conteo de `o`, `oc`, `or`, `ocm` y `no_analizada`. |
+| `analisis_python/tablas/pares_problematicos.csv` | Pares que conviene revisar manualmente. |
+| `analisis_python/graficas/01_aceptacion_por_corpus.png` | Aceptadas/no aceptadas por corpus. |
+| `analisis_python/graficas/02_distribucion_tipos.png` | Distribucion de tipos sintacticos. |
+| `analisis_python/graficas/09_top_diferencias_nodos.png` | Pares con mayor diferencia de nodos. |
 
 ## Arquitectura
 
 ```mermaid
 flowchart TD
-    subgraph S1[Operativo hoy]
-        A[main.pl<br/>Punto de entrada y API de usuario]
-        B[sintactico.pl<br/>Gramática DCG, tipos y simplificación]
-        C[draw.pl<br/>Dibujo ASCII de árboles]
-    end
-
-    subgraph S2[Disponible no integrado]
-        D[semantico.pl<br/>Categorías y compatibilidad semántica]
-    end
-
-    subgraph S3[Fases previas]
-        E[gramatica_basica.pl]
-        F[gramatica2.pl]
-        G[gramatica2_completa.pl]
-    end
-
-    subgraph S4[Pendiente]
-        H[conjunto_oraciones.pl<br/>Corpus final]
-        I[deteccion.pl<br/>Detección de problemas]
-        J[mejoras.pl<br/>Mejoras adicionales]
-    end
-
-    A --> B
-    B --> C
-    D -. consultable por separado .-> B
-    E -. referencia histórica .-> B
-    F -. referencia histórica .-> B
-    G -. referencia histórica .-> B
-    H -. pendiente .-> I
-    D -. previsto .-> I
-    B -. previsto .-> I
-    I -. previsto .-> J
+    A[main.pl] --> B[sintactico.pl]
+    A --> C[lexico.pl]
+    A --> D[conjunto_oraciones_gpt.pl]
+    A --> E[conjunto_oraciones_claude.pl]
+    A --> F[semantico.pl]
+    A --> G[deteccion.pl]
+    A --> H[metricas.pl]
+    A --> I[comparativo.pl]
+    B --> J[draw.pl]
+    G --> F
+    G --> B
+    H --> B
+    I --> H
+    I --> D
+    I --> E
+    I --> K[resultados_comparacion.tsv]
+    K --> L[analisis_graficas.py]
+    L --> M[analisis_python/tablas]
+    L --> N[analisis_python/graficas]
 ```
-
-El flujo actual no carga `semantico.pl`, `deteccion.pl`, `conjunto_oraciones.pl`
-ni `mejoras.pl` desde `main.pl`. Esos módulos se deben considerar extensiones o
-apartados pendientes salvo que se consulten manualmente.
 
 ## Flujo de trabajo del analizador
 
 ```mermaid
 flowchart TD
-    A[Entrada del usuario] --> B{Formato de entrada}
-    B -->|Lista de átomos| C[analizar/2]
-    B -->|Texto plano| D[tokenizar_basico/2]
-    D --> C
-    C --> E[phrase(oracion(Arbol), Lista)]
-    E --> F[sintactico.pl<br/>Reglas DCG]
-    F --> G[Árbol sintáctico]
-    G --> H[tipo_oracion/2]
-    G --> I[simplificar/2]
-    G --> J[draw/1]
-    H --> K[Tipo: o, oc, or u ocm]
-    I --> L[Lista de oraciones simples]
-    J --> M[Árbol ASCII]
-```
-
-Transformación de datos:
-
-```mermaid
-flowchart LR
-    A[Texto] --> B[tokenizar_basico/2]
-    B --> C[Lista de átomos]
-    C --> D[analizar/2]
-    D --> E[Árbol]
+    A[Texto del corpus o texto libre] --> B[tokenizar_basico/2]
+    B --> C[Tokens Prolog]
+    C --> D[phrase(oracion(Arbol), Tokens)]
+    D --> E[Arbol sintactico]
     E --> F[tipo_oracion/2]
     E --> G[simplificar/2]
     E --> H[draw/1]
-    F --> I[Etiqueta]
-    G --> J[Oraciones simples]
-    H --> K[Salida ASCII]
+    E --> I[extraer_pares/2]
+    I --> J[semantico.pl]
+    J --> K[clasificar_oracion/3]
+    E --> L[analizar_resultado/2]
+    L --> M[comparar/1 y resumen_comparativo/0]
 ```
 
 ## Modelo de datos
 
-El parser devuelve árboles Prolog. Las etiquetas principales de oración son:
-
-| Etiqueta | Significado | Ejemplo conceptual |
-| --- | --- | --- |
-| `o(GN, GV)` | Oración simple con sujeto explícito | `Juan analiza el sistema` |
-| `o(GV)` | Oración impersonal | `Llueve` |
-| `oc(O1, Conj, O2)` | Coordinación de dos oraciones simples | `Juan analiza y María evalúa` |
-| `or(GN, Rel, GV)` | Oración con relativo simplificada | `Juan, que analiza, presenta` |
-| `ocm(O1, Conj, O2)` | Oración compuesta mixta o encadenada | relativa + coordinación |
-
-Constituyentes usados en los árboles:
+El parser devuelve arboles Prolog. Las etiquetas principales son:
 
 | Etiqueta | Significado |
 | --- | --- |
-| `gn(...)` | Grupo nominal |
-| `gv(...)` | Grupo verbal |
-| `gv_coord(...)` | Coordinación verbal con sujeto compartido |
-| `gp(...)` | Grupo preposicional |
-| `gadj(...)` | Grupo adjetival |
-| `gadv(...)` | Grupo adverbial |
-| `det(...)`, `n(...)`, `v(...)`, `vc(...)`, `vi(...)` | Determinante, nombre, verbo, copulativo, impersonal |
-| `aux(...)`, `part(...)`, `adj(...)`, `adv(...)`, `p(...)` | Auxiliar, participio, adjetivo, adverbio, preposición |
-| `conj(...)`, `relat(...)` | Conjunción y relativo |
+| `o(...)` | Oracion simple, impersonal o con complementos iniciales. |
+| `oc(O1, Conj, O2)` | Coordinacion de dos oraciones. |
+| `or(GN, Rel, GV)` | Oracion con relativo. |
+| `ocm(...)` | Oracion compuesta mixta o encadenada. |
+| `gn(...)` | Grupo nominal. |
+| `gv(...)` | Grupo verbal. |
+| `gv_coord(...)` | Coordinacion verbal con sujeto compartido. |
+| `gp(...)` | Grupo preposicional. |
+| `gadj(...)` | Grupo adjetival. |
+| `gadv(...)` | Grupo adverbial. |
 
-Ejemplo de árbol:
+Tipos principales devueltos por `tipo_texto/2`, `tipo_lista/2` o
+`tipo_oracion/2`:
 
-```prolog
-o(
-  gn(n(juan)),
-  gv(v(analiza), gn(det(el), n(sistema)))
-)
-```
-
-Ejemplo de salida aproximada con `dibujar/1`:
-
-```text
-           o
-           |
-      +---------+
-      gn        gv
-      |         |
-      n     +-------+
-      |     v       gn
-      |     |       |
-     juan analiza +----+
-                  det  n
-                   |   |
-                   el sistema
-```
-
-La salida exacta puede variar según el tamaño de las etiquetas y la estructura
-del árbol.
-
-## Tipos de oraciones reconocidos
-
-| Tipo | Predicado / árbol | Ejemplo |
-| --- | --- | --- |
-| Simple | `o(GN, GV)` | `juan analiza el sistema` |
-| Impersonal | `o(GV)` | `nunca llueve en el laboratorio` |
-| Coordinada | `oc(O1, Conj, O2)` | `juan analiza el sistema y maria evalua el modelo` |
-| Relativa | `or(GN, Rel, GV)` | `juan, que analiza el sistema, presenta el resultado` |
-| Compuesta mixta | `ocm(O1, Conj, O2)` | relativa seguida de una coordinación |
-| Coordinación verbal | `o(GN, gv_coord(...))` | `juan come y bebe` |
-
-La clasificación se obtiene con `tipo/2` desde `main.pl` o con
-`tipo_oracion/2` sobre un árbol ya calculado.
+| Tipo | Significado |
+| --- | --- |
+| `o` | Oracion simple. |
+| `oc` | Oracion coordinada. |
+| `or` | Oracion con relativo. |
+| `ocm` | Oracion compuesta mixta. |
+| `no_analizada` | Usado en metricas cuando no se pudo construir arbol. |
 
 ## API principal
 
-Predicados definidos o expuestos desde `main.pl`:
-
-| Predicado | Entrada | Salida / efecto |
-| --- | --- | --- |
-| `acepta(Lista)` | Lista de átomos | `true` si la oración pertenece a la gramática. |
-| `analizar(Lista, Arbol)` | Lista de átomos | Devuelve el árbol sintáctico. |
-| `analizar(Lista)` | Lista de átomos | Imprime el árbol sintáctico. |
-| `dibujar(Lista)` | Lista de átomos | Analiza y dibuja el árbol ASCII. |
-| `tipo(Lista, Tipo)` | Lista de átomos | Devuelve `o`, `oc`, `or` u `ocm`. |
-| `simplificar_oracion(Lista, Simples)` | Lista de átomos | Devuelve una lista de oraciones simples. |
-| `simplificar_e_imprimir(Lista)` | Lista de átomos | Imprime la simplificación. |
-| `tokenizar_basico(Texto, Lista)` | String o átomo | Convierte texto plano en lista de átomos. |
-| `acepta_texto(Texto)` | String o átomo | Tokeniza y comprueba aceptación. |
-| `analizar_texto(Texto, Arbol)` | String o átomo | Tokeniza y devuelve árbol. |
-| `analizar_texto(Texto)` | String o átomo | Tokeniza e imprime árbol. |
-| `dibujar_texto(Texto)` | String o átomo | Tokeniza, analiza y dibuja árbol. |
-| `tipo_texto(Texto, Tipo)` | String o átomo | Tokeniza y clasifica la oración. |
-| `simplificar_texto(Texto, Simples)` | String o átomo | Tokeniza y simplifica. |
-| `probar_ejemplo(N)` | Número de ejemplo | Muestra lista, árbol, tipo y simplificación. |
-| `probar_todos` | Ninguna | Ejecuta todos los ejemplos definidos en `main.pl`. |
-
-Predicados relevantes de `sintactico.pl`:
+Predicados de `main.pl` para sintaxis:
 
 | Predicado | Uso |
 | --- | --- |
-| `oracion//1` | Regla DCG principal usada por `phrase/2`. |
-| `gn//1`, `gv//1`, `gp//1`, `gadj//1`, `gadv//1` | Alias para analizar grupos sintácticos concretos. |
-| `tipo_oracion(Arbol, Tipo)` | Clasifica un árbol ya construido. |
-| `simplificar(Arbol, Simples)` | Transforma árbol complejo en oraciones simples. |
-| `analiza_lista(Lista, Arbol)` | Alias directo de `phrase(oracion(Arbol), Lista)`. |
+| `acepta(Lista)` | Comprueba si una lista de tokens pertenece a la gramatica. |
+| `analizar(Lista, Arbol)` | Devuelve el arbol sintactico de una lista de tokens. |
+| `analizar(Lista)` | Imprime el arbol sintactico. |
+| `dibujar(Lista)` | Analiza y dibuja el arbol ASCII. |
+| `tipo_lista(Lista, Tipo)` | Clasifica una lista de tokens. |
+| `simplificar_oracion(Lista, Simples)` | Devuelve oraciones simples derivadas. |
+| `tokenizar_basico(Texto, Lista)` | Convierte texto en lista de atomos. |
+| `acepta_texto(Texto)` | Tokeniza y comprueba aceptacion. |
+| `analizar_texto(Texto, Arbol)` | Tokeniza y devuelve arbol. |
+| `dibujar_texto(Texto)` | Tokeniza, analiza y dibuja arbol ASCII. |
+| `tipo_texto(Texto, Tipo)` | Tokeniza y clasifica. |
+| `simplificar_texto(Texto, Simples)` | Tokeniza y simplifica. |
+| `probar_gpt(N)` / `probar_claude(N)` | Muestra texto, tokens, arbol, tipo y simplificacion. |
+| `probar_gpt_rapido(N)` / `probar_claude_rapido(N)` | Muestra tokens, aceptacion, tipo y arbol. |
+| `probar_todos` | Recorre ambos corpus. |
 
-Predicados consultables en `semantico.pl`:
+Predicados de semantica y deteccion:
 
 | Predicado | Uso |
 | --- | --- |
-| `tipo(Palabra, Categoria)` | Categoría semántica de un sustantivo. |
-| `tipo_verbo(Verbo, TipoAccion)` | Tipo semántico de una acción verbal. |
-| `compatible(TipoSujeto, TipoVerbo)` | Compatibilidad entre sujeto y acción. |
-| `categoria(Palabra, Categoria)` | Consulta cómoda de categorías. |
-| `es_ambiguo(Palabra)` | Comprueba si una palabra tiene varias categorías. |
-| `tipos_de(Palabra, Lista)` | Recoge todas las categorías de una palabra. |
-| `compatibles_sujeto_verbo(Sujeto, Verbo)` | Comprueba compatibilidad semántica directa. |
-| `categoria_semantica(Palabra)` | Imprime categorías semánticas registradas. |
+| `tipos_de(Palabra, Tipos)` | Lista categorias semanticas. |
+| `es_ambiguo(Palabra)` | Comprueba si una palabra tiene varias categorias. |
+| `compatibles_sujeto_verbo(Sujeto, Verbo)` | Comprueba compatibilidad semantica directa. |
+| `analizar_semanticamente(Texto)` | Imprime analisis semantico completo. |
+| `analizar_semanticamente_gpt(N)` / `analizar_semanticamente_claude(N)` | Analiza una frase del corpus. |
+| `clasificar_oracion(Texto, Clase, Info)` | Devuelve clase interna e informacion. |
+| `clasificar_oracion_enunciado(Texto, Clase)` | Agrupa en `correcta`, `ambigua` o `problematica`. |
+| `resumen_corpus` | Clasifica ambos corpus. |
+| `resumen_problemas` | Imprime solo frases con problemas. |
 
-Para usar el módulo semántico de forma aislada:
+Predicados de metricas y comparacion:
 
-```bash
-swipl -s semantico.pl
-```
+| Predicado | Uso |
+| --- | --- |
+| `analizar_resultado(Texto, Resultado)` | Calcula aceptacion, tipo y metricas de una frase. |
+| `comparar(N)` | Compara el par GPT/Claude numero `N`. |
+| `comparar_todos` | Compara todos los pares. |
+| `resumen_comparativo` | Muestra resumen global de metricas. |
+| `exportar_tsv(Archivo)` | Exporta resultados para analisis Python. |
 
-```prolog
-?- tipos_de(banco, Tipos).
-Tipos = [institucion, objeto_fisico].
+## Tokenizacion y lexico
 
-?- es_ambiguo(banco).
-true.
-
-?- compatibles_sujeto_verbo(juan, analiza).
-true.
-```
-
-## Ejemplos incluidos
-
-`main.pl` define ejemplos rápidos mediante `ejemplo/2`.
-
-```prolog
-?- probar_ejemplo(1).
-Lista: [juan,analiza,el,sistema]
-Arbol: o(gn(n(juan)), gv(v(analiza), gn(det(el), n(sistema))))
-Tipo: o
-Simplificacion: [o(gn(n(juan)), gv(v(analiza), gn(det(el), n(sistema))))]
-```
-
-Ejecutar todos:
-
-```prolog
-?- probar_todos.
-```
-
-Ejemplos cubiertos:
-
-| N | Oración tokenizada | Objetivo |
-| --- | --- | --- |
-| 1 | `[juan, analiza, el, sistema]` | Oración simple transitiva. |
-| 2 | `[el, algoritmo, procesa, los, datos]` | Sujeto con determinante. |
-| 3 | `[el, paciente, esta, muy, estable]` | Copulativa con grupo adjetival. |
-| 4 | `[juan, analiza, el, sistema, y, maria, evalua, el, modelo]` | Coordinada. |
-| 5 | `[juan, ',', que, analiza, el, sistema, ',', presenta, el, resultado]` | Relativa con comas. |
-| 6 | Relativa + `pero` + oración simple | Compuesta mixta. |
-| 7 | `[nunca, llueve, en, el, laboratorio]` | Impersonal con adverbio y complemento. |
-| 8 | `[juan, come, y, bebe]` | Coordinación verbal con sujeto compartido. |
-
-## Gramática y léxico
-
-La gramática se organiza en varios niveles:
-
-```mermaid
-flowchart TD
-    A[oracion//1] --> B[oracion_compuesta//1]
-    B --> C[oracion_simple//1]
-    B --> D[oracion_no_coordinada//1]
-    D --> E[relativo_simple//1]
-    C --> F[g_nominal//1]
-    C --> G[g_verbal//1]
-    C --> H[g_verbal_impersonal//1]
-    F --> I[g_nominal_simple//1]
-    G --> J[g_verbal_simple//1]
-    J --> K[g_preposicional//1]
-    J --> L[g_adjetival//1]
-    L --> M[g_adverbial//1]
-    I --> N[Léxico]
-    J --> N
-    K --> N
-    M --> N
-```
-
-El léxico está al final de `sintactico.pl` en hechos como:
-
-```prolog
-det_word(el).
-nombre_word(sistema).
-verbo_word(analiza).
-adj_word(estable).
-adv_word(muy).
-prep_word(en).
-conj_word(y).
-rel_word(que).
-```
-
-Para aceptar nuevas palabras hay que añadirlas a la categoría correspondiente.
-Si una palabra no está en el léxico, la oración no se aceptará aunque la
-estructura gramatical sea correcta.
-
-## Simplificación de oraciones
-
-La simplificación convierte estructuras complejas en una lista de oraciones
-simples.
-
-```mermaid
-flowchart TD
-    A[Árbol de entrada] --> B{Forma del árbol}
-    B -->|o simple| C[Devuelve lista con la misma oración]
-    B -->|oc| D[Simplifica O1 y O2]
-    B -->|ocm| E[Simplifica ambas partes recursivamente]
-    B -->|or| F[Genera oración relativa + oración principal]
-    B -->|gv_coord| G[Reutiliza el sujeto en cada GV]
-    D --> H[Concatena resultados]
-    E --> H
-    F --> H
-    G --> H
-```
+`tokenizar_basico/2` convierte a minusculas, normaliza vocales acentuadas,
+mantiene la `ñ`, conserva comas como token `','` y no rompe comas decimales
+como `0,35`.
 
 Ejemplo:
 
-```prolog
-?- simplificar_oracion([juan, come, y, bebe], S).
-S = [
-  o(gn(n(juan)), gv(v(come))),
-  o(gn(n(juan)), gv(v(bebe)))
-].
+```bash
+swipl -q -s main.pl -g "tokenizar_basico('Presion, arana 0,35 mN.', T), write(T), nl, halt."
 ```
 
-## Validación y desarrollo
+Limitaciones:
 
-El núcleo Prolog se ejecuta directamente con SWI-Prolog. Los scripts Python son
-solo auxiliares para desarrollo del repositorio.
+- No hace lematizacion.
+- No realiza analisis morfologico.
+- No separa toda la puntuacion posible.
+- Solo se aceptan palabras y formas registradas en el lexico cargado.
+
+## Validacion y desarrollo
 
 Crear entorno de desarrollo:
 
@@ -448,59 +530,241 @@ Ejecutar lint de scripts Python:
 ruff check .
 ```
 
-El repositorio incluye un hook `pre-push` que ejecuta `ruff check .` y, si existe
-un archivo `tests.pl` y `swipl` está instalado, ejecuta:
+Comprobaciones completas que replica el CI:
 
 ```bash
+ruff check .
+for f in *.pl; do swipl -q -s "$f" -g halt; done
 swipl -q -s tests.pl -g run_tests -t halt
+pytest -q
 ```
 
-Actualmente no hay `tests.pl` en el repositorio, por lo que la validación Prolog
-automatizada queda pendiente de añadir una suite de pruebas.
+Los tests Prolog estan en `tests.pl`. Los tests unitarios Python estan en
+`tests_python/`.
 
-Flujo auxiliar de ramas:
-
-```bash
-python3 scripts/workflow.py start
-python3 scripts/workflow.py sync-commit
-```
-
-La guía completa de ramas, hooks, Pull Requests y CI está en
+La guia completa de ramas, hooks, Pull Requests y CI esta en
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Limitaciones conocidas
 
-- La gramática es una aproximación práctica para la asignatura, no una gramática completa del español.
-- La tokenización es básica y no resuelve morfología, tildes ni variantes flexivas no registradas.
-- El análisis semántico existe como módulo separado, pero no forma parte del pipeline de `main.pl`.
-- La detección de ambigüedad, incoherencia o usos metafóricos todavía no está implementada en `deteccion.pl`.
-- El corpus final todavía no está definido en `conjunto_oraciones.pl`.
-- Las gramáticas `gramatica_basica.pl`, `gramatica2.pl` y `gramatica2_completa.pl` no son el punto de entrada recomendado.
+- La gramatica es una aproximacion practica para la asignatura, no una gramatica completa del espanol.
+- Algunas frases aceptadas pueden tener un arbol parcialmente correcto pero no identico a un analisis linguistico manual.
+- La tokenizacion no resuelve morfologia ni variantes flexivas no registradas.
+- El analisis semantico depende de las categorias declaradas en `semantico.pl`.
+- `mejoras.pl` no contiene aun predicados ejecutables; las mejoras actuales se consultan mediante comparacion, metricas y graficas.
 
 ## Estructura del repositorio
 
 ```text
 .
-├── main.pl                    # Punto de entrada principal
-├── sintactico.pl              # Gramática DCG, clasificación y simplificación
-├── draw.pl                    # Dibujo ASCII de árboles
-├── semantico.pl               # Categorías y compatibilidad semántica
-├── deteccion.pl               # Pendiente: detección de problemas interpretativos
-├── conjunto_oraciones.pl      # Pendiente: corpus de oraciones
-├── mejoras.pl                 # Pendiente: mejoras adicionales
-├── gramatica_basica.pl        # Fase previa
-├── gramatica2.pl              # Fase previa con árboles
-├── gramatica2_completa.pl     # Fase previa ampliada
-├── scripts/
-│   ├── dev_setup.py           # Entorno de desarrollo
-│   ├── workflow.py            # Ayuda de workflow Git
-│   ├── activate_venv.sh       # Activación en bash
-│   └── activate_venv.ps1      # Activación en PowerShell
-├── requirements-dev.txt       # Dependencias Python de desarrollo
-└── CONTRIBUTING.md            # Guía de contribución
+├── main.pl                         # Punto de entrada principal
+├── sintactico.pl                   # Gramatica DCG, clasificacion y simplificacion
+├── draw.pl                         # Dibujo ASCII de arboles
+├── lexico.pl                       # Lexico comun
+├── semantico.pl                    # Categorias y compatibilidad semantica
+├── deteccion.pl                    # Ambiguedad, incoherencia y uso no literal
+├── metricas.pl                     # Metricas automaticas
+├── comparativo.pl                  # Comparacion GPT/Claude y exportacion TSV
+├── conjunto_oraciones_gpt.pl       # Corpus GPT
+├── conjunto_oraciones_claude.pl    # Corpus Claude
+├── mejoras.pl                      # Reservado para mejoras futuras
+├── analisis_graficas.py            # Tablas y graficas desde el TSV
+├── resultados_comparacion.tsv      # Resultados exportados
+├── analisis_python/
+│   ├── tablas/                     # CSV generados
+│   └── graficas/                   # PNG generados
+├── tests.pl                        # Pruebas Prolog
+├── tests_python/                   # Pruebas unitarias Python
+├── scripts/                        # Utilidades de desarrollo
+├── requirements-dev.txt            # Dependencias Python de desarrollo
+└── CONTRIBUTING.md                 # Guia de contribucion
+```
+
+## Estructura de CLASES DE PALABRAS DEL ESPAÑOL
+
+```text
+
+├── 1. SUSTANTIVO
+│   ├── Por el referente
+│   │   ├── Propio
+│   │   └── Común
+│   ├── Por el significado
+│   │   ├── Concreto
+│   │   ├── Abstracto
+│   │   ├── Individual
+│   │   └── Colectivo
+│   ├── Por la contabilidad
+│   │   ├── Contable
+│   │   └── No contable (masa)
+│   └── Por el género
+│       ├── Masculino
+│       ├── Femenino
+│       └── Común
+│
+├── 2. ADJETIVO
+│   ├── Por el tipo de propiedad
+│   │   ├── Calificativo
+│   │   ├── Relacional
+│   │   └── Adverbial
+│   ├── Por su posición
+│   │   ├── Epíteto (antepuesto)
+│   │   ├── Predicativo
+│   │   └── Atributivo (pospuesto)
+│   └── Por el grado
+│       ├── Positivo
+│       ├── Comparativo
+│       ├── Superlativo relativo
+│       └── Superlativo absoluto
+│
+├── 3. DETERMINANTE
+│   ├── Artículos
+│   │   ├── Determinado
+│   │   └── Indeterminado
+│   ├── Demostrativos
+│   │   ├── De proximidad
+│   │   ├── De distancia media
+│   │   └── De lejanía
+│   ├── Posesivos
+│   │   ├── Átonos (antepuestos)
+│   │   └── Tónicos (pospuestos)
+│   ├── Numerales
+│   │   ├── Cardinales
+│   │   ├── Ordinales
+│   │   ├── Fraccionarios
+│   │   └── Multiplicativos
+│   ├── Indefinidos
+│   └── Interrogativos y exclamativos
+│       ├── Interrogativo
+│       └── Exclamativo
+│
+├── 4. PRONOMBRE
+│   ├── Personales
+│   │   ├── Sujeto
+│   │   ├── Objeto átono (clítico)
+│   │   ├── Objeto tónico (con preposición)
+│   │   ├── Reflexivo
+│   │   └── Recíproco
+│   ├── Demostrativo
+│   ├── Posesivo
+│   ├── Relativo
+│   ├── Interrogativo
+│   ├── Exclamativo
+│   ├── Indefinido
+│   └── Numeral pronominal
+│
+├── 5. VERBO
+│   ├── Formas no personales
+│   │   ├── Infinitivo
+│   │   ├── Gerundio
+│   │   └── Participio
+│   ├── Por su función predicativa
+│   │   ├── Predicativo
+│   │   ├── Copulativo
+│   │   └── Semicopulativo
+│   ├── Por la transitividad
+│   │   ├── Transitivo
+│   │   ├── Intransitivo
+│   │   └── Ditransitivo
+│   ├── Por la voz
+│   │   ├── Activo
+│   │   ├── Pasivo perifrástico
+│   │   └── Pasivo reflejo
+│   ├── Tipos especiales
+│   │   ├── Auxiliar
+│   │   ├── Pronominal
+│   │   ├── Defectivo
+│   │   ├── Impersonal
+│   │   └── Unipersonal
+│   └── Por la regularidad
+│       ├── Regular
+│       └── Irregular
+│
+├── 6. ADVERBIO
+│   ├── Por el significado
+│   │   ├── De lugar
+│   │   ├── De tiempo
+│   │   ├── De modo
+│   │   ├── De cantidad / grado
+│   │   ├── De afirmación
+│   │   ├── De negación
+│   │   ├── De duda
+│   │   └── De orden
+│   ├── Por su función discursiva
+│   │   ├── Focal
+│   │   ├── Oracional (disjunto)
+│   │   ├── Conector discursivo
+│   │   └── Aspectual
+│   ├── Por la forma
+│   │   ├── Simple
+│   │   ├── Derivado en -mente
+│   │   └── Locución adverbial
+│   └── Interrogativos y exclamativos
+│       ├── Interrogativo
+│       ├── Exclamativo
+│       └── Relativo
+│
+├── 7. PREPOSICIÓN
+│   ├── Propias
+│   │   ├── a
+│   │   ├── ante
+│   │   ├── bajo
+│   │   ├── cabe
+│   │   ├── con
+│   │   ├── contra
+│   │   ├── de
+│   │   ├── desde
+│   │   ├── durante
+│   │   ├── en
+│   │   ├── entre
+│   │   ├── hacia
+│   │   ├── hasta
+│   │   ├── mediante
+│   │   ├── para
+│   │   ├── por
+│   │   ├── según
+│   │   ├── sin
+│   │   ├── so
+│   │   ├── sobre
+│   │   ├── tras
+│   │   ├── versus
+│   │   └── vía
+│   └── Locuciones preposicionales
+│
+├── 8. CONJUNCIÓN
+│   ├── Coordinantes
+│   │   ├── Copulativas
+│   │   ├── Disyuntivas
+│   │   ├── Adversativas
+│   │   ├── Distributivas
+│   │   └── Explicativas
+│   ├── Subordinantes
+│   │   ├── Completivas
+│   │   ├── Causales
+│   │   ├── Consecutivas
+│   │   ├── Condicionales
+│   │   ├── Concesivas
+│   │   ├── Finales
+│   │   ├── Temporales
+│   │   ├── Modales
+│   │   └── Comparativas
+│   └── Locuciones conjuntivas
+│
+└── 9. INTERJECCIÓN
+    ├── Por su origen
+    │   ├── Propia
+    │   └── Impropia
+    ├── Por su función
+    │   ├── Expresiva
+    │   ├── Apelativa
+    │   └── Representativa
+    └── Fórmulas rutinarias
+        ├── De saludo y despedida
+        ├── De cortesía
+        ├── De deseo
+        └── Locución interjectiva
 ```
 
 ## Licencia
 
 Este repositorio incluye un archivo [`LICENSE`](LICENSE). Consulta ese archivo
-para ver los términos exactos de uso y distribución.
+para ver los terminos exactos de uso y distribucion.

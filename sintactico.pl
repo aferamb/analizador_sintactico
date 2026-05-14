@@ -1717,63 +1717,27 @@ tipo_oracion(o(_,_,_), o).
 tipo_oracion(o(_,_,_,_), o).
 
 % ---------------------------------------------------------
-% simplificar/2
 % Convierte una oración compleja en lista de oraciones simples.
 % ---------------------------------------------------------
 
 % Compuesta mixta de una sola oración con complejidad interna:
-%   ocm(o(...))
 % Se simplifica simplificando su contenido interno.
-simplificar(ocm(O), Resultado) :-
-    simplificar(O, Resultado).
-
-% Predicado coordinado con sujeto compartido
-simplificar(o(GN, gv_coord(GV1, _, GV2)), Resultado) :-
-    simplificar(o(GN, GV1), R1),
-    simplificar(o(GN, GV2), R2),
-    append(R1, R2, Resultado).
 
 % Oración simple con sujeto
-simplificar(o(GN, GV), [o(GN, GV)]).
 
 % Oración impersonal
-simplificar(o(GV), [o(GV)]).
 
 % Coordinación de oraciones
-simplificar(oc(O1, _, O2), Resultado) :-
-    simplificar(O1, R1),
-    simplificar(O2, R2),
-    append(R1, R2, Resultado).
 
 % Compuesta mixta
-simplificar(ocm(O1, _, O2), Resultado) :-
-    simplificar(O1, R1),
-    simplificar(O2, R2),
-    append(R1, R2, Resultado).
 
 % Relativa
-simplificar(or(GN, rel(_, GVRel), GVPrinc), Resultado) :-
-    simplificar(o(GN, GVRel), RRel),
-    simplificar(o(GN, GVPrinc), RPrinc),
-    append(RRel, RPrinc, Resultado).
 
 % Complemento inicial + sujeto compartido + predicado coordinado
-simplificar(o(CI, GN, gv_coord(GV1, _, GV2)), Resultado) :-
-    simplificar(o(CI, GN, GV1), R1),
-    simplificar(o(CI, GN, GV2), R2),
-    append(R1, R2, Resultado).
 
 % Complemento inicial + sujeto elíptico + predicado coordinado
-simplificar(o(CI, sujeto_eliptico, gv_coord(GV1, _, GV2)), Resultado) :-
-    simplificar(o(CI, sujeto_eliptico, GV1), R1),
-    simplificar(o(CI, sujeto_eliptico, GV2), R2),
-    append(R1, R2, Resultado).
 
 % Sujeto elíptico + predicado coordinado
-simplificar(o(sujeto_eliptico, gv_coord(GV1, _, GV2)), Resultado) :-
-    simplificar(o(sujeto_eliptico, GV1), R1),
-    simplificar(o(sujeto_eliptico, GV2), R2),
-    append(R1, R2, Resultado).
 
 % ---------------------------------------------------------
 % analiza_lista/2

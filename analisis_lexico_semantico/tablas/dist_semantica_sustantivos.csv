@@ -1,0 +1,15 @@
+corpus,categoria,total,porcentaje
+GPT,ser_vivo,32,15.61
+GPT,entidad_robotica,39,19.02
+GPT,componente_biologico,31,15.12
+GPT,componente_mecanico,14,6.83
+GPT,instrumento,32,15.61
+GPT,proceso_nominal,17,8.29
+GPT,concepto_abstracto,40,19.51
+Claude,ser_vivo,31,16.85
+Claude,entidad_robotica,40,21.74
+Claude,componente_biologico,32,17.39
+Claude,componente_mecanico,15,8.15
+Claude,instrumento,9,4.89
+Claude,proceso_nominal,17,9.24
+Claude,concepto_abstracto,40,21.74

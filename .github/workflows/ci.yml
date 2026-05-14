@@ -49,21 +49,11 @@ jobs:
             exit 1
           fi
 
-      - name: Run tests (if present) or basic checks
+      - name: Check Prolog files load
         shell: bash
         run: |
           set -euo pipefail
 
-          if [[ -f tests.pl ]]; then
-            echo "Detected tests.pl. Running SWI-Prolog tests..."
-            if ! swipl -q -s tests.pl -g run_tests -t halt; then
-              echo "::error::Prolog tests failed. Run: swipl -q -s tests.pl -g run_tests -t halt"
-              exit 1
-            fi
-            exit 0
-          fi
-
-          echo "No tests.pl found. Running basic syntax load checks for top-level .pl files."
           shopt -s nullglob
           files=( *.pl )
           if (( ${#files[@]} == 0 )); then
@@ -78,3 +68,18 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Run Prolog tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! swipl -q -s tests.pl -g run_tests -t halt; then
+            echo "::error::Prolog tests failed. Run: swipl -q -s tests.pl -g run_tests -t halt"
+            exit 1
+          fi
+
+      - name: Run Python tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          pytest -q
