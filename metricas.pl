@@ -217,7 +217,11 @@ contar_terminos_tecnicos([_|Resto], N) :-
 
 termino_tecnico(necrobotica).
 termino_tecnico(necrobotico).
-termino_tecnico(necrobotica).
+termino_tecnico(necroboticos).
+termino_tecnico(biomateriales).
+termino_tecnico(biohibridacion).
+termino_tecnico(bioinspiracion).
+termino_tecnico(biorobotica).
 termino_tecnico(biotico).
 termino_tecnico(biotica).
 termino_tecnico(bioticos).
@@ -225,6 +229,7 @@ termino_tecnico(bioticas).
 termino_tecnico(biohibrido).
 termino_tecnico(biohibridos).
 termino_tecnico(biomimetico).
+termino_tecnico(biomimeticos).
 termino_tecnico(bioinspirado).
 termino_tecnico(bioinspirados).
 termino_tecnico(actuador).
@@ -255,8 +260,100 @@ termino_tecnico(cuticula).
 termino_tecnico(biomaterial).
 termino_tecnico(deshidratacion).
 termino_tecnico(flexores).
-termino_tecnico(hidrostática).
 termino_tecnico(hidrostatica).
+termino_tecnico(robot).
+termino_tecnico(robots).
+termino_tecnico(robotica).
+termino_tecnico(roboticas).
+termino_tecnico(robotico).
+termino_tecnico(roboticos).
+termino_tecnico(biocompatibles).
+
+% Anatomía / biología de la araña
+termino_tecnico(pata).
+termino_tecnico(patas).
+termino_tecnico(abdomen).
+termino_tecnico(esternon).
+termino_tecnico(pedicelo).
+termino_tecnico(peciolo).
+termino_tecnico(musculo).
+termino_tecnico(musculos).
+termino_tecnico(muscular).
+termino_tecnico(musculares).
+termino_tecnico(flexor).
+termino_tecnico(articulacion).
+termino_tecnico(articulaciones).
+termino_tecnico(articular).
+termino_tecnico(articulares).
+termino_tecnico(membrana).
+termino_tecnico(seda).
+
+% Movimiento, presión y actuación
+termino_tecnico(presurizacion).
+termino_tecnico(despresurizacion).
+termino_tecnico(hidraulicas).
+termino_tecnico(hidraulicos).
+termino_tecnico(neumaticos).
+termino_tecnico(neumaticamente).
+termino_tecnico(hidrostatica).
+termino_tecnico(locomocion).
+termino_tecnico(mecanismo).
+termino_tecnico(mecanismos).
+termino_tecnico(flexion).
+termino_tecnico(apertura).
+termino_tecnico(cierre).
+
+% Fabricación, montaje y materiales
+termino_tecnico(fabricacion).
+termino_tecnico(montaje).
+termino_tecnico(cianoacrilato).
+termino_tecnico(pegamento).
+termino_tecnico(recubrimiento).
+termino_tecnico(polimero).
+termino_tecnico(poliuretano).
+termino_tecnico(elastomeros).
+termino_tecnico(material).
+termino_tecnico(materiales).
+
+% Instrumentación y laboratorio
+termino_tecnico(balanza).
+termino_tecnico(analitica).
+termino_tecnico(ensayo).
+termino_tecnico(ensayos).
+termino_tecnico(microscopio).
+termino_tecnico(electronica).
+termino_tecnico(electrones).
+termino_tecnico(espectroscopia).
+termino_tecnico(microanalizador).
+termino_tecnico(microescala).
+termino_tecnico(macroescala).
+termino_tecnico(meb).
+termino_tecnico(esem).
+termino_tecnico(xps).
+termino_tecnico(instron).
+termino_tecnico(luer).
+termino_tecnico(lock).
+termino_tecnico(led).
+termino_tecnico(sensor).
+termino_tecnico(sensores).
+
+% Magnitudes y medidas frecuentes en el análisis experimental
+termino_tecnico(fuerza).
+termino_tecnico(fuerzas).
+termino_tecnico(masa).
+termino_tecnico(masas).
+termino_tecnico(volumen).
+termino_tecnico(volumenes).
+termino_tecnico(geometria).
+termino_tecnico(geometrias).
+termino_tecnico(potencia).
+termino_tecnico(densidad).
+termino_tecnico(rigidez).
+termino_tecnico(fractura).
+termino_tecnico(durabilidad).
+termino_tecnico(longevidad).
+termino_tecnico(micronewtonios).
+termino_tecnico(micronewtons).
 
 % =========================================================
 % PATRONES DE TOKENS
