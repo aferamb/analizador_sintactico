@@ -222,6 +222,64 @@ Salida esperada:
 adverbio-[funcion_discursiva(conector_discursivo),forma(locucion_adverbial)]
 ```
 
+## Comparacion lexico-semantica GPT/Claude
+
+### Cargar el comparador
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl
+```
+
+### Comparar un par concreto
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "comparar_ls(1),halt."
+```
+
+### Obtener el resumen global
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "resumen_lexico_semantico,halt."
+```
+
+### Exportar el TSV lexico-semantico
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "exportar_tsv_ls('resultados_ls.tsv'),halt."
+```
+
+### Consultas utiles
+
+Obtener una metrica concreta de un par:
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "comparacion_ls(1,C),valor_comparacion_ls(C,jaccard_global,J),write(J),nl,halt."
+```
+
+Ver top de palabras por corpus y categoria:
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "top_palabras_ls(gpt,sustantivo,5,Top),writeq(Top),nl,halt."
+```
+
+Ver vocabulario exclusivo y compartido:
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "vocabulario_global_exclusivo_ls(sustantivo,SoloGPT,SoloClaude,Compartido),writeq((SoloGPT,SoloClaude,Compartido)),nl,halt."
+```
+
+Listar sustituciones lexicas candidatas:
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "sustituciones_lexicas_ls(S),writeq(S),nl,halt."
+```
+
+Listar pares interesantes:
+
+```bash
+swipl -q -s comparativo_lexico_semantico.pl -g "pares_interesantes_ls(P),writeq(P),nl,halt."
+```
+
 ## Comprobar que el lexico carga sin errores
 
 ```bash

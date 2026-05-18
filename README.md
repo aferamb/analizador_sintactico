@@ -557,27 +557,41 @@ La guia completa de ramas, hooks, Pull Requests y CI esta en
 
 ```text
 .
-├── main.pl                         # Punto de entrada principal
-├── sintactico.pl                   # Gramatica DCG, clasificacion y simplificacion
-├── draw.pl                         # Dibujo ASCII de arboles
-├── lexico.pl                       # Lexico comun
-├── semantico.pl                    # Categorias y compatibilidad semantica
-├── deteccion.pl                    # Ambiguedad, incoherencia y uso no literal
-├── metricas.pl                     # Metricas automaticas
-├── comparativo.pl                  # Comparacion GPT/Claude y exportacion TSV
-├── conjunto_oraciones_gpt.pl       # Corpus GPT
-├── conjunto_oraciones_claude.pl    # Corpus Claude
-├── mejoras.pl                      # Reservado para mejoras futuras
-├── analisis_graficas.py            # Tablas y graficas desde el TSV
-├── resultados_comparacion.tsv      # Resultados exportados
-├── analisis_python/
-│   ├── tablas/                     # CSV generados
-│   └── graficas/                   # PNG generados
-├── tests.pl                        # Pruebas Prolog
+├── .github/                        # Workflows de GitHub Actions
+├── .githooks/                      # Hooks locales de Git
+├── analisis_lexico_semantico/      # Salidas CSV/PNG del analisis lexico-semantico
+├── analisis_python/                # Salidas CSV/PNG del analisis sintactico
+├── archivos/                       # PDFs y documentos fuente
+├── scripts/                        # Setup, hooks y helper de flujo de trabajo
 ├── tests_python/                   # Pruebas unitarias Python
-├── scripts/                        # Utilidades de desarrollo
+├── analisis_graficas.py            # Tablas y graficas sintacticas desde TSV
+├── analisis_graficas_lexico_semantico.py # Tablas y graficas lexico-semanticas
+├── comparativo.pl                  # Comparacion sintactica GPT/Claude y TSV
+├── comparativo_lexico_semantico.pl # Comparacion lexico-semantica y TSV
+├── conjunto_oraciones_claude.pl    # Corpus Claude
+├── conjunto_oraciones_gpt.pl       # Corpus GPT
+├── CONTRIBUTING.md                 # Guia de contribucion
+├── deteccion.pl                    # Ambiguedad, incoherencia y uso no literal
+├── draw.pl                         # Dibujo ASCII de arboles
+├── frases-chatgpt.txt              # Texto fuente de frases GPT
+├── frases-claude.txt               # Texto fuente de frases Claude
+├── lexico-claude.pl                # Lexico especifico de la traduccion Claude
+├── lexico-gpt.pl                   # Lexico especifico de la traduccion GPT
+├── lexico.pl                       # Lexico comun usado por la gramatica
+├── lexico_semantico.pl             # Inventario lexico-semantico
+├── LICENSE                         # Licencia del proyecto
+├── main.pl                         # Punto de entrada principal
+├── metricas.pl                     # Metricas sintacticas automaticas
+├── metricas_lexico_semanticas.pl   # Metricas lexico-semanticas
+├── pytest.ini                      # Configuracion de pytest
+├── README_LEXICO_SEMANTICO.md      # Guia del lexico semantico
 ├── requirements-dev.txt            # Dependencias Python de desarrollo
-└── CONTRIBUTING.md                 # Guia de contribucion
+├── resultados_comparacion.tsv      # Resultados sintacticos exportados
+├── resultados_ls.tsv               # Resultados lexico-semanticos exportados
+├── semantico.pl                    # Categorias y compatibilidad semantica
+├── simplificar.pl                  # Reglas de simplificacion de arboles
+├── sintactico.pl                   # Gramatica DCG, clasificacion y simplificacion
+└── tests.pl                        # Pruebas Prolog
 ```
 
 ## Estructura de CLASES DE PALABRAS DEL ESPAÑOL
